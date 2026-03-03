@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --color-trust:       #1A365D;
+  --color-trust-light: #2A4A7F;
+  --color-trust-muted: #EBF0F8;
+  --color-bg:          #F7FAFC;
+  --color-surface:     #FFFFFF;
+  --color-border:      #E2E8F0;
+  --color-muted:       #718096;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+body {
+  @apply antialiased;
+  background: var(--color-bg);
+  color: #1A202C;
+}

@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+model PageContent {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  title     String
+  content   String
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+model DocumentTemplate {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  name      String
+  filePath  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum StepStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+model UserProfile {
+  id        String   @id @default(cuid())
+  authId    String   @unique
+  email     String   @unique
+  fullName  String?
+  avatarUrl String?
+  role         Role     @default(USER)
+  tier         String   @default("free")
+  googleApiKey String?
+  createdAt    DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  caseSteps CaseStep[]
+}
+
+model CaseStep {
+  id            String     @id @default(cuid())
+  userProfileId String
+  stepSlug      String
+  status        StepStatus @default(NOT_STARTED)
+  data          String     @default("{}")
+  updatedAt     DateTime   @updatedAt
+  createdAt     DateTime   @default(now())
+
+  userProfile UserProfile @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
+
+  @@unique([userProfileId, stepSlug])
+}

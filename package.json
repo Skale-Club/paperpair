@@ -1,0 +1,45 @@
+{
+  "name": "paperpair",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "rm -rf .next && next dev",
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "lint": "next lint",
+    "privacy:check": "node scripts/privacy-check.mjs",
+    "hooks:install": "git config core.hooksPath .githooks && chmod +x .githooks/pre-commit",
+    "db:init": "mkdir -p prisma && touch prisma/dev.db && prisma migrate dev --name init",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio",
+    "supabase:start": "npx supabase start",
+    "supabase:stop": "npx supabase stop",
+    "supabase:status": "npx supabase status"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.4.1",
+    "@supabase/ssr": "^0.8.0",
+    "@supabase/supabase-js": "^2.97.0",
+    "clsx": "^2.1.1",
+    "next": "14.2.25",
+    "pdf-lib": "^1.17.1",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "tailwind-merge": "^3.5.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.7",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "14.2.25",
+    "postcss": "^8.5.1",
+    "prisma": "^6.4.1",
+    "supabase": "^2.76.14",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.3"
+  }
+}

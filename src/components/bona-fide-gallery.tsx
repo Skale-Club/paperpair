@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRef, useState } from "react";
 
 type Photo = {
@@ -97,7 +98,16 @@ export function BonaFideGallery() {
                 key={photo.id}
                 className={`relative rounded-xl overflow-hidden border-2 ${flagged ? "border-amber-400" : "border-slate-200"}`}
               >
-                <img src={photo.url} alt={photo.name} className="h-40 w-full object-cover" />
+                <div className="relative h-40 w-full">
+                  <Image
+                    src={photo.url}
+                    alt={photo.name}
+                    fill
+                    unoptimized
+                    sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
+                    className="object-cover"
+                  />
+                </div>
                 <div className="p-2 bg-white">
                   <p className="text-xs text-slate-500 truncate">{photo.date}</p>
                   {flagged && (

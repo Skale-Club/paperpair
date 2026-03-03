@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRef, useState } from "react";
 
 type EvidenceItem = {
@@ -89,7 +90,16 @@ export function EvidenceWall() {
                 {/* Thumbnail */}
                 <div className="h-28 w-full overflow-hidden rounded-xl bg-slate-100 flex items-center justify-center">
                   {isImage ? (
-                    <img src={item.url} alt={item.name} className="h-full w-full object-cover" />
+                    <div className="relative h-full w-full">
+                      <Image
+                        src={item.url}
+                        alt={item.name}
+                        fill
+                        unoptimized
+                        sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                        className="object-cover"
+                      />
+                    </div>
                   ) : (
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />

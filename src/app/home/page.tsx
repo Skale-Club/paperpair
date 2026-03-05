@@ -17,14 +17,14 @@ export default async function HomePage() {
   }
 
   return (
-    <section className="relative overflow-hidden rounded-[28px] border border-emerald-800 bg-emerald-950 px-5 py-6 text-white md:px-10 md:py-10">
-      <div className="pointer-events-none absolute -left-20 top-[-70px] h-72 w-72 rounded-full bg-emerald-800/50 blur-3xl" />
-      <div className="pointer-events-none absolute -right-16 bottom-[-90px] h-80 w-80 rounded-full bg-emerald-700/50 blur-3xl" />
+    <section className="relative overflow-hidden rounded-[28px] border border-primary/50 bg-primary/70 px-5 py-6 text-white md:px-10 md:py-10">
+      <div className="pointer-events-none absolute -left-20 top-[-70px] h-72 w-72 rounded-full bg-secondary/60 blur-3xl" />
+      <div className="pointer-events-none absolute -right-16 bottom-[-90px] h-80 w-80 rounded-full bg-accent/60 blur-3xl" />
 
       <div className="relative space-y-8">
         <header className="grid gap-6 border-b border-emerald-800/60 pb-8 md:grid-cols-[180px_1fr] md:items-center">
           <div className="mx-auto md:mx-0">
-            <div className="relative h-36 w-36 rounded-full bg-emerald-900/80 ring-2 ring-emerald-700/60 shadow-lg shadow-emerald-900/40">
+            <div className="relative h-36 w-36 rounded-full bg-accent/80 ring-2 ring-primary/70 shadow-lg shadow-accent/50">
               <svg viewBox="0 0 120 120" className="h-full w-full" aria-hidden="true">
                 <circle cx="48" cy="46" r="26" fill="#dbeafe" />
                 <circle cx="78" cy="42" r="22" fill="#a5f3fc" />

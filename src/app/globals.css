@@ -4,13 +4,13 @@
 
 :root {
   color-scheme: light;
-  --color-trust:       #1A365D;
-  --color-trust-light: #2A4A7F;
-  --color-trust-muted: #EBF0F8;
-  --color-bg:          #F7FAFC;
-  --color-surface:     #FFFFFF;
-  --color-border:      #E2E8F0;
-  --color-muted:       #718096;
+  --color-trust:       #6c7b4e;  /* pearly olive base */
+  --color-trust-light: #9fbf7a;  /* highlight */
+  --color-trust-muted: #dfe7d2;  /* pale wash */
+  --color-bg:          #f7f9f3;
+  --color-surface:     #ffffff;
+  --color-border:      #d8dfcf;
+  --color-muted:       #556048;
   font-family: 'Inter', system-ui, sans-serif;
 }
 

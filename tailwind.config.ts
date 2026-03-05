@@ -11,9 +11,9 @@ const config: Config = {
       colors: {
         background: "#faf9f6", // Off-white sand
         foreground: "#0f172a", // Deep navy for text
-        primary: "#0284c7", // Ocean blue
-        secondary: "#38bdf8", // Lighter sky blue
-        accent: "#0ea5e9", // Sea glass
+        primary: "#6c7b4e", // Pearly olive base
+        secondary: "#9fbf7a", // Pearly olive highlight
+        accent: "#3f4a2d", // Deep olive shadow
         sand: {
           50: "#fdfdfc",
           100: "#faf9f6",

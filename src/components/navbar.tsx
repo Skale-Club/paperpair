@@ -71,7 +71,7 @@ export function Navbar() {
   const userName =
     typeof user?.user_metadata?.full_name === "string" && user.user_metadata.full_name.trim().length > 0
       ? user.user_metadata.full_name.trim()
-      : user?.email?.split("@")[0] ?? "PaperPair member";
+      : user?.email?.split("@")[0] ?? "Welcome back";
   const userEmail = user?.email ?? "Sign in to access your dashboard";
 
   const handleLogout = async () => {
@@ -87,12 +87,14 @@ export function Navbar() {
         { label: "Log out", kind: "button", onClick: () => void handleLogout() },
         { href: "/admin/dashboard", label: "Control Center" },
         { href: "/admin/preferences", label: "Preferences" },
+        { href: "/dashboard/profile", label: "Profile Settings" },
         { href: "/contact", label: "Contact us" }
       ]
       : [
         { label: "Log out", kind: "button", onClick: () => void handleLogout() },
         { href: "/dashboard", label: "My Dashboard" },
         { href: "/dashboard/control-center", label: "Control Center" },
+        { href: "/dashboard/profile", label: "Profile Settings" },
         { href: "/contact", label: "Contact us" }
       ]
     : [
@@ -122,8 +124,8 @@ export function Navbar() {
                 key={link.href}
                 href={link.href}
                 className={`border-b-2 pb-1 text-sm transition-colors ${active
-                    ? "border-primary font-semibold text-slate-900"
-                    : "border-transparent text-slate-600 hover:text-primary"
+                  ? "border-primary font-semibold text-slate-900"
+                  : "border-transparent text-slate-600 hover:text-primary"
                   }`}
               >
                 {link.label}

@@ -84,21 +84,24 @@ export function Navbar() {
   const signedInMenuItems: MenuItem[] = user
     ? isAdmin
       ? [
-          { label: "Log out", kind: "button", onClick: () => void handleLogout() },
-          { href: "/admin/dashboard", label: "Control Center" },
-          { href: "/admin/preferences", label: "Preferences" },
-          { href: "/contact", label: "Contact us" }
-        ]
-      : [
-          { label: "Log out", kind: "button", onClick: () => void handleLogout() },
-          { href: "/dashboard", label: "My Dashboard" },
-          { href: "/dashboard/control-center", label: "Control Center" },
-          { href: "/contact", label: "Contact us" }
-        ]
-    : [
-        { href: "/login", label: "Sign in" },
+        { label: "Log out", kind: "button", onClick: () => void handleLogout() },
+        { href: "/admin/dashboard", label: "Control Center" },
+        { href: "/admin/preferences", label: "Preferences" },
         { href: "/contact", label: "Contact us" }
-      ];
+      ]
+      : [
+        { label: "Log out", kind: "button", onClick: () => void handleLogout() },
+        { href: "/dashboard", label: "My Dashboard" },
+        { href: "/dashboard/control-center", label: "Control Center" },
+        { href: "/contact", label: "Contact us" }
+      ]
+    : [
+      { href: "/home", label: "Home" },
+      { href: "/blogs", label: "Blogs" },
+      { href: "/faq", label: "FAQ" },
+      { href: "/contact", label: "Contact" },
+      { href: "/login", label: "Sign in" }
+    ];
 
   if (pathname.startsWith("/admin")) {
     return null;
@@ -118,11 +121,10 @@ export function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`border-b-2 pb-1 text-sm transition-colors ${
-                  active
+                className={`border-b-2 pb-1 text-sm transition-colors ${active
                     ? "border-primary font-semibold text-slate-900"
                     : "border-transparent text-slate-600 hover:text-primary"
-                }`}
+                  }`}
               >
                 {link.label}
               </Link>
@@ -200,9 +202,8 @@ export function Navbar() {
       ) : null}
 
       <div
-        className={`fixed inset-0 z-50 transition-opacity duration-300 ${
-          userMenuOpen ? "pointer-events-auto bg-slate-950/30" : "pointer-events-none bg-transparent"
-        }`}
+        className={`fixed inset-0 z-50 transition-opacity duration-300 ${userMenuOpen ? "pointer-events-auto bg-slate-950/30" : "pointer-events-none bg-transparent"
+          }`}
         aria-hidden={!userMenuOpen}
       >
         <button
@@ -213,9 +214,8 @@ export function Navbar() {
         />
 
         <aside
-          className={`absolute right-0 top-0 flex h-screen w-full max-w-sm flex-col overflow-y-auto bg-white shadow-2xl transition-transform duration-300 ${
-            userMenuOpen ? "translate-x-0" : "translate-x-full"
-          }`}
+          className={`absolute right-0 top-0 flex h-screen w-full max-w-sm flex-col overflow-y-auto bg-white shadow-2xl transition-transform duration-300 ${userMenuOpen ? "translate-x-0" : "translate-x-full"
+            }`}
           role="dialog"
           aria-modal="true"
           aria-label="User menu"

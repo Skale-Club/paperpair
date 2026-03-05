@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { ConditionalShell } from "@/components/conditional-shell";
-
-const inter = Inter({ subsets: ["latin"], display: "swap" });
 
 export const metadata: Metadata = {
   title: "PaperPair | AI Case Manager",
@@ -13,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.className} antialiased`}>
+    <html lang="en" className="antialiased">
       <body style={{ background: "var(--color-bg)" }}>
         <Providers>
           <ConditionalShell>{children}</ConditionalShell>

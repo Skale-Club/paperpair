@@ -2,8 +2,9 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
-import { DashboardSidebar } from "@/components/dashboard-sidebar";
 import { CaseHealthTopbar } from "@/components/case-health-topbar";
+import { DashboardSidebar } from "@/components/dashboard-sidebar";
+import { PasskeyPrompt } from "@/components/passkey-prompt";
 
 type DashboardShellProps = {
   children: ReactNode;
@@ -52,6 +53,7 @@ export function DashboardShell({
               </div>
             </div>
           ) : null}
+          {!previewMode ? <PasskeyPrompt /> : null}
           {children}
         </main>
       </div>

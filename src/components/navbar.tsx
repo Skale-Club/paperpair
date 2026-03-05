@@ -277,7 +277,7 @@ export function Navbar() {
                   type="button"
                   onClick={handleAuthAction}
                   aria-label={user ? "Sign out of your account" : "Sign in to your account"}
-                  className="mt-1 w-full truncate text-left text-sm text-slate-400 underline-offset-4 hover:text-slate-200 hover:underline"
+                  className="mt-1 w-full truncate text-center text-sm text-slate-400 underline-offset-4 hover:text-slate-200 hover:underline"
                 >
                   {user ? "Sign out" : "Sign in to access your dashboard"}
                 </button>

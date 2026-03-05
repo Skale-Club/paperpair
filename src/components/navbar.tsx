@@ -13,19 +13,11 @@ const links = [
   { href: "/contact", label: "Contact" }
 ];
 
-type MenuItem = {
-  href?: string;
-  label: string;
-  kind?: "button";
-  onClick?: () => void;
-};
-
 function isActiveLink(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
 export function Navbar() {
-  const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const [user, setUser] = useState<User | null>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -93,10 +85,8 @@ export function Navbar() {
 
   useEffect(() => {
     setUserMenuOpen(false);
-    setOpen(false);
   }, [pathname]);
 
-  const isAdmin = user?.app_metadata?.role === "admin";
   const fallbackName = user?.email?.split("@")[0] ?? null;
   const userName = user ? profileFullName ?? fallbackName ?? "Welcome back" : "Welcome back";
 
@@ -116,29 +106,6 @@ export function Navbar() {
       router.push("/login");
     }
   };
-
-  const signedInMenuItems: MenuItem[] = user
-    ? isAdmin
-      ? [
-        { label: "Log out", kind: "button", onClick: () => void handleLogout() },
-        { href: "/admin/dashboard", label: "Control Center" },
-        { href: "/admin/preferences", label: "Preferences" },
-        { href: "/dashboard/profile", label: "Profile Settings" },
-        { href: "/contact", label: "Contact us" }
-      ]
-      : [
-        { label: "Log out", kind: "button", onClick: () => void handleLogout() },
-        { href: "/dashboard", label: "My Dashboard" },
-        { href: "/dashboard/control-center", label: "Control Center" },
-        { href: "/dashboard/profile", label: "Profile Settings" },
-        { href: "/contact", label: "Contact us" }
-      ]
-    : [
-      { href: "/home", label: "Home" },
-      { href: "/blogs", label: "Blogs" },
-      { href: "/faq", label: "FAQ" },
-      { href: "/contact", label: "Contact" }
-    ];
 
   if (pathname.startsWith("/admin")) {
     return null;
@@ -191,52 +158,12 @@ export function Navbar() {
 
         <button
           className="rounded border border-slate-300 px-2 py-1 text-sm md:hidden"
-          onClick={() => setOpen((value) => !value)}
+          onClick={() => setUserMenuOpen(true)}
           aria-label="Open menu"
         >
           Menu
         </button>
       </nav>
-
-      {open ? (
-        <ul className="space-y-2 border-t border-slate-200 px-4 py-3 md:hidden">
-          {links.map((link) => (
-            <li key={link.href}>
-              <Link href={link.href} className="block text-sm text-slate-700" onClick={() => setOpen(false)}>
-                {link.label}
-              </Link>
-            </li>
-          ))}
-          <li className="border-t border-slate-200 pt-2">
-            <div className="space-y-2">
-              {signedInMenuItems.map((item) =>
-                item.kind === "button" ? (
-                  <button
-                    key={item.label}
-                    type="button"
-                    onClick={() => {
-                      setOpen(false);
-                      item.onClick?.();
-                    }}
-                    className="block text-sm font-semibold text-slate-700"
-                  >
-                    {item.label}
-                  </button>
-                ) : (
-                  <Link
-                    key={item.href}
-                    href={item.href!}
-                    className="block text-sm font-semibold text-primary"
-                    onClick={() => setOpen(false)}
-                  >
-                    {item.label}
-                  </Link>
-                )
-              )}
-            </div>
-          </li>
-        </ul>
-      ) : null}
 
       <div
         className={`fixed inset-0 z-50 transition-opacity duration-300 ${userMenuOpen ? "pointer-events-auto bg-slate-950/30" : "pointer-events-none bg-transparent"

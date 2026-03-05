@@ -1,24 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 
-const links = [
-  { href: "/home", label: "Home" },
-  { href: "/blogs", label: "Blogs" },
-  { href: "/faq", label: "FAQ" },
-  { href: "/contact", label: "Contact" }
-];
-
-function isActiveLink(pathname: string, href: string) {
-  return pathname === href || pathname.startsWith(`${href}/`);
-}
-
 export function Navbar() {
-  const pathname = usePathname();
   const [user, setUser] = useState<User | null>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const router = useRouter();
@@ -83,10 +71,7 @@ export function Navbar() {
     };
   }, [userMenuOpen]);
 
-  useEffect(() => {
-    setUserMenuOpen(false);
-  }, [pathname]);
-
+  const isAdmin = user?.app_metadata?.role === "admin";
   const fallbackName = user?.email?.split("@")[0] ?? null;
   const userName = user ? profileFullName ?? fallbackName ?? "Welcome back" : "Welcome back";
 
@@ -107,6 +92,24 @@ export function Navbar() {
     }
   };
 
+  const signedInMenuItems = user
+    ? isAdmin
+      ? [
+        { href: "/admin/dashboard", label: "Control Center" },
+        { href: "/admin/preferences", label: "Preferences" },
+        { href: "/dashboard/profile", label: "Profile Settings" },
+        { href: "/contact", label: "Contact us" },
+        { label: "Log out", kind: "button", onClick: () => void handleLogout() }
+      ]
+      : [
+        { href: "/dashboard", label: "My Dashboard" },
+        { href: "/dashboard/control-center", label: "Control Center" },
+        { href: "/dashboard/profile", label: "Profile Settings" },
+        { href: "/contact", label: "Contact us" },
+        { label: "Log out", kind: "button", onClick: () => void handleLogout() }
+      ]
+    : [];
+
   if (pathname.startsWith("/admin")) {
     return null;
   }
@@ -119,22 +122,6 @@ export function Navbar() {
         </Link>
 
         <div className="hidden items-center gap-4 md:flex">
-          {links.map((link) => {
-            const active = isActiveLink(pathname, link.href);
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`border-b-2 pb-1 text-sm transition-colors ${active
-                  ? "border-primary font-semibold text-slate-900"
-                  : "border-transparent text-slate-600 hover:text-primary"
-                  }`}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
-
           <div className="ml-2 border-l border-slate-200 pl-4">
             {userMenuOpen ? (
               <div className="h-9 w-9" aria-hidden="true" />

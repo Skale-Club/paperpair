@@ -137,8 +137,7 @@ export function Navbar() {
       { href: "/home", label: "Home" },
       { href: "/blogs", label: "Blogs" },
       { href: "/faq", label: "FAQ" },
-      { href: "/contact", label: "Contact" },
-      { href: "/login", label: "Sign in" }
+      { href: "/contact", label: "Contact" }
     ];
 
   if (pathname.startsWith("/admin")) {

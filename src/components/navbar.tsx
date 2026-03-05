@@ -30,6 +30,7 @@ export function Navbar() {
   const [user, setUser] = useState<User | null>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const router = useRouter();
+  const [profileFullName, setProfileFullName] = useState<string | null>(null);
 
   useEffect(() => {
     const supabase = createClient();
@@ -43,6 +44,34 @@ export function Navbar() {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (!user) {
+      setProfileFullName(null);
+      return;
+    }
+
+    const controller = new AbortController();
+    fetch("/api/profile", { signal: controller.signal })
+      .then((response) => {
+        if (!response.ok) throw new Error("Profile fetch failed");
+        return response.json();
+      })
+      .then((payload) => {
+        if (payload?.fullName && typeof payload.fullName === "string" && payload.fullName.trim().length > 0) {
+          setProfileFullName(payload.fullName.trim());
+        } else {
+          setProfileFullName(null);
+        }
+      })
+      .catch((error) => {
+        if (error.name !== "AbortError") {
+          setProfileFullName(null);
+        }
+      });
+
+    return () => controller.abort();
+  }, [user]);
 
   useEffect(() => {
     if (!userMenuOpen) {
@@ -68,17 +97,24 @@ export function Navbar() {
   }, [pathname]);
 
   const isAdmin = user?.app_metadata?.role === "admin";
-  const userName =
-    typeof user?.user_metadata?.full_name === "string" && user.user_metadata.full_name.trim().length > 0
-      ? user.user_metadata.full_name.trim()
-      : user?.email?.split("@")[0] ?? "Welcome back";
-  const userEmail = user?.email ?? "Sign in to access your dashboard";
+  const fallbackName = user?.email?.split("@")[0] ?? null;
+  const userName = user ? profileFullName ?? fallbackName ?? "Welcome back" : "Welcome back";
 
   const handleLogout = async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
     router.push("/login");
     router.refresh();
+  };
+
+  const handleAuthAction = async () => {
+    if (user) {
+      setUserMenuOpen(false);
+      await handleLogout();
+    } else {
+      setUserMenuOpen(false);
+      router.push("/login");
+    }
   };
 
   const signedInMenuItems: MenuItem[] = user
@@ -237,7 +273,14 @@ export function Navbar() {
                   </span>
                 </div>
                 <p className="mt-4 text-xl font-semibold">{userName}</p>
-                <p className="mt-1 truncate text-sm text-slate-400">{userEmail}</p>
+                <button
+                  type="button"
+                  onClick={handleAuthAction}
+                  aria-label={user ? "Sign out of your account" : "Sign in to your account"}
+                  className="mt-1 w-full truncate text-left text-sm text-slate-400 underline-offset-4 hover:text-slate-200 hover:underline"
+                >
+                  {user ? "Sign out" : "Sign in to access your dashboard"}
+                </button>
               </div>
 
               <button

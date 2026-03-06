@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { DashboardCard } from "@/components/ui/dashboard-card";
+import { SecureRouteLock } from "@/components/secure-route-lock";
 
 type ChecklistItem = {
     id: string;
@@ -84,101 +85,103 @@ export default function DocumentGatherPage() {
     if (!isLoaded) return null; // Prevent hydration mismatch
 
     return (
-        <div className="space-y-8 max-w-5xl mx-auto pb-12">
-            <div>
-                <h1 className="text-3xl font-bold tracking-tight text-slate-900">Gather Documents</h1>
-                <p className="mt-2 text-base text-slate-500">
-                    Use this checklist to track the evidence and documents you need to complete your application.
-                </p>
-            </div>
-
-            {/* Progress Header */}
-            <DashboardCard className="bg-gradient-to-br from-indigo-50/50 to-white border-indigo-100">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                    <div className="flex-1">
-                        <h2 className="text-xl font-semibold text-slate-900 mb-2">Collection Progress</h2>
-                        <div className="flex items-center gap-4">
-                            <div className="h-3 flex-1 rounded-full bg-slate-200 overflow-hidden">
-                                <div
-                                    className="h-full rounded-full bg-indigo-600 transition-all duration-500 ease-out"
-                                    style={{ width: `${progress.percentage}%` }}
-                                />
-                            </div>
-                            <span className="font-bold text-indigo-700 w-12 text-right">{progress.percentage}%</span>
-                        </div>
-                        <p className="mt-2 text-sm text-slate-500">
-                            {progress.complete} of {progress.total} documents collected
-                        </p>
-                    </div>
-
-                    {progress.percentage === 100 && (
-                        <div className="flex items-center gap-2 text-emerald-600 bg-emerald-50 px-4 py-3 rounded-xl border border-emerald-100">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <span className="font-semibold">All documents ready!</span>
-                        </div>
-                    )}
+        <SecureRouteLock>
+            <div className="space-y-8 max-w-5xl mx-auto pb-12">
+                <div>
+                    <h1 className="text-3xl font-bold tracking-tight text-slate-900">Gather Documents</h1>
+                    <p className="mt-2 text-base text-slate-500">
+                        Use this checklist to track the evidence and documents you need to complete your application.
+                    </p>
                 </div>
-            </DashboardCard>
 
-            {/* Checklist Sections */}
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {/* Identity */}
-                <DashboardCard title="Identity & Forms" subtitle="Core identification documents" className="h-full">
-                    <div className="space-y-4">
-                        {groupedItems.identity.map(item => (
-                            <CheckRow
-                                key={item.id}
-                                item={item}
-                                checked={!!checkedItems[item.id]}
-                                onChange={() => toggleItem(item.id)}
-                            />
-                        ))}
+                {/* Progress Header */}
+                <DashboardCard className="bg-gradient-to-br from-indigo-50/50 to-white border-indigo-100">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <div className="flex-1">
+                            <h2 className="text-xl font-semibold text-slate-900 mb-2">Collection Progress</h2>
+                            <div className="flex items-center gap-4">
+                                <div className="h-3 flex-1 rounded-full bg-slate-200 overflow-hidden">
+                                    <div
+                                        className="h-full rounded-full bg-indigo-600 transition-all duration-500 ease-out"
+                                        style={{ width: `${progress.percentage}%` }}
+                                    />
+                                </div>
+                                <span className="font-bold text-indigo-700 w-12 text-right">{progress.percentage}%</span>
+                            </div>
+                            <p className="mt-2 text-sm text-slate-500">
+                                {progress.complete} of {progress.total} documents collected
+                            </p>
+                        </div>
+
+                        {progress.percentage === 100 && (
+                            <div className="flex items-center gap-2 text-emerald-600 bg-emerald-50 px-4 py-3 rounded-xl border border-emerald-100">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span className="font-semibold">All documents ready!</span>
+                            </div>
+                        )}
                     </div>
                 </DashboardCard>
 
-                {/* Financial */}
-                <DashboardCard title="Financial Evidence" subtitle="Proof of income and support" className="h-full">
-                    <div className="space-y-4">
-                        {groupedItems.financial.map(item => (
-                            <CheckRow
-                                key={item.id}
-                                item={item}
-                                checked={!!checkedItems[item.id]}
-                                onChange={() => toggleItem(item.id)}
-                            />
-                        ))}
-                    </div>
-                </DashboardCard>
+                {/* Checklist Sections */}
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {/* Identity */}
+                    <DashboardCard title="Identity & Forms" subtitle="Core identification documents" className="h-full">
+                        <div className="space-y-4">
+                            {groupedItems.identity.map(item => (
+                                <CheckRow
+                                    key={item.id}
+                                    item={item}
+                                    checked={!!checkedItems[item.id]}
+                                    onChange={() => toggleItem(item.id)}
+                                />
+                            ))}
+                        </div>
+                    </DashboardCard>
 
-                {/* Relationship */}
-                <DashboardCard title="Bona Fide Evidence" subtitle="Proof of genuine relationship" className="h-full">
-                    <div className="space-y-4">
-                        {groupedItems.relationship.map(item => (
-                            <CheckRow
-                                key={item.id}
-                                item={item}
-                                checked={!!checkedItems[item.id]}
-                                onChange={() => toggleItem(item.id)}
-                            />
-                        ))}
-                    </div>
-                </DashboardCard>
+                    {/* Financial */}
+                    <DashboardCard title="Financial Evidence" subtitle="Proof of income and support" className="h-full">
+                        <div className="space-y-4">
+                            {groupedItems.financial.map(item => (
+                                <CheckRow
+                                    key={item.id}
+                                    item={item}
+                                    checked={!!checkedItems[item.id]}
+                                    onChange={() => toggleItem(item.id)}
+                                />
+                            ))}
+                        </div>
+                    </DashboardCard>
+
+                    {/* Relationship */}
+                    <DashboardCard title="Bona Fide Evidence" subtitle="Proof of genuine relationship" className="h-full">
+                        <div className="space-y-4">
+                            {groupedItems.relationship.map(item => (
+                                <CheckRow
+                                    key={item.id}
+                                    item={item}
+                                    checked={!!checkedItems[item.id]}
+                                    onChange={() => toggleItem(item.id)}
+                                />
+                            ))}
+                        </div>
+                    </DashboardCard>
+                </div>
+
+                <div className="flex justify-end">
+                    <button
+                        type="button"
+                        className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-semibold shadow-sm transition-colors hover:bg-indigo-700"
+                        onClick={() => {
+                            router.push("/documentation-filling");
+                        }}
+                    >
+                        Proceed to Upload Evidence
+                    </button>
+                </div>
             </div>
-
-            <div className="flex justify-end">
-                <button
-                    type="button"
-                    className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-semibold shadow-sm transition-colors hover:bg-indigo-700"
-                    onClick={() => {
-                        router.push("/documentation-filling");
-                    }}
-                >
-                    Proceed to Upload Evidence
-                </button>
-            </div>
-        </div>
+        </SecureRouteLock>
     );
 }
 

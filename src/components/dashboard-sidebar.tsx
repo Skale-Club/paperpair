@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 import { useLanguage } from "@/contexts/language-context";
@@ -74,15 +75,7 @@ const MENU_ITEMS = [
       </svg>
     )
   },
-  {
-    href: "/chat",
-    labelKey: "sidebar.aiAssistant" as const,
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-      </svg>
-    )
-  },
+
   {
     href: "/dashboard/support",
     labelKey: "sidebar.support" as const,
@@ -115,11 +108,49 @@ export function DashboardSidebar({ open, onClose }: DashboardSidebarProps) {
   const pathname = usePathname();
   const { lang } = useLanguage();
   const [user, setUser] = useState<User | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data }) => setUser(data.user));
   }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    fetch("/api/profile")
+      .then((r) => r.json())
+      .then((data: { avatarUrl?: string | null }) => {
+        if (data.avatarUrl) setAvatarUrl(data.avatarUrl);
+      })
+      .catch(() => {/* ignore */ });
+  }, [user]);
+
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/profile/avatar", { method: "POST", body: formData });
+      const data = await res.json() as { success?: boolean; avatarUrl?: string; error?: string };
+      if (data.success && data.avatarUrl) {
+        setAvatarUrl(data.avatarUrl);
+      }
+    } catch {
+      /* ignore */
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
 
   const isActive = (href: string) => {
     if (href === "/dashboard") return pathname === "/dashboard";
@@ -133,9 +164,8 @@ export function DashboardSidebar({ open, onClose }: DashboardSidebarProps) {
   return (
     <>
       <div
-        className={`fixed inset-0 z-40 transition-opacity duration-300 ${
-          open ? "pointer-events-auto bg-slate-950/30 opacity-100" : "pointer-events-none opacity-0"
-        }`}
+        className={`fixed inset-0 z-40 transition-opacity duration-300 ${open ? "pointer-events-auto bg-slate-950/30 opacity-100" : "pointer-events-none opacity-0"
+          }`}
         aria-hidden={!open}
       >
         <button
@@ -147,9 +177,8 @@ export function DashboardSidebar({ open, onClose }: DashboardSidebarProps) {
       </div>
 
       <aside
-        className={`fixed right-0 top-0 z-50 flex h-screen w-full max-w-[320px] flex-col bg-[#0F172A] text-white shadow-2xl transition-transform duration-300 ease-out ${
-          open ? "translate-x-0" : "translate-x-full"
-        }`}
+        className={`fixed right-0 top-0 z-50 flex h-screen w-full max-w-[320px] flex-col bg-[#0F172A] text-white shadow-2xl transition-transform duration-300 ease-out ${open ? "translate-x-0" : "translate-x-full"
+          }`}
         role="dialog"
         aria-modal="true"
         aria-label="Dashboard menu"
@@ -169,14 +198,40 @@ export function DashboardSidebar({ open, onClose }: DashboardSidebarProps) {
 
         <div className="hide-scrollbar flex h-full flex-col overflow-y-auto py-6">
           <div className="mb-8 flex flex-col items-center px-4">
-            <div className="relative mb-3" title="User menu">
-              <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border-2 border-slate-700 bg-slate-800 text-slate-400">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="mt-2 h-[85%] w-[85%] opacity-80">
-                  <path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z" clipRule="evenodd" />
-                </svg>
-              </div>
+            <div className="relative mb-3" title="Click to change profile picture">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+                onChange={(e) => void handleFileChange(e)}
+              />
+              <button
+                type="button"
+                onClick={handleAvatarClick}
+                className="group flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border-2 border-slate-700 bg-slate-800 text-slate-400 transition-all hover:border-slate-500 hover:ring-2 hover:ring-slate-500/30"
+                aria-label="Change profile picture"
+                disabled={uploading}
+              >
+                {uploading ? (
+                  <div className="h-6 w-6 animate-spin rounded-full border-2 border-slate-500 border-t-white" />
+                ) : avatarUrl ? (
+                  <Image
+                    src={avatarUrl}
+                    alt="Avatar"
+                    width={64}
+                    height={64}
+                    className="h-full w-full object-cover"
+                    unoptimized
+                  />
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="mt-2 h-[85%] w-[85%] opacity-80 transition-opacity group-hover:opacity-100">
+                    <path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z" clipRule="evenodd" />
+                  </svg>
+                )}
+              </button>
 
-              <div className="absolute bottom-0 right-0 flex h-5 w-5 items-center justify-center rounded-full border-2 border-[#0F172A] bg-green-500 shadow-sm transition-colors hover:bg-green-400">
+              <div className="absolute bottom-0 right-0 flex h-5 w-5 items-center justify-center rounded-full border-2 border-[#0F172A] bg-green-500 shadow-sm transition-colors hover:bg-green-400 pointer-events-none">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-[80%] w-[80%] text-[#0F172A]">
                   <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
                 </svg>
@@ -197,11 +252,10 @@ export function DashboardSidebar({ open, onClose }: DashboardSidebarProps) {
                   <li key={item.href}>
                     <Link
                       href={item.href}
-                      className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 group ${
-                        active
-                          ? "bg-white text-[#0F172A] shadow-sm"
-                          : "text-slate-400 hover:bg-slate-800 hover:text-white"
-                      }`}
+                      className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 group ${active
+                        ? "bg-white text-[#0F172A] shadow-sm"
+                        : "text-slate-400 hover:bg-slate-800 hover:text-white"
+                        }`}
                       onClick={onClose}
                     >
                       <span className={active ? "text-[#0F172A]" : "text-slate-400 group-hover:text-slate-300"}>

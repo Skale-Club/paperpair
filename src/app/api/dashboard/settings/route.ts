@@ -2,9 +2,11 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getCurrentUserAndProfile } from "@/lib/current-user-profile";
 import { getUserGoogleApiKey, upsertUserGoogleApiKey } from "@/lib/supabase/user-ai-keys";
+import { prisma } from "@/lib/prisma";
 
 const patchSchema = z.object({
-  googleApiKey: z.string().nullable().optional()
+  googleApiKey: z.string().nullable().optional(),
+  requireBiometricsForSensitiveDocs: z.boolean().optional()
 });
 
 export async function GET() {
@@ -16,8 +18,14 @@ export async function GET() {
 
   const googleApiKey = await getUserGoogleApiKey(context.user.id);
 
+  const profile = await prisma.userProfile.findUnique({
+    where: { authId: context.user.id },
+    select: { requireBiometricsForSensitiveDocs: true }
+  });
+
   return NextResponse.json({
-    googleApiKey: googleApiKey ? "AIza...hidden" : null
+    googleApiKey: googleApiKey ? "AIza...hidden" : null,
+    requireBiometricsForSensitiveDocs: profile?.requireBiometricsForSensitiveDocs ?? true
   });
 }
 
@@ -45,9 +53,19 @@ export async function PATCH(request: Request) {
     );
   }
 
-  const { googleApiKey } = parsed.data;
+  const { googleApiKey, requireBiometricsForSensitiveDocs } = parsed.data;
 
-  await upsertUserGoogleApiKey(context.user.id, googleApiKey?.trim() || null);
+  if (googleApiKey !== undefined) {
+    await upsertUserGoogleApiKey(context.user.id, googleApiKey?.trim() || null);
+  }
+
+  if (requireBiometricsForSensitiveDocs !== undefined) {
+    await prisma.userProfile.update({
+      where: { authId: context.user.id },
+      data: { requireBiometricsForSensitiveDocs }
+    });
+  }
 
   return NextResponse.json({ ok: true });
 }
+

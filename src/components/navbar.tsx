@@ -135,6 +135,26 @@ export function Navbar() {
         </Link>
 
         <div className="hidden items-center gap-4 md:flex">
+          {[
+            { href: "/home", label: "Home" },
+            { href: "/blogs", label: "Blogs" },
+            { href: "/faq", label: "FAQ" },
+            { href: "/contact", label: "Contact" }
+          ].map((link) => {
+            const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`border-b-2 pb-1 text-sm transition-colors ${active
+                  ? "border-primary font-semibold text-slate-900"
+                  : "border-transparent text-slate-600 hover:text-primary"
+                  }`}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
           <div className="ml-2 border-l border-slate-200 pl-4">
             {userMenuOpen ? (
               <div className="h-9 w-9" aria-hidden="true" />

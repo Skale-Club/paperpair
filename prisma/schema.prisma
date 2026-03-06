@@ -46,6 +46,7 @@ model UserProfile {
   role         Role     @default(USER)
   tier         String   @default("free")
   googleApiKey String?
+  requireBiometricsForSensitiveDocs Boolean @default(true)
   createdAt    DateTime @default(now())
   updatedAt DateTime @updatedAt
 

@@ -10,15 +10,21 @@ export default function SettingsPage() {
     const [hasExistingKey, setHasExistingKey] = useState(false);
     const [keyStatus, setKeyStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
 
+    const [biometricLock, setBiometricLock] = useState(true);
+    const [bioStatus, setBioStatus] = useState<"idle" | "saving" | "saved">("idle");
+
     useEffect(() => {
         fetch("/api/dashboard/settings")
             .then((r) => r.json())
-            .then((data) => {
+            .then((data: { googleApiKey?: string | null; requireBiometricsForSensitiveDocs?: boolean }) => {
                 if (data.googleApiKey) {
                     setHasExistingKey(true);
                 }
+                if (typeof data.requireBiometricsForSensitiveDocs === "boolean") {
+                    setBiometricLock(data.requireBiometricsForSensitiveDocs);
+                }
             })
-            .catch(() => {});
+            .catch(() => { });
     }, []);
 
     async function saveGoogleKey() {
@@ -116,6 +122,58 @@ export default function SettingsPage() {
                     <option value="en-US">English (US)</option>
                     <option value="es">Spanish</option>
                 </select>
+            </section>
+
+            {/* Security */}
+            <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5">
+                <h2 className="text-lg font-semibold text-slate-900">Security</h2>
+                <p className="text-sm text-slate-600">
+                    Control how sensitive documents are protected.
+                </p>
+
+                <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-4">
+                    <div className="flex-1 pr-4">
+                        <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold text-slate-900">
+                                Biometric lock for sensitive documents
+                            </span>
+                            {biometricLock && (
+                                <span className="inline-flex items-center rounded-md bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
+                                    Recommended
+                                </span>
+                            )}
+                        </div>
+                        <p className="mt-1 text-xs text-slate-500">
+                            Require Face ID, Touch ID, or Windows Hello to access Evidence Wall and Documents pages.
+                        </p>
+                        {bioStatus === "saved" && (
+                            <p className="mt-1 text-xs text-emerald-600">Setting saved.</p>
+                        )}
+                    </div>
+                    <button
+                        type="button"
+                        role="switch"
+                        aria-checked={biometricLock}
+                        onClick={() => {
+                            const next = !biometricLock;
+                            setBiometricLock(next);
+                            setBioStatus("saving");
+                            void fetch("/api/dashboard/settings", {
+                                method: "PATCH",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ requireBiometricsForSensitiveDocs: next })
+                            }).then(() => {
+                                setBioStatus("saved");
+                                setTimeout(() => setBioStatus("idle"), 2000);
+                            });
+                        }}
+                        className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 focus-visible:ring-offset-2 ${biometricLock ? "bg-emerald-500" : "bg-slate-300"}`}
+                    >
+                        <span
+                            className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform duration-200 ease-in-out ${biometricLock ? "translate-x-5" : "translate-x-0.5"}`}
+                        />
+                    </button>
+                </div>
             </section>
 
             {/* AI Assistant */}

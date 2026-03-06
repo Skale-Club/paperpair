@@ -109,7 +109,12 @@ export function Navbar() {
         { href: "/contact", label: "Contact us" },
         { label: "Log out", kind: "button", onClick: () => void handleLogout() }
       ]
-    : [];
+    : [
+      { href: "/home", label: "Home" },
+      { href: "/blogs", label: "Blogs" },
+      { href: "/faq", label: "FAQ" },
+      { href: "/contact", label: "Contact" }
+    ];
 
   if (pathname.startsWith("/admin")) {
     return null;

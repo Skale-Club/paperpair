@@ -6,6 +6,13 @@ import { useEffect, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 
+type MenuItem = {
+  href?: string;
+  label: string;
+  kind?: "button";
+  onClick?: () => void;
+};
+
 export function Navbar() {
   const pathname = usePathname();
   const [user, setUser] = useState<User | null>(null);
@@ -93,7 +100,7 @@ export function Navbar() {
     }
   };
 
-  const signedInMenuItems = user
+  const signedInMenuItems: MenuItem[] = user
     ? isAdmin
       ? [
         { href: "/admin/dashboard", label: "Control Center" },

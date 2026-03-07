@@ -27,7 +27,7 @@ const textExtensions = new Set([
 ]);
 
 const alwaysScanFilenames = new Set([".gitignore", ".env.example", "AGENTS.md"]);
-const skipFiles = new Set([".privacy-denylist", "package-lock.json", "yarn.lock", "pnpm-lock.yaml"]);
+const skipFiles = new Set([".privacy-denylist", "package-lock.json", "yarn.lock", "pnpm-lock.yaml", "public/pdf.worker.min.mjs"]);
 
 const blockedPatterns = [
   { label: "USCIS receipt number", regex: /\b(?:EAC|WAC|LIN|SRC|MSC|IOE|NBC)\d{10}\b/ },

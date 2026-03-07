@@ -24,6 +24,22 @@ export default async function DashboardHomePage() {
     const immigrationData = asStepData(immigrationStep?.data);
     const showScreener = !immigrationData.entryType;
 
+    const profileFullName = immigrationData.fullName as string | undefined;
+    const profileCountry = immigrationData.country as string | undefined;
+    const profileFilingReason = immigrationData.filingReason as string | undefined;
+    const profileEntryType = immigrationData.entryType as string | undefined;
+
+    const FILING_REASON_LABELS: Record<string, string> = {
+        "married-to-usc": "💍 Married to a U.S. Citizen",
+        "child-of-usc": "👶 Child of a U.S. Citizen",
+        "parent-of-usc": "👨‍👩‍👧 Parent of a U.S. Citizen (21+)",
+        "other": "📋 Other basis",
+    };
+    const ENTRY_TYPE_LABELS: Record<string, string> = {
+        "overstay": "✈️ Visa Overstay",
+        "ewi": "🚶 Entry Without Inspection (EWI)",
+    };
+
     return (
         <div className="space-y-8">
             {showScreener && <ScreenerMount />}
@@ -124,6 +140,27 @@ export default async function DashboardHomePage() {
 
                 {/* Right Column: Quick Actions & Overview */}
                 <div className="space-y-6">
+                    {/* Case Profile Card — shown after screener is complete */}
+                    {!showScreener && (profileFullName || profileCountry || profileFilingReason || profileEntryType) && (
+                        <DashboardCard title="Your Case Profile" subtitle="Collected during setup">
+                            <div className="space-y-3">
+                                {[
+                                    { label: "Full Name", value: profileFullName },
+                                    { label: "Country of Birth", value: profileCountry },
+                                    { label: "Filing Reason", value: profileFilingReason ? FILING_REASON_LABELS[profileFilingReason] ?? profileFilingReason : undefined },
+                                    { label: "Entry Type", value: profileEntryType ? ENTRY_TYPE_LABELS[profileEntryType] ?? profileEntryType : undefined },
+                                ]
+                                    .filter((row) => row.value)
+                                    .map(({ label, value }) => (
+                                        <div key={label} className="flex items-start justify-between gap-4 text-sm">
+                                            <span className="shrink-0 font-medium text-slate-500">{label}</span>
+                                            <span className="text-right font-semibold text-slate-900">{value}</span>
+                                        </div>
+                                    ))}
+                            </div>
+                        </DashboardCard>
+                    )}
+
                     <DashboardCard title="Preparation & Next Steps" subtitle="Actions grouped by phase">
                         <div className="grid gap-4 sm:grid-cols-2">
                             <Link href="/dashboard/documents/gather" className="group relative rounded-2xl border border-slate-200 bg-white p-5 hover:border-primary/50 hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all">

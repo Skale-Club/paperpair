@@ -118,6 +118,31 @@ export default async function DashboardHomePage() {
                 />
             </div>
 
+            {/* Case Profile — full-width, shown after screener is complete */}
+            {!showScreener && (profileFullName || birthCountry || profileFilingReason || profileEntryType) && (
+                <DashboardCard title="Case Profile" subtitle="Information collected during setup">
+                    <div className="grid gap-x-8 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
+                        {[
+                            { label: "Full Name", value: profileFullName },
+                            { label: "Your Email", value: profileEmail },
+                            { label: "Place of Birth", value: formatPlace(birthCity, birthState, birthCountry) },
+                            { label: "Spouse's Name", value: profileSpouseName },
+                            { label: "Spouse's Email", value: profileSpouseEmail },
+                            { label: "Spouse's Place of Birth", value: formatPlace(spouseBirthCity, spouseBirthState, spouseBirthCountry) },
+                            { label: "Filing Reason", value: profileFilingReason ? FILING_REASON_LABELS[profileFilingReason] ?? profileFilingReason : undefined },
+                            { label: "Entry Type", value: profileEntryType ? ENTRY_TYPE_LABELS[profileEntryType] ?? profileEntryType : undefined },
+                        ]
+                            .filter((row) => row.value)
+                            .map(({ label, value }) => (
+                                <div key={label} className="flex flex-col gap-0.5">
+                                    <span className="text-xs font-medium uppercase tracking-wide text-slate-400">{label}</span>
+                                    <span className="text-sm font-semibold text-slate-900">{value}</span>
+                                </div>
+                            ))}
+                    </div>
+                </DashboardCard>
+            )}
+
             <div className="grid gap-6 lg:grid-cols-2">
                 {/* Left Column: Progress & Steps */}
                 <div className="space-y-6">
@@ -173,31 +198,6 @@ export default async function DashboardHomePage() {
 
                 {/* Right Column: Quick Actions & Overview */}
                 <div className="space-y-6">
-                    {/* Case Profile Card — shown after screener is complete */}
-                    {!showScreener && (profileFullName || birthCountry || profileFilingReason || profileEntryType) && (
-                        <DashboardCard title="Your Case Profile" subtitle="Collected during setup">
-                            <div className="space-y-3">
-                                {[
-                                    { label: "Full Name", value: profileFullName },
-                                    { label: "Your Email", value: profileEmail },
-                                    { label: "Spouse's Name", value: profileSpouseName },
-                                    { label: "Spouse's Email", value: profileSpouseEmail },
-                                    { label: "Place of Birth", value: formatPlace(birthCity, birthState, birthCountry) },
-                                    { label: "Spouse's Place of Birth", value: formatPlace(spouseBirthCity, spouseBirthState, spouseBirthCountry) },
-                                    { label: "Filing Reason", value: profileFilingReason ? FILING_REASON_LABELS[profileFilingReason] ?? profileFilingReason : undefined },
-                                    { label: "Entry Type", value: profileEntryType ? ENTRY_TYPE_LABELS[profileEntryType] ?? profileEntryType : undefined },
-                                ]
-                                    .filter((row) => row.value)
-                                    .map(({ label, value }) => (
-                                        <div key={label} className="flex items-start justify-between gap-4 text-sm">
-                                            <span className="shrink-0 font-medium text-slate-500">{label}</span>
-                                            <span className="text-right font-semibold text-slate-900">{value}</span>
-                                        </div>
-                                    ))}
-                            </div>
-                        </DashboardCard>
-                    )}
-
                     <DashboardCard title="Preparation & Next Steps" subtitle="Actions grouped by phase">
                         <div className="grid gap-4 sm:grid-cols-2">
                             <Link href="/dashboard/documents/gather" className="group relative rounded-2xl border border-slate-200 bg-white p-5 hover:border-primary/50 hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all">

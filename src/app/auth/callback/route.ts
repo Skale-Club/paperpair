@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
+  const inviteToken = searchParams.get("invite_token");
 
   try {
     if (code) {
@@ -15,7 +16,26 @@ export async function GET(request: Request) {
         const { data: { user } } = await supabase.auth.getUser();
 
         if (user) {
-          // Create/update UserProfile via Prisma
+          // Resolve viewerOfId if an invite token is present
+          let viewerOfId: string | null = null;
+
+          if (inviteToken) {
+            const invite = await prisma.spouseInvite.findUnique({
+              where: { token: inviteToken },
+            });
+
+            if (invite && !invite.accepted && invite.expiresAt > new Date()) {
+              viewerOfId = invite.primaryUserId;
+
+              // Mark invite as accepted
+              await prisma.spouseInvite.update({
+                where: { token: inviteToken },
+                data: { accepted: true },
+              });
+            }
+          }
+
+          // Create/update UserProfile
           await prisma.userProfile.upsert({
             where: { authId: user.id },
             create: {
@@ -23,16 +43,17 @@ export async function GET(request: Request) {
               email: user.email!,
               fullName: user.user_metadata?.full_name ?? null,
               avatarUrl: user.user_metadata?.avatar_url ?? null,
-              role: (user.app_metadata?.role === "admin") ? "ADMIN" : "USER"
+              role: (user.app_metadata?.role === "admin") ? "ADMIN" : "USER",
+              ...(viewerOfId ? { viewerOfId } : {}),
             },
             update: {
               email: user.email!,
               fullName: user.user_metadata?.full_name ?? null,
-              avatarUrl: user.user_metadata?.avatar_url ?? null
-            }
+              avatarUrl: user.user_metadata?.avatar_url ?? null,
+              ...(viewerOfId ? { viewerOfId } : {}),
+            },
           });
 
-          // Redirect by role
           const role = user.app_metadata?.role;
           const dest = role === "admin" ? "/admin/dashboard" : "/dashboard";
           return NextResponse.redirect(new URL(dest, origin));

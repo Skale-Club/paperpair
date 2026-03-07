@@ -50,7 +50,25 @@ model UserProfile {
   createdAt    DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  caseSteps CaseStep[]
+  // Spouse viewer linking
+  viewerOfId   String?
+  viewerOf     UserProfile?  @relation("SpouseViewer", fields: [viewerOfId], references: [id])
+  viewers      UserProfile[] @relation("SpouseViewer")
+
+  caseSteps     CaseStep[]
+  spouseInvites SpouseInvite[]
+}
+
+model SpouseInvite {
+  id            String   @id @default(cuid())
+  token         String   @unique @default(cuid())
+  primaryUserId String   @unique
+  spouseEmail   String
+  accepted      Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  expiresAt     DateTime
+
+  primaryUser UserProfile @relation(fields: [primaryUserId], references: [id], onDelete: Cascade)
 }
 
 model CaseStep {

@@ -8,13 +8,15 @@ type FilingReason = "married-to-usc" | "child-of-usc" | "parent-of-usc" | "other
 
 type Answers = {
   fullName: string;
+  email: string;
   spouseName: string;
+  spouseEmail: string;
   country: string;
   filingReason: FilingReason | null;
   entryType: EntryType | null;
 };
 
-const STEP_COUNT = 5; // steps 1–5 (0 = welcome)
+const STEP_COUNT = 7; // steps 1–7 (0 = welcome)
 
 const toNameCase = (v: string) => v.replace(/(^|\s)\S/g, (c) => c.toUpperCase());
 
@@ -113,7 +115,40 @@ function NameStep({
   );
 }
 
-// ── Step 2: Spouse's name ─────────────────────────────────────────────────────
+// ── Email step (reused for both you and spouse) ───────────────────────────────
+function EmailStep({
+  title,
+  subtitle,
+  value,
+  onChange,
+  onNext,
+}: {
+  title: string;
+  subtitle: string;
+  value: string;
+  onChange: (v: string) => void;
+  onNext: () => void;
+}) {
+  const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+  return (
+    <div>
+      <h3 className="text-lg font-bold text-slate-900">{title}</h3>
+      <p className="mt-1 text-sm text-slate-500">{subtitle}</p>
+      <input
+        type="email"
+        autoFocus
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="e.g. name@email.com"
+        className="mt-4 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 focus:border-[var(--color-trust)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-trust)]/20"
+        onKeyDown={(e) => e.key === "Enter" && valid && onNext()}
+      />
+      <NextButton onClick={onNext} disabled={!valid} />
+    </div>
+  );
+}
+
+// ── Step 3: Spouse's name ─────────────────────────────────────────────────────
 function SpouseNameStep({
   value,
   onChange,
@@ -315,7 +350,9 @@ export function InitialScreener() {
 
   const [answers, setAnswers] = useState<Answers>({
     fullName: "",
+    email: "",
     spouseName: "",
+    spouseEmail: "",
     country: "",
     filingReason: null,
     entryType: null,
@@ -343,7 +380,9 @@ export function InitialScreener() {
           status: "IN_PROGRESS",
           data: {
             fullName: answers.fullName,
+            email: answers.email,
             spouseName: answers.spouseName,
+            spouseEmail: answers.spouseEmail,
             country: answers.country,
             filingReason: answers.filingReason,
             entryType: answers.entryType,
@@ -355,6 +394,21 @@ export function InitialScreener() {
         const body = (await response.json().catch(() => null)) as { error?: string } | null;
         if (response.status === 401) throw new Error("Please sign in again to save your profile.");
         throw new Error(body?.error ?? "Failed to save your profile.");
+      }
+
+      // Best-effort: send spouse invite email (non-blocking)
+      if (answers.spouseEmail && answers.spouseName) {
+        fetch("/api/invite/spouse", {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            spouseEmail: answers.spouseEmail,
+            spouseName: answers.spouseName,
+          }),
+        }).catch(() => {
+          // Invite can be resent later; don't block setup completion
+        });
       }
 
       localStorage.setItem("case_type", answers.entryType ?? "");
@@ -396,20 +450,38 @@ export function InitialScreener() {
             />
           )}
           {step === 2 && (
+            <EmailStep
+              title="What is your email address?"
+              subtitle="The email you use to log in to this account."
+              value={answers.email}
+              onChange={(v) => setAnswers((a) => ({ ...a, email: v }))}
+              onNext={goNext}
+            />
+          )}
+          {step === 3 && (
             <SpouseNameStep
               value={answers.spouseName}
               onChange={(v) => setAnswers((a) => ({ ...a, spouseName: v }))}
               onNext={goNext}
             />
           )}
-          {step === 3 && (
+          {step === 4 && (
+            <EmailStep
+              title="What is your spouse's email address?"
+              subtitle="We'll use this to keep them in the loop on the process."
+              value={answers.spouseEmail}
+              onChange={(v) => setAnswers((a) => ({ ...a, spouseEmail: v }))}
+              onNext={goNext}
+            />
+          )}
+          {step === 5 && (
             <CountryStep
               value={answers.country}
               onChange={(v) => setAnswers((a) => ({ ...a, country: v }))}
               onNext={goNext}
             />
           )}
-          {step === 4 && (
+          {step === 6 && (
             <FilingReasonStep
               selected={answers.filingReason}
               onSelect={(v) => {
@@ -418,7 +490,7 @@ export function InitialScreener() {
               }}
             />
           )}
-          {step === 5 && (
+          {step === 7 && (
             <EntryTypeStep
               selected={answers.entryType}
               onSelect={(v) => setAnswers((a) => ({ ...a, entryType: v }))}
@@ -430,7 +502,7 @@ export function InitialScreener() {
         </div>
 
         {/* Back link */}
-        {step > 0 && step < 5 && (
+        {step > 0 && step < 7 && (
           <div className="border-t border-slate-100 px-6 py-3 text-center">
             <button
               type="button"

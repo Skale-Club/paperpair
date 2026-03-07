@@ -1,4 +1,4 @@
-import { getCurrentUserAndProfileWithCaseSteps } from "@/lib/current-user-profile";
+import { getCurrentUserAndProfileWithViewerSupport } from "@/lib/current-user-profile";
 import { asStepData } from "@/lib/case-step-data";
 import { DASHBOARD_STEPS } from "@/lib/dashboard-steps";
 import { FEES_2026, CONCURRENT_BUNDLE_TOTAL } from "@/lib/fee-schedule";
@@ -10,10 +10,15 @@ import Link from "next/link";
 export const dynamic = "force-dynamic";
 
 export default async function DashboardHomePage() {
-    const context = await getCurrentUserAndProfileWithCaseSteps();
-    const userName = context?.userProfile.fullName?.split(" ")[0] || "User";
+    const context = await getCurrentUserAndProfileWithViewerSupport();
+    const isViewer = context?.isViewer ?? false;
 
-    const caseSteps = context?.userProfile.caseSteps ?? [];
+    // For viewers, use the primary user's profile data; otherwise use own profile
+    const activeProfile = isViewer ? context?.primaryProfile : context?.userProfile;
+    const userName = activeProfile?.fullName?.split(" ")[0] || context?.userProfile.fullName?.split(" ")[0] || "User";
+    const viewerName = isViewer ? context?.userProfile.fullName?.split(" ")[0] : null;
+
+    const caseSteps = activeProfile?.caseSteps ?? [];
     const totalSteps = DASHBOARD_STEPS.length;
     const completedSteps = caseSteps.filter((s: { status: string }) => s.status === "COMPLETED").length;
     const inProgressSteps = caseSteps.filter((s: { status: string }) => s.status === "IN_PROGRESS").length;
@@ -22,10 +27,13 @@ export default async function DashboardHomePage() {
 
     const immigrationStep = caseSteps.find((s: { stepSlug: string }) => s.stepSlug === "immigration-info");
     const immigrationData = asStepData(immigrationStep?.data);
-    const showScreener = !immigrationData.entryType || !immigrationData.spouseName;
+    // Viewers never see the screener
+    const showScreener = !isViewer && (!immigrationData.entryType || !immigrationData.spouseName || !immigrationData.spouseEmail);
 
     const profileFullName = immigrationData.fullName as string | undefined;
+    const profileEmail = immigrationData.email as string | undefined;
     const profileSpouseName = immigrationData.spouseName as string | undefined;
+    const profileSpouseEmail = immigrationData.spouseEmail as string | undefined;
     const profileCountry = immigrationData.country as string | undefined;
     const profileFilingReason = immigrationData.filingReason as string | undefined;
     const profileEntryType = immigrationData.entryType as string | undefined;
@@ -44,6 +52,18 @@ export default async function DashboardHomePage() {
     return (
         <div className="space-y-8">
             {showScreener && <ScreenerMount />}
+            {/* Viewer banner */}
+            {isViewer && (
+                <div className="flex items-center gap-3 rounded-xl border border-blue-200 bg-blue-50 px-5 py-3 text-sm text-blue-800">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 shrink-0 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    <span>
+                        You&apos;re logged in as <strong>{viewerName}</strong> — viewing <strong>{userName}&apos;s</strong> case in read-only mode.
+                    </span>
+                </div>
+            )}
             {/* Header */}
             <div>
                 <h1 className="text-3xl font-bold tracking-tight text-slate-900">Hello, {userName} 👋</h1>
@@ -147,7 +167,9 @@ export default async function DashboardHomePage() {
                             <div className="space-y-3">
                                 {[
                                     { label: "Full Name", value: profileFullName },
+                                    { label: "Your Email", value: profileEmail },
                                     { label: "Spouse's Name", value: profileSpouseName },
+                                    { label: "Spouse's Email", value: profileSpouseEmail },
                                     { label: "Country of Birth", value: profileCountry },
                                     { label: "Filing Reason", value: profileFilingReason ? FILING_REASON_LABELS[profileFilingReason] ?? profileFilingReason : undefined },
                                     { label: "Entry Type", value: profileEntryType ? ENTRY_TYPE_LABELS[profileEntryType] ?? profileEntryType : undefined },

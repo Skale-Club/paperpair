@@ -64,6 +64,23 @@ export async function getCurrentUserAndProfile() {
   return { user, userProfile };
 }
 
+export async function getCurrentUserAndProfileWithViewerSupport() {
+  const context = await getCurrentUserAndProfileWithCaseSteps();
+  if (!context) return null;
+
+  const { user, userProfile } = context;
+
+  if (userProfile.viewerOfId) {
+    const primaryProfile = await prisma.userProfile.findUnique({
+      where: { id: userProfile.viewerOfId },
+      include: { caseSteps: true },
+    });
+    return { user, userProfile, isViewer: true as const, primaryProfile };
+  }
+
+  return { user, userProfile, isViewer: false as const, primaryProfile: null };
+}
+
 export async function getCurrentUserAndProfileWithCaseSteps(): Promise<
   | {
     user: User;

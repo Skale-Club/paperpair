@@ -8,7 +8,6 @@ type FilingReason = "married-to-usc" | "child-of-usc" | "parent-of-usc" | "other
 
 type Answers = {
   fullName: string;
-  email: string;
   spouseName: string;
   spouseEmail: string;
   birthCity: string;
@@ -21,7 +20,7 @@ type Answers = {
   entryType: EntryType | null;
 };
 
-const STEP_COUNT = 9; // steps 1–9 (0 = welcome)
+const STEP_COUNT = 8; // steps 1-8 (0 = welcome)
 
 const toNameCase = (v: string) => v.replace(/(^|\s)\S/g, (c) => c.toUpperCase());
 
@@ -120,7 +119,7 @@ function NameStep({
   );
 }
 
-// ── Email step (reused for both you and spouse) ───────────────────────────────
+// ── Email step ────────────────────────────────────────────────────────────────
 function EmailStep({
   title,
   subtitle,
@@ -144,7 +143,7 @@ function EmailStep({
         autoFocus
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="e.g. name@email.com"
+        placeholder="e.g. name@example.com"
         className="mt-4 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 focus:border-[var(--color-trust)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-trust)]/20"
         onKeyDown={(e) => e.key === "Enter" && valid && onNext()}
       />
@@ -393,7 +392,6 @@ export function InitialScreener() {
 
   const [answers, setAnswers] = useState<Answers>({
     fullName: "",
-    email: "",
     spouseName: "",
     spouseEmail: "",
     birthCity: "",
@@ -428,7 +426,6 @@ export function InitialScreener() {
           status: "IN_PROGRESS",
           data: {
             fullName: answers.fullName,
-            email: answers.email,
             spouseName: answers.spouseName,
             spouseEmail: answers.spouseEmail,
             birthCity: answers.birthCity,
@@ -489,7 +486,23 @@ export function InitialScreener() {
               {step === 0 ? "Case Setup" : `Step ${step} of ${STEP_COUNT}`}
             </p>
           </div>
-          {step > 0 && <ProgressDots current={step} />}
+          <div className="flex items-center gap-3">
+            {step > 0 && <ProgressDots current={step} />}
+            <button
+              type="button"
+              aria-label="Close setup"
+              onClick={() => setOpen(false)}
+              className="rounded-md p-1 text-white/80 transition hover:bg-white/10 hover:text-white"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path
+                  fillRule="evenodd"
+                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* Step body */}
@@ -503,22 +516,13 @@ export function InitialScreener() {
             />
           )}
           {step === 2 && (
-            <EmailStep
-              title="What is your email address?"
-              subtitle="The email you use to log in to this account."
-              value={answers.email}
-              onChange={(v) => setAnswers((a) => ({ ...a, email: v }))}
-              onNext={goNext}
-            />
-          )}
-          {step === 3 && (
             <SpouseNameStep
               value={answers.spouseName}
               onChange={(v) => setAnswers((a) => ({ ...a, spouseName: v }))}
               onNext={goNext}
             />
           )}
-          {step === 4 && (
+          {step === 3 && (
             <EmailStep
               title="What is your spouse's email address?"
               subtitle="We'll use this to keep them in the loop on the process."
@@ -527,7 +531,7 @@ export function InitialScreener() {
               onNext={goNext}
             />
           )}
-          {step === 5 && (
+          {step === 4 && (
             <PlaceOfBirthStep
               title="What is your place of birth?"
               subtitle="Enter where you were born. This appears on immigration forms."
@@ -540,7 +544,7 @@ export function InitialScreener() {
               onNext={goNext}
             />
           )}
-          {step === 6 && (
+          {step === 5 && (
             <PlaceOfBirthStep
               title="What is your spouse's place of birth?"
               subtitle="Enter where your spouse was born."
@@ -553,7 +557,7 @@ export function InitialScreener() {
               onNext={goNext}
             />
           )}
-          {step === 7 && (
+          {step === 6 && (
             <FilingReasonStep
               selected={answers.filingReason}
               onSelect={(v) => {
@@ -562,7 +566,7 @@ export function InitialScreener() {
               }}
             />
           )}
-          {step === 8 && (
+          {step === 7 && (
             <EntryTypeStep
               selected={answers.entryType}
               onSelect={(v) => setAnswers((a) => ({ ...a, entryType: v }))}
@@ -574,7 +578,7 @@ export function InitialScreener() {
         </div>
 
         {/* Back link */}
-        {step > 0 && step < 8 && (
+        {step > 0 && step < 7 && (
           <div className="border-t border-slate-100 px-6 py-3 text-center">
             <button
               type="button"

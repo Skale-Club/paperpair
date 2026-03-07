@@ -17,6 +17,7 @@ export const translations = {
     "sidebar.documentsToGather": "Documents",
     "sidebar.interviewPrep": "Next Steps",
     "sidebar.forms": "Forms",
+    "sidebar.myForms": "My Forms",
     "sidebar.aiAssistant": "AI Assistant",
     "sidebar.adminPanel": "Admin Panel",
     // Dashboard
@@ -77,6 +78,7 @@ export const translations = {
     "sidebar.documentsToGather": "Documentos",
     "sidebar.interviewPrep": "Próximos Passos",
     "sidebar.forms": "Formulários",
+    "sidebar.myForms": "Meus Formulários",
     "sidebar.aiAssistant": "Assistente IA",
     "sidebar.adminPanel": "Painel Administrativo",
     // Dashboard

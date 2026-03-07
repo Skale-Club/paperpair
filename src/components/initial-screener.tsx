@@ -87,13 +87,18 @@ function NameStep({
   return (
     <div>
       <h3 className="text-lg font-bold text-slate-900">What&apos;s your full legal name?</h3>
-      <p className="mt-1 text-sm text-slate-500">Enter your name exactly as it appears on your ID.</p>
+      <p className="mt-1 text-sm text-slate-500">
+        This is the name of the person who will be filling out and managing the steps in this app.
+      </p>
+      <p className="mt-2 rounded-lg bg-amber-50 border border-amber-100 px-3 py-2 text-xs text-amber-800 leading-relaxed">
+        <span className="font-semibold">Legal full name</span> — enter it exactly as it appears on your passport or government-issued ID, including middle name if applicable.
+      </p>
       <input
         type="text"
         autoFocus
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="e.g. María García López"
+        placeholder="e.g. María Elena García López"
         className="mt-4 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 focus:border-[var(--color-trust)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-trust)]/20"
         onKeyDown={(e) => e.key === "Enter" && value.trim() && onNext()}
       />

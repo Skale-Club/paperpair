@@ -22,7 +22,7 @@ export default async function DashboardHomePage() {
 
     const immigrationStep = caseSteps.find((s: { stepSlug: string }) => s.stepSlug === "immigration-info");
     const immigrationData = asStepData(immigrationStep?.data);
-    const showScreener = !immigrationData.entryType;
+    const showScreener = !immigrationData.entryType || !immigrationData.spouseName;
 
     const profileFullName = immigrationData.fullName as string | undefined;
     const profileSpouseName = immigrationData.spouseName as string | undefined;

@@ -322,8 +322,8 @@ export function InitialScreener() {
   });
 
   useEffect(() => {
-    const seen = localStorage.getItem("screener_done");
-    if (!seen) setOpen(true);
+    // Always open — the server only mounts this component when data is missing
+    setOpen(true);
   }, []);
 
   const goNext = () => setStep((s) => s + 1);

@@ -1,4 +1,5 @@
 import { getCurrentUserAndProfileWithCaseSteps } from "@/lib/current-user-profile";
+import { asStepData } from "@/lib/case-step-data";
 import { DASHBOARD_STEPS } from "@/lib/dashboard-steps";
 import { FEES_2026, CONCURRENT_BUNDLE_TOTAL } from "@/lib/fee-schedule";
 import { ScreenerMount } from "@/components/screener-mount";
@@ -19,11 +20,13 @@ export default async function DashboardHomePage() {
     const notStartedSteps = totalSteps - completedSteps - inProgressSteps;
     const overallPercent = Math.round((completedSteps / totalSteps) * 100);
 
-    const isNewUser = caseSteps.length === 0;
+    const immigrationStep = caseSteps.find((s: { stepSlug: string }) => s.stepSlug === "immigration-info");
+    const immigrationData = asStepData(immigrationStep?.data);
+    const showScreener = !immigrationData.entryType;
 
     return (
         <div className="space-y-8">
-            {isNewUser && <ScreenerMount />}
+            {showScreener && <ScreenerMount />}
             {/* Header */}
             <div>
                 <h1 className="text-3xl font-bold tracking-tight text-slate-900">Hello, {userName} 👋</h1>

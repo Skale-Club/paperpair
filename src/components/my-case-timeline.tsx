@@ -112,10 +112,6 @@ function Warning({ children }: { children: React.ReactNode }) {
     );
 }
 
-function SectionHeading({ id, children }: { id?: string; children: React.ReactNode }) {
-    return <h3 id={id} className="text-base font-bold text-slate-900 mb-3 scroll-mt-6">{children}</h3>;
-}
-
 function DocItem({ label, desc }: { label: string; desc: string }) {
     return (
         <div className="flex items-start gap-3 rounded-lg border border-slate-100 bg-slate-50 px-4 py-3">
@@ -146,17 +142,15 @@ function ActionLink({ href, children }: { href: string; children: React.ReactNod
     );
 }
 
-/* ─── phase content ─── */
+/* ─── section content ─── */
 
-function PhaseGetReady() {
+function SectionDetermineEligibility() {
     return (
         <div className="space-y-6">
             <div>
-                <h2 className="text-2xl font-bold text-slate-900">Phase 1: Get Ready</h2>
-                <p className="mt-1 text-sm text-slate-500">Determine eligibility, gather evidence, and build your foundation.</p>
+                <h2 className="text-2xl font-bold text-slate-900">Determine eligibility</h2>
+                <p className="mt-1 text-sm text-slate-500">Phase 1: Get Ready — Determine eligibility, gather evidence, and build your foundation.</p>
             </div>
-
-            <SectionHeading id="determine-eligibility">Determine eligibility</SectionHeading>
             <div className="space-y-2 text-sm text-slate-700">
                 <p>Before you begin, confirm you meet the basic requirements for a marriage-based green card:</p>
                 <ul className="ml-4 list-disc space-y-1.5 text-slate-600">
@@ -166,8 +160,17 @@ function PhaseGetReady() {
                     <li>You have no disqualifying criminal history or immigration violations</li>
                 </ul>
             </div>
+        </div>
+    );
+}
 
-            <SectionHeading id="gather-documents">Gather documents</SectionHeading>
+function SectionGatherDocuments() {
+    return (
+        <div className="space-y-6">
+            <div>
+                <h2 className="text-2xl font-bold text-slate-900">Gather documents</h2>
+                <p className="mt-1 text-sm text-slate-500">Phase 1: Get Ready — Determine eligibility, gather evidence, and build your foundation.</p>
+            </div>
             <Tip>Start building evidence of your genuine relationship now — it will be critical later.</Tip>
             <div className="space-y-2 mb-2">
                 <DocItem label="Birth Certificate" desc="Original with English translation if in a foreign language." />
@@ -192,13 +195,6 @@ function PhaseGetReady() {
                     </div>
                 ))}
             </div>
-
-            <SectionHeading id="annotations">Annotations</SectionHeading>
-            <Tip>
-                Start gathering a photo album now! Collect dated photos of you and your spouse together — trips, holidays, family events.
-                USCIS may ask for 10–20 photos spanning your relationship. Include timestamps and label who is in each photo.
-            </Tip>
-
             <div className="rounded-2xl border border-indigo-100 bg-indigo-50/50 p-5">
                 <p className="text-sm font-semibold text-indigo-900 mb-2">Ready to upload your documents?</p>
                 <p className="text-sm text-indigo-700 mb-4">
@@ -210,15 +206,28 @@ function PhaseGetReady() {
     );
 }
 
-function PhaseApplication() {
+function SectionAnnotations() {
     return (
         <div className="space-y-6">
             <div>
-                <h2 className="text-2xl font-bold text-slate-900">Phase 2: Application</h2>
-                <p className="mt-1 text-sm text-slate-500">Select your forms, prepare your documentation, and get your medical exam.</p>
+                <h2 className="text-2xl font-bold text-slate-900">Annotations</h2>
+                <p className="mt-1 text-sm text-slate-500">Phase 1: Get Ready — Determine eligibility, gather evidence, and build your foundation.</p>
             </div>
+            <Tip>
+                Start gathering a photo album now! Collect dated photos of you and your spouse together — trips, holidays, family events.
+                USCIS may ask for 10–20 photos spanning your relationship. Include timestamps and label who is in each photo.
+            </Tip>
+        </div>
+    );
+}
 
-            <SectionHeading id="my-forms">My forms</SectionHeading>
+function SectionMyForms() {
+    return (
+        <div className="space-y-6">
+            <div>
+                <h2 className="text-2xl font-bold text-slate-900">My forms</h2>
+                <p className="mt-1 text-sm text-slate-500">Phase 2: Application — Select your forms, prepare your documentation, and get your medical exam.</p>
+            </div>
             <p className="text-sm text-slate-600">
                 Head to the Forms page to select and begin filling out your required immigration forms.
                 PaperPair will guide you through each one step by step.
@@ -230,8 +239,17 @@ function PhaseApplication() {
                 </p>
                 <ActionLink href="/dashboard/forms">Go to Forms</ActionLink>
             </div>
+        </div>
+    );
+}
 
-            <SectionHeading id="what-to-expect">What to expect</SectionHeading>
+function SectionWhatToExpect() {
+    return (
+        <div className="space-y-6">
+            <div>
+                <h2 className="text-2xl font-bold text-slate-900">What to expect</h2>
+                <p className="mt-1 text-sm text-slate-500">Phase 2: Application — Select your forms, prepare your documentation, and get your medical exam.</p>
+            </div>
             <div className="space-y-2 text-sm text-slate-600 mb-4">
                 <p>Every applicant needs a medical exam (Form I-693) from a USCIS-designated Civil Surgeon.</p>
                 <ul className="ml-4 list-disc space-y-1.5">
@@ -266,15 +284,13 @@ function PhaseApplication() {
     );
 }
 
-function PhaseSubmission() {
+function SectionDocumentationBundle() {
     return (
         <div className="space-y-6">
             <div>
-                <h2 className="text-2xl font-bold text-slate-900">Phase 3: Submission</h2>
-                <p className="mt-1 text-sm text-slate-500">Download your completed forms, prepare the physical packet, and mail it.</p>
+                <h2 className="text-2xl font-bold text-slate-900">Documentation bundle</h2>
+                <p className="mt-1 text-sm text-slate-500">Phase 3: Submission — Download your completed forms, prepare the physical packet, and mail it.</p>
             </div>
-
-            <SectionHeading id="documentation-bundle">Documentation bundle</SectionHeading>
             <p className="text-sm text-slate-600 mb-3">
                 Once all forms are filled out, download the finalized PDFs and assemble your packet.
                 Stack your documents in this exact order, top to bottom:
@@ -304,8 +320,17 @@ function PhaseSubmission() {
                     </div>
                 ))}
             </div>
+        </div>
+    );
+}
 
-            <SectionHeading id="instructions">Instructions</SectionHeading>
+function SectionInstructions() {
+    return (
+        <div className="space-y-6">
+            <div>
+                <h2 className="text-2xl font-bold text-slate-900">Instructions</h2>
+                <p className="mt-1 text-sm text-slate-500">Phase 3: Submission — Download your completed forms, prepare the physical packet, and mail it.</p>
+            </div>
             <div className="space-y-3">
                 <Warning>These rules are strictly enforced by USCIS. Violating them may result in your packet being returned.</Warning>
                 <div className="grid gap-3 sm:grid-cols-2">
@@ -322,8 +347,17 @@ function PhaseSubmission() {
                     ))}
                 </div>
             </div>
+        </div>
+    );
+}
 
-            <SectionHeading id="mailing">Mailing</SectionHeading>
+function SectionMailing() {
+    return (
+        <div className="space-y-6">
+            <div>
+                <h2 className="text-2xl font-bold text-slate-900">Mailing</h2>
+                <p className="mt-1 text-sm text-slate-500">Phase 3: Submission — Download your completed forms, prepare the physical packet, and mail it.</p>
+            </div>
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                 <p className="text-sm font-semibold text-slate-900 mb-2">USCIS Lockbox Facility</p>
                 <p className="text-sm text-slate-600 mb-3">
@@ -339,7 +373,6 @@ function PhaseSubmission() {
                     Use USPS Certified Mail with Return Receipt to get proof of delivery.
                 </p>
             </div>
-
             <Tip>
                 After USCIS receives your packet, your next milestone is the <strong>I-797C (Notice of Action)</strong> —
                 this is your official receipt confirming your case has been accepted. You&apos;ll typically receive it 2–4 weeks after mailing.
@@ -348,15 +381,13 @@ function PhaseSubmission() {
     );
 }
 
-function PhaseFinalizing() {
+function SectionInterviewInstructions() {
     return (
         <div className="space-y-6">
             <div>
-                <h2 className="text-2xl font-bold text-slate-900">Phase 4: Finalizing</h2>
-                <p className="mt-1 text-sm text-slate-500">Prepare for your interview and wrap up the process.</p>
+                <h2 className="text-2xl font-bold text-slate-900">Interview instructions</h2>
+                <p className="mt-1 text-sm text-slate-500">Phase 4: Finalizing — Prepare for your interview and wrap up the process.</p>
             </div>
-
-            <SectionHeading id="interview-instructions">Interview instructions</SectionHeading>
             <div className="space-y-2 text-sm text-slate-600 mb-4">
                 <p>
                     After USCIS processes your application, you&apos;ll be scheduled for an in-person interview at your local USCIS field office.
@@ -377,8 +408,17 @@ function PhaseFinalizing() {
                 <DocItem label="New Bona Fide Evidence" desc="Recent bank statements, photos, travel records since filing." />
                 <DocItem label="State Photo ID" desc="Driver's license or state ID for both spouses." />
             </div>
+        </div>
+    );
+}
 
-            <SectionHeading id="next-steps">Next Steps</SectionHeading>
+function SectionNextSteps() {
+    return (
+        <div className="space-y-6">
+            <div>
+                <h2 className="text-2xl font-bold text-slate-900">Next Steps</h2>
+                <p className="mt-1 text-sm text-slate-500">Phase 4: Finalizing — Prepare for your interview and wrap up the process.</p>
+            </div>
             <p className="text-sm text-slate-600 mb-4">
                 For comprehensive interview practice — including common questions, flashcards, tips, and what-to-bring checklists —
                 head to the dedicated Next Steps page.
@@ -404,16 +444,22 @@ function PhaseFinalizing() {
 
 /* ─── main component ─── */
 
-const PHASE_CONTENT: Record<string, () => React.ReactNode> = {
-    "get-ready": PhaseGetReady,
-    "application": PhaseApplication,
-    "submission": PhaseSubmission,
-    "finalizing": PhaseFinalizing
+const SECTION_CONTENT: Record<string, () => React.ReactNode> = {
+    "determine-eligibility": SectionDetermineEligibility,
+    "gather-documents": SectionGatherDocuments,
+    "annotations": SectionAnnotations,
+    "my-forms": SectionMyForms,
+    "what-to-expect": SectionWhatToExpect,
+    "documentation-bundle": SectionDocumentationBundle,
+    "instructions": SectionInstructions,
+    "mailing": SectionMailing,
+    "interview-instructions": SectionInterviewInstructions,
+    "next-steps": SectionNextSteps,
 };
 
 export function MyCaseTimeline() {
     const [activePhase, setActivePhase] = useState("get-ready");
-    const [activeSection, setActiveSection] = useState<string | null>(null);
+    const [activeSection, setActiveSection] = useState<string>("determine-eligibility");
     const [completedPhases, setCompletedPhases] = useState<Record<string, boolean>>({});
     const contentRef = useRef<HTMLDivElement>(null);
 
@@ -433,26 +479,19 @@ export function MyCaseTimeline() {
     };
 
     const handlePhaseClick = (phaseId: string) => {
+        const phase = PHASES.find(p => p.id === phaseId);
         setActivePhase(phaseId);
-        setActiveSection(null);
+        setActiveSection(phase?.sections[0]?.id ?? "");
         contentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
     };
 
     const handleSectionClick = (phaseId: string, sectionId: string) => {
-        if (activePhase !== phaseId) {
-            setActivePhase(phaseId);
-            setActiveSection(sectionId);
-            // Wait for content to render before scrolling
-            setTimeout(() => {
-                document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth", block: "start" });
-            }, 50);
-        } else {
-            setActiveSection(sectionId);
-            document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
+        setActivePhase(phaseId);
+        setActiveSection(sectionId);
+        contentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
     };
 
-    const ActiveContent = PHASE_CONTENT[activePhase];
+    const ActiveContent = SECTION_CONTENT[activeSection];
 
     return (
         <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
@@ -528,7 +567,7 @@ export function MyCaseTimeline() {
                 })}
             </nav>
 
-            {/* ── Center: phase content ── */}
+            {/* ── Center: section content ── */}
             <div ref={contentRef} className="rounded-2xl border border-slate-200 bg-white p-6 lg:p-8 overflow-y-auto">
                 {ActiveContent && <ActiveContent />}
 

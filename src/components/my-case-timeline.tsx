@@ -1,15 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 /* ─── phase data ─── */
+type PhaseSection = {
+    id: string;
+    label: string;
+};
+
 type Phase = {
     id: string;
     number: number;
     title: string;
     subtitle: string;
     icon: React.ReactNode;
+    sections: PhaseSection[];
 };
 
 const PHASES: Phase[] = [
@@ -18,6 +24,11 @@ const PHASES: Phase[] = [
         number: 1,
         title: "Get Ready",
         subtitle: "Eligibility & evidence",
+        sections: [
+            { id: "determine-eligibility", label: "Determine eligibility" },
+            { id: "gather-documents", label: "Gather documents" },
+            { id: "annotations", label: "Annotations" },
+        ],
         icon: (
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
@@ -29,6 +40,10 @@ const PHASES: Phase[] = [
         number: 2,
         title: "Application",
         subtitle: "Forms & medical exam",
+        sections: [
+            { id: "my-forms", label: "My forms" },
+            { id: "what-to-expect", label: "What to expect" },
+        ],
         icon: (
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" />
@@ -40,6 +55,11 @@ const PHASES: Phase[] = [
         number: 3,
         title: "Submission",
         subtitle: "Print, collate & mail",
+        sections: [
+            { id: "documentation-bundle", label: "Documentation bundle" },
+            { id: "instructions", label: "Instructions" },
+            { id: "mailing", label: "Mailing" },
+        ],
         icon: (
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="2" y="7" width="20" height="14" rx="2" ry="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
@@ -51,6 +71,10 @@ const PHASES: Phase[] = [
         number: 4,
         title: "Finalizing",
         subtitle: "Interview preparation",
+        sections: [
+            { id: "interview-instructions", label: "Interview instructions" },
+            { id: "next-steps", label: "Next Steps" },
+        ],
         icon: (
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M17 8h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2v4l-4-4H9a1.994 1.994 0 0 1-1.414-.586m0 0L11 14h4a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2v4l.586-.586z" />
@@ -88,8 +112,8 @@ function Warning({ children }: { children: React.ReactNode }) {
     );
 }
 
-function SectionHeading({ children }: { children: React.ReactNode }) {
-    return <h3 className="text-base font-bold text-slate-900 mb-3">{children}</h3>;
+function SectionHeading({ id, children }: { id?: string; children: React.ReactNode }) {
+    return <h3 id={id} className="text-base font-bold text-slate-900 mb-3 scroll-mt-6">{children}</h3>;
 }
 
 function DocItem({ label, desc }: { label: string; desc: string }) {
@@ -132,7 +156,7 @@ function PhaseGetReady() {
                 <p className="mt-1 text-sm text-slate-500">Determine eligibility, gather evidence, and build your foundation.</p>
             </div>
 
-            <SectionHeading>Determine Eligibility</SectionHeading>
+            <SectionHeading id="determine-eligibility">Determine eligibility</SectionHeading>
             <div className="space-y-2 text-sm text-slate-700">
                 <p>Before you begin, confirm you meet the basic requirements for a marriage-based green card:</p>
                 <ul className="ml-4 list-disc space-y-1.5 text-slate-600">
@@ -143,8 +167,16 @@ function PhaseGetReady() {
                 </ul>
             </div>
 
-            <SectionHeading>Establish a Shared Life</SectionHeading>
+            <SectionHeading id="gather-documents">Gather documents</SectionHeading>
             <Tip>Start building evidence of your genuine relationship now — it will be critical later.</Tip>
+            <div className="space-y-2 mb-2">
+                <DocItem label="Birth Certificate" desc="Original with English translation if in a foreign language." />
+                <DocItem label="Valid Passport" desc="Must not expire within 6 months of filing." />
+                <DocItem label="Marriage Certificate" desc="Original certified copy from the issuing authority." />
+                <DocItem label="Passport-Style Photos" desc="Two 2x2 inch photos per USCIS specs." />
+                <DocItem label="Government ID" desc="Driver's license, state ID, or national ID card." />
+                <DocItem label="Divorce Decrees / Death Certificates" desc="Proof that prior marriages were legally terminated (if any)." />
+            </div>
             <div className="grid gap-3 sm:grid-cols-2">
                 {[
                     { title: "Joint Bank Account", desc: "Open a shared checking or savings account and use it regularly." },
@@ -161,16 +193,7 @@ function PhaseGetReady() {
                 ))}
             </div>
 
-            <SectionHeading>Evidence &amp; Document Checklist</SectionHeading>
-            <div className="space-y-2">
-                <DocItem label="Birth Certificate" desc="Original with English translation if in a foreign language." />
-                <DocItem label="Valid Passport" desc="Must not expire within 6 months of filing." />
-                <DocItem label="Marriage Certificate" desc="Original certified copy from the issuing authority." />
-                <DocItem label="Passport-Style Photos" desc="Two 2x2 inch photos per USCIS specs." />
-                <DocItem label="Government ID" desc="Driver's license, state ID, or national ID card." />
-                <DocItem label="Divorce Decrees / Death Certificates" desc="Proof that prior marriages were legally terminated (if any)." />
-            </div>
-
+            <SectionHeading id="annotations">Annotations</SectionHeading>
             <Tip>
                 Start gathering a photo album now! Collect dated photos of you and your spouse together — trips, holidays, family events.
                 USCIS may ask for 10–20 photos spanning your relationship. Include timestamps and label who is in each photo.
@@ -195,50 +218,21 @@ function PhaseApplication() {
                 <p className="mt-1 text-sm text-slate-500">Select your forms, prepare your documentation, and get your medical exam.</p>
             </div>
 
-            <SectionHeading>Select &amp; Fill Out Forms</SectionHeading>
+            <SectionHeading id="my-forms">My forms</SectionHeading>
             <p className="text-sm text-slate-600">
-                Navigate to the Forms page to select and begin filling out your required immigration forms.
-                PaperPair will guide you through each one.
+                Head to the Forms page to select and begin filling out your required immigration forms.
+                PaperPair will guide you through each one step by step.
             </p>
-            <div className="grid gap-3 sm:grid-cols-2">
-                {[
-                    { form: "I-130", desc: "Petition for Alien Relative — filed by the U.S. citizen spouse." },
-                    { form: "I-485", desc: "Adjustment of Status — core application to become a permanent resident." },
-                    { form: "I-765", desc: "Employment Authorization — allows you to work while your case is pending." },
-                    { form: "I-131", desc: "Advance Parole — allows you to travel outside the U.S. while pending." }
-                ].map((item) => (
-                    <div key={item.form} className="rounded-xl border border-slate-100 bg-white p-4 shadow-sm">
-                        <p className="text-sm font-bold text-slate-900">{item.form}</p>
-                        <p className="mt-1 text-xs text-slate-500">{item.desc}</p>
-                    </div>
-                ))}
-            </div>
-
             <div className="rounded-2xl border border-indigo-100 bg-indigo-50/50 p-5">
                 <p className="text-sm font-semibold text-indigo-900 mb-2">Go to the Forms page</p>
                 <p className="text-sm text-indigo-700 mb-4">
                     Select your required forms and begin filling them in. Your uploaded documents can be used to auto-fill fields.
                 </p>
-                <ActionLink href="/dashboard/forms/i485">Go to Forms</ActionLink>
+                <ActionLink href="/dashboard/forms">Go to Forms</ActionLink>
             </div>
 
-            <SectionHeading>AI Auto-Fill (Coming Soon)</SectionHeading>
-            <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
-                <div className="flex items-center gap-2 mb-2">
-                    <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-700 ring-1 ring-inset ring-blue-600/20">
-                        Beta
-                    </span>
-                    <p className="text-sm font-semibold text-slate-800">Intelligent Document Parsing</p>
-                </div>
-                <p className="text-sm text-slate-600">
-                    Once your personal documents are uploaded, PaperPair can extract key data (names, dates, addresses)
-                    using AI and automatically populate your government forms. This feature uses OpenAI / Gemini to parse
-                    uploaded PDFs and images.
-                </p>
-            </div>
-
-            <SectionHeading>Prepare for the Medical Exam</SectionHeading>
-            <div className="space-y-2 text-sm text-slate-600">
+            <SectionHeading id="what-to-expect">What to expect</SectionHeading>
+            <div className="space-y-2 text-sm text-slate-600 mb-4">
                 <p>Every applicant needs a medical exam (Form I-693) from a USCIS-designated Civil Surgeon.</p>
                 <ul className="ml-4 list-disc space-y-1.5">
                     <li>Find a Civil Surgeon near you using the USCIS tool on your Dashboard</li>
@@ -247,9 +241,7 @@ function PhaseApplication() {
                     <li>The I-693 is valid for 2 years from the date of the doctor&apos;s signature</li>
                 </ul>
             </div>
-
-            <SectionHeading>Prepare Personal Documentation</SectionHeading>
-            <div className="space-y-2 text-sm text-slate-600">
+            <div className="space-y-2 text-sm text-slate-600 mb-4">
                 <p>Before you move to submission, make sure you have:</p>
                 <ul className="ml-4 list-disc space-y-1.5">
                     <li>All forms completed and signed</li>
@@ -257,6 +249,18 @@ function PhaseApplication() {
                     <li>Copies of all supporting documents (keep originals safe)</li>
                     <li>Payment (check or money order) for filing fees</li>
                 </ul>
+            </div>
+            <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
+                <div className="flex items-center gap-2 mb-2">
+                    <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-700 ring-1 ring-inset ring-blue-600/20">
+                        Beta
+                    </span>
+                    <p className="text-sm font-semibold text-slate-800">AI Auto-Fill (Coming Soon)</p>
+                </div>
+                <p className="text-sm text-slate-600">
+                    Once your personal documents are uploaded, PaperPair can extract key data (names, dates, addresses)
+                    using AI and automatically populate your government forms.
+                </p>
             </div>
         </div>
     );
@@ -270,34 +274,13 @@ function PhaseSubmission() {
                 <p className="mt-1 text-sm text-slate-500">Download your completed forms, prepare the physical packet, and mail it.</p>
             </div>
 
-            <SectionHeading>Download &amp; Print Your Forms</SectionHeading>
+            <SectionHeading id="documentation-bundle">Documentation bundle</SectionHeading>
             <p className="text-sm text-slate-600 mb-3">
-                Once all forms are filled out, you can download the finalized PDFs from the Forms page.
-                All completed forms and uploaded documents will be available for download as a single packet.
+                Once all forms are filled out, download the finalized PDFs and assemble your packet.
+                Stack your documents in this exact order, top to bottom:
             </p>
             <ActionLink href="/dashboard/forms/i485">Download Completed Forms</ActionLink>
-
-            <SectionHeading>Physical Formatting Rules</SectionHeading>
-            <div className="space-y-3">
-                <Warning>These rules are strictly enforced by USCIS. Violating them may result in your packet being returned.</Warning>
-                <div className="grid gap-3 sm:grid-cols-2">
-                    {[
-                        { rule: "Print Single-Sided", desc: "All forms and documents must be printed on one side of 8.5\" × 11\" paper only." },
-                        { rule: "Binder Clips ONLY", desc: "Never use staples! Use binder clips to hold each form section together." },
-                        { rule: "Check or Money Order", desc: "Pay filing fees by personal check or money order payable to 'U.S. Department of Homeland Security'." },
-                        { rule: "No Highlights or Marks", desc: "Do not highlight, circle, or mark on any government form." }
-                    ].map((item) => (
-                        <div key={item.rule} className="rounded-xl border border-red-100 bg-red-50/50 p-4">
-                            <p className="text-sm font-bold text-red-900">{item.rule}</p>
-                            <p className="mt-1 text-xs text-red-700">{item.desc}</p>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            <SectionHeading>Collation Order (Stacking Sequence)</SectionHeading>
-            <p className="text-sm text-slate-600 mb-3">Stack your packet in this exact order, top to bottom:</p>
-            <div className="space-y-1">
+            <div className="space-y-1 mt-4">
                 {[
                     { pos: 1, item: "Filing fee (check or money order)", note: "Placed on top, clipped to G-1145" },
                     { pos: 2, item: "Form G-1145", note: "E-notification of acceptance" },
@@ -322,7 +305,25 @@ function PhaseSubmission() {
                 ))}
             </div>
 
-            <SectionHeading>Mailing Destination</SectionHeading>
+            <SectionHeading id="instructions">Instructions</SectionHeading>
+            <div className="space-y-3">
+                <Warning>These rules are strictly enforced by USCIS. Violating them may result in your packet being returned.</Warning>
+                <div className="grid gap-3 sm:grid-cols-2">
+                    {[
+                        { rule: "Print Single-Sided", desc: "All forms and documents must be printed on one side of 8.5\" × 11\" paper only." },
+                        { rule: "Binder Clips ONLY", desc: "Never use staples! Use binder clips to hold each form section together." },
+                        { rule: "Check or Money Order", desc: "Pay filing fees by personal check or money order payable to 'U.S. Department of Homeland Security'." },
+                        { rule: "No Highlights or Marks", desc: "Do not highlight, circle, or mark on any government form." }
+                    ].map((item) => (
+                        <div key={item.rule} className="rounded-xl border border-red-100 bg-red-50/50 p-4">
+                            <p className="text-sm font-bold text-red-900">{item.rule}</p>
+                            <p className="mt-1 text-xs text-red-700">{item.desc}</p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            <SectionHeading id="mailing">Mailing</SectionHeading>
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                 <p className="text-sm font-semibold text-slate-900 mb-2">USCIS Lockbox Facility</p>
                 <p className="text-sm text-slate-600 mb-3">
@@ -341,7 +342,7 @@ function PhaseSubmission() {
 
             <Tip>
                 After USCIS receives your packet, your next milestone is the <strong>I-797C (Notice of Action)</strong> —
-                this is your official receipt confirming your case has been accepted. You'll typically receive it 2–4 weeks after mailing.
+                this is your official receipt confirming your case has been accepted. You&apos;ll typically receive it 2–4 weeks after mailing.
             </Tip>
         </div>
     );
@@ -355,13 +356,12 @@ function PhaseFinalizing() {
                 <p className="mt-1 text-sm text-slate-500">Prepare for your interview and wrap up the process.</p>
             </div>
 
-            <SectionHeading>Interview Overview</SectionHeading>
-            <div className="space-y-2 text-sm text-slate-600">
+            <SectionHeading id="interview-instructions">Interview instructions</SectionHeading>
+            <div className="space-y-2 text-sm text-slate-600 mb-4">
                 <p>
                     After USCIS processes your application, you&apos;ll be scheduled for an in-person interview at your local USCIS field office.
                     Both spouses must attend.
                 </p>
-                <p>What to expect:</p>
                 <ul className="ml-4 list-disc space-y-1.5">
                     <li>The officer will verify your identity and place you under oath</li>
                     <li>They&apos;ll review your application and ask questions about your relationship</li>
@@ -370,8 +370,6 @@ function PhaseFinalizing() {
                     <li>Typical duration: 15–30 minutes</li>
                 </ul>
             </div>
-
-            <SectionHeading>What to Bring</SectionHeading>
             <div className="space-y-2">
                 <DocItem label="Interview Notice (I-797C)" desc="The official notice scheduling your interview — do not forget this." />
                 <DocItem label="Valid Passports" desc="Both spouses must bring current passports." />
@@ -380,7 +378,7 @@ function PhaseFinalizing() {
                 <DocItem label="State Photo ID" desc="Driver's license or state ID for both spouses." />
             </div>
 
-            <SectionHeading>Deep-Dive Preparation</SectionHeading>
+            <SectionHeading id="next-steps">Next Steps</SectionHeading>
             <p className="text-sm text-slate-600 mb-4">
                 For comprehensive interview practice — including common questions, flashcards, tips, and what-to-bring checklists —
                 head to the dedicated Next Steps page.
@@ -415,7 +413,9 @@ const PHASE_CONTENT: Record<string, () => React.ReactNode> = {
 
 export function MyCaseTimeline() {
     const [activePhase, setActivePhase] = useState("get-ready");
+    const [activeSection, setActiveSection] = useState<string | null>(null);
     const [completedPhases, setCompletedPhases] = useState<Record<string, boolean>>({});
+    const contentRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         try {
@@ -430,6 +430,26 @@ export function MyCaseTimeline() {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
             return next;
         });
+    };
+
+    const handlePhaseClick = (phaseId: string) => {
+        setActivePhase(phaseId);
+        setActiveSection(null);
+        contentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    const handleSectionClick = (phaseId: string, sectionId: string) => {
+        if (activePhase !== phaseId) {
+            setActivePhase(phaseId);
+            setActiveSection(sectionId);
+            // Wait for content to render before scrolling
+            setTimeout(() => {
+                document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }, 50);
+        } else {
+            setActiveSection(sectionId);
+            document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
     };
 
     const ActiveContent = PHASE_CONTENT[activePhase];
@@ -448,11 +468,11 @@ export function MyCaseTimeline() {
                         <div key={phase.id} className="relative">
                             {/* connector line */}
                             {!isLast && (
-                                <div className={`absolute left-[19px] top-[48px] h-[calc(100%_-_24px)] w-0.5 ${done ? "bg-emerald-300" : "bg-slate-200"}`} />
+                                <div className={`absolute left-[19px] top-[48px] w-0.5 transition-all duration-300 ${active ? `h-[calc(100%_-_12px)]` : "h-[calc(100%_-_24px)]"} ${done ? "bg-emerald-300" : "bg-slate-200"}`} />
                             )}
 
                             <button
-                                onClick={() => setActivePhase(phase.id)}
+                                onClick={() => handlePhaseClick(phase.id)}
                                 className={`relative flex w-full items-start gap-3 rounded-xl px-3 py-3 text-left transition-all ${active
                                         ? "bg-white shadow-sm ring-1 ring-slate-200"
                                         : "hover:bg-slate-50"
@@ -482,13 +502,34 @@ export function MyCaseTimeline() {
                                     <p className="text-xs text-slate-500 truncate">{phase.subtitle}</p>
                                 </div>
                             </button>
+
+                            {/* subsections — shown when phase is active */}
+                            {active && (
+                                <div className="ml-5 mb-2 border-l-2 border-slate-200 pl-3 space-y-1.5">
+                                    {phase.sections.map((section) => {
+                                        const sectionActive = activeSection === section.id;
+                                        return (
+                                            <button
+                                                key={section.id}
+                                                onClick={() => handleSectionClick(phase.id, section.id)}
+                                                className={`w-full text-left rounded-lg border px-3 py-2 text-xs transition-colors ${sectionActive
+                                                    ? "border-slate-300 bg-white font-semibold text-slate-900 shadow-sm"
+                                                    : "border-slate-200 bg-slate-50 text-slate-500 hover:bg-white hover:text-slate-700"
+                                                }`}
+                                            >
+                                                {section.label}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            )}
                         </div>
                     );
                 })}
             </nav>
 
             {/* ── Center: phase content ── */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 lg:p-8">
+            <div ref={contentRef} className="rounded-2xl border border-slate-200 bg-white p-6 lg:p-8 overflow-y-auto">
                 {ActiveContent && <ActiveContent />}
 
                 {/* mark complete toggle */}

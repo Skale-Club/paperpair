@@ -34,9 +34,21 @@ export default async function DashboardHomePage() {
     const profileEmail = immigrationData.email as string | undefined;
     const profileSpouseName = immigrationData.spouseName as string | undefined;
     const profileSpouseEmail = immigrationData.spouseEmail as string | undefined;
-    const profileCountry = immigrationData.country as string | undefined;
     const profileFilingReason = immigrationData.filingReason as string | undefined;
     const profileEntryType = immigrationData.entryType as string | undefined;
+
+    // Place of birth (new fields)
+    const birthCity = immigrationData.birthCity as string | undefined;
+    const birthState = immigrationData.birthState as string | undefined;
+    const birthCountry = immigrationData.birthCountry as string | undefined;
+    const spouseBirthCity = immigrationData.spouseBirthCity as string | undefined;
+    const spouseBirthState = immigrationData.spouseBirthState as string | undefined;
+    const spouseBirthCountry = immigrationData.spouseBirthCountry as string | undefined;
+
+    const formatPlace = (city?: string, state?: string, country?: string) => {
+        const parts = [city, state, country].filter(Boolean);
+        return parts.length ? parts.join(", ") : undefined;
+    };
 
     const FILING_REASON_LABELS: Record<string, string> = {
         "married-to-usc": "💍 Married to a U.S. Citizen",
@@ -162,7 +174,7 @@ export default async function DashboardHomePage() {
                 {/* Right Column: Quick Actions & Overview */}
                 <div className="space-y-6">
                     {/* Case Profile Card — shown after screener is complete */}
-                    {!showScreener && (profileFullName || profileCountry || profileFilingReason || profileEntryType) && (
+                    {!showScreener && (profileFullName || birthCountry || profileFilingReason || profileEntryType) && (
                         <DashboardCard title="Your Case Profile" subtitle="Collected during setup">
                             <div className="space-y-3">
                                 {[
@@ -170,7 +182,8 @@ export default async function DashboardHomePage() {
                                     { label: "Your Email", value: profileEmail },
                                     { label: "Spouse's Name", value: profileSpouseName },
                                     { label: "Spouse's Email", value: profileSpouseEmail },
-                                    { label: "Country of Birth", value: profileCountry },
+                                    { label: "Place of Birth", value: formatPlace(birthCity, birthState, birthCountry) },
+                                    { label: "Spouse's Place of Birth", value: formatPlace(spouseBirthCity, spouseBirthState, spouseBirthCountry) },
                                     { label: "Filing Reason", value: profileFilingReason ? FILING_REASON_LABELS[profileFilingReason] ?? profileFilingReason : undefined },
                                     { label: "Entry Type", value: profileEntryType ? ENTRY_TYPE_LABELS[profileEntryType] ?? profileEntryType : undefined },
                                 ]

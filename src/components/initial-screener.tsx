@@ -11,12 +11,17 @@ type Answers = {
   email: string;
   spouseName: string;
   spouseEmail: string;
-  country: string;
+  birthCity: string;
+  birthState: string;
+  birthCountry: string;
+  spouseBirthCity: string;
+  spouseBirthState: string;
+  spouseBirthCountry: string;
   filingReason: FilingReason | null;
   entryType: EntryType | null;
 };
 
-const STEP_COUNT = 7; // steps 1–7 (0 = welcome)
+const STEP_COUNT = 9; // steps 1–9 (0 = welcome)
 
 const toNameCase = (v: string) => v.replace(/(^|\s)\S/g, (c) => c.toUpperCase());
 
@@ -181,30 +186,68 @@ function SpouseNameStep({
   );
 }
 
-// ── Step 3: Country of birth ──────────────────────────────────────────────────
-function CountryStep({
-  value,
-  onChange,
+// ── Place of birth step (reused for user + spouse) ───────────────────────────
+function PlaceOfBirthStep({
+  title,
+  subtitle,
+  city,
+  state,
+  country,
+  onChangeCity,
+  onChangeState,
+  onChangeCountry,
   onNext,
 }: {
-  value: string;
-  onChange: (v: string) => void;
+  title: string;
+  subtitle: string;
+  city: string;
+  state: string;
+  country: string;
+  onChangeCity: (v: string) => void;
+  onChangeState: (v: string) => void;
+  onChangeCountry: (v: string) => void;
   onNext: () => void;
 }) {
+  const inputClass = "w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 focus:border-[var(--color-trust)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-trust)]/20";
   return (
     <div>
-      <h3 className="text-lg font-bold text-slate-900">What is your country of birth?</h3>
-      <p className="mt-1 text-sm text-slate-500">This helps us tailor your case information.</p>
-      <input
-        type="text"
-        autoFocus
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder="e.g. Mexico, El Salvador, India…"
-        className="mt-4 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 focus:border-[var(--color-trust)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-trust)]/20"
-        onKeyDown={(e) => e.key === "Enter" && value.trim() && onNext()}
-      />
-      <NextButton onClick={onNext} disabled={!value.trim()} />
+      <h3 className="text-lg font-bold text-slate-900">{title}</h3>
+      <p className="mt-1 text-sm text-slate-500">{subtitle}</p>
+      <div className="mt-4 space-y-3">
+        <div>
+          <label className="mb-1 block text-xs font-medium text-slate-500">City</label>
+          <input
+            type="text"
+            autoFocus
+            value={city}
+            onChange={(e) => onChangeCity(e.target.value)}
+            placeholder="e.g. Guadalajara"
+            className={inputClass}
+          />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs font-medium text-slate-500">State / Province <span className="text-slate-400">(optional)</span></label>
+          <input
+            type="text"
+            value={state}
+            onChange={(e) => onChangeState(e.target.value)}
+            placeholder="e.g. Jalisco"
+            className={inputClass}
+          />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs font-medium text-slate-500">Country</label>
+          <input
+            type="text"
+            value={country}
+            onChange={(e) => onChangeCountry(e.target.value)}
+            placeholder="e.g. Mexico"
+            className={inputClass}
+            onKeyDown={(e) => e.key === "Enter" && city.trim() && country.trim() && onNext()}
+          />
+        </div>
+      </div>
+      <NextButton onClick={onNext} disabled={!city.trim() || !country.trim()} />
     </div>
   );
 }
@@ -353,7 +396,12 @@ export function InitialScreener() {
     email: "",
     spouseName: "",
     spouseEmail: "",
-    country: "",
+    birthCity: "",
+    birthState: "",
+    birthCountry: "",
+    spouseBirthCity: "",
+    spouseBirthState: "",
+    spouseBirthCountry: "",
     filingReason: null,
     entryType: null,
   });
@@ -383,7 +431,12 @@ export function InitialScreener() {
             email: answers.email,
             spouseName: answers.spouseName,
             spouseEmail: answers.spouseEmail,
-            country: answers.country,
+            birthCity: answers.birthCity,
+            birthState: answers.birthState,
+            birthCountry: answers.birthCountry,
+            spouseBirthCity: answers.spouseBirthCity,
+            spouseBirthState: answers.spouseBirthState,
+            spouseBirthCountry: answers.spouseBirthCountry,
             filingReason: answers.filingReason,
             entryType: answers.entryType,
           },
@@ -475,13 +528,32 @@ export function InitialScreener() {
             />
           )}
           {step === 5 && (
-            <CountryStep
-              value={answers.country}
-              onChange={(v) => setAnswers((a) => ({ ...a, country: v }))}
+            <PlaceOfBirthStep
+              title="What is your place of birth?"
+              subtitle="Enter where you were born. This appears on immigration forms."
+              city={answers.birthCity}
+              state={answers.birthState}
+              country={answers.birthCountry}
+              onChangeCity={(v) => setAnswers((a) => ({ ...a, birthCity: v }))}
+              onChangeState={(v) => setAnswers((a) => ({ ...a, birthState: v }))}
+              onChangeCountry={(v) => setAnswers((a) => ({ ...a, birthCountry: v }))}
               onNext={goNext}
             />
           )}
           {step === 6 && (
+            <PlaceOfBirthStep
+              title="What is your spouse's place of birth?"
+              subtitle="Enter where your spouse was born."
+              city={answers.spouseBirthCity}
+              state={answers.spouseBirthState}
+              country={answers.spouseBirthCountry}
+              onChangeCity={(v) => setAnswers((a) => ({ ...a, spouseBirthCity: v }))}
+              onChangeState={(v) => setAnswers((a) => ({ ...a, spouseBirthState: v }))}
+              onChangeCountry={(v) => setAnswers((a) => ({ ...a, spouseBirthCountry: v }))}
+              onNext={goNext}
+            />
+          )}
+          {step === 7 && (
             <FilingReasonStep
               selected={answers.filingReason}
               onSelect={(v) => {
@@ -490,7 +562,7 @@ export function InitialScreener() {
               }}
             />
           )}
-          {step === 7 && (
+          {step === 8 && (
             <EntryTypeStep
               selected={answers.entryType}
               onSelect={(v) => setAnswers((a) => ({ ...a, entryType: v }))}
@@ -502,7 +574,7 @@ export function InitialScreener() {
         </div>
 
         {/* Back link */}
-        {step > 0 && step < 7 && (
+        {step > 0 && step < 8 && (
           <div className="border-t border-slate-100 px-6 py-3 text-center">
             <button
               type="button"

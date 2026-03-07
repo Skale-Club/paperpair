@@ -2,6 +2,10 @@
 
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
+import { FORM_PACKS, getSentForms, type FormItem, type FormPack } from "@/lib/form-packs";
+import { PdfViewer } from "@/components/pdf-viewer";
+
+type SelectedForm = { form: FormItem; pack: FormPack };
 
 /* ─── phase data ─── */
 type PhaseSection = {
@@ -460,7 +464,10 @@ const SECTION_CONTENT: Record<string, () => React.ReactNode> = {
 export function MyCaseTimeline() {
     const [activePhase, setActivePhase] = useState("get-ready");
     const [activeSection, setActiveSection] = useState<string>("determine-eligibility");
+    const [activeFormId, setActiveFormId] = useState<string | null>(null);
+    const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
     const [completedPhases, setCompletedPhases] = useState<Record<string, boolean>>({});
+    const [selectedForms, setSelectedForms] = useState<SelectedForm[]>([]);
     const contentRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -468,6 +475,17 @@ export function MyCaseTimeline() {
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) setCompletedPhases(JSON.parse(saved));
         } catch { /* ignore */ }
+    }, []);
+
+    useEffect(() => {
+        const sentIds = getSentForms();
+        const result: SelectedForm[] = [];
+        for (const pack of FORM_PACKS) {
+            for (const form of pack.forms) {
+                if (sentIds.includes(form.id)) result.push({ form, pack });
+            }
+        }
+        setSelectedForms(result);
     }, []);
 
     const toggleComplete = (phaseId: string) => {
@@ -482,16 +500,39 @@ export function MyCaseTimeline() {
         const phase = PHASES.find(p => p.id === phaseId);
         setActivePhase(phaseId);
         setActiveSection(phase?.sections[0]?.id ?? "");
+        setActiveFormId(null);
         contentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
     };
 
     const handleSectionClick = (phaseId: string, sectionId: string) => {
+        if (activeSection === sectionId && sectionId === "my-forms") {
+            // Toggle collapse when clicking the already-active my-forms section
+            setCollapsedSections(prev => ({ ...prev, [sectionId]: !prev[sectionId] }));
+            return;
+        }
         setActivePhase(phaseId);
         setActiveSection(sectionId);
+        setActiveFormId(null);
+        // Auto-expand my-forms when navigating to it
+        if (sectionId === "my-forms") {
+            setCollapsedSections(prev => ({ ...prev, "my-forms": false }));
+        }
+        contentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    const handleFormClick = (formId: string) => {
+        setActiveFormId(formId);
         contentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
     };
 
     const ActiveContent = SECTION_CONTENT[activeSection];
+    const activeForm = selectedForms.find(f => f.form.id === activeFormId);
+
+    // Group selected forms by pack for the sub-subsection nav
+    const formsByPack = FORM_PACKS.map(pack => ({
+        pack,
+        forms: selectedForms.filter(f => f.pack.id === pack.id).map(f => f.form),
+    })).filter(g => g.forms.length > 0);
 
     return (
         <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
@@ -548,16 +589,50 @@ export function MyCaseTimeline() {
                                     {phase.sections.map((section) => {
                                         const sectionActive = activeSection === section.id;
                                         return (
-                                            <button
-                                                key={section.id}
-                                                onClick={() => handleSectionClick(phase.id, section.id)}
-                                                className={`w-full text-left rounded-lg border px-3 py-2 text-xs transition-colors ${sectionActive
-                                                    ? "border-slate-300 bg-white font-semibold text-slate-900 shadow-sm"
-                                                    : "border-slate-200 bg-slate-50 text-slate-500 hover:bg-white hover:text-slate-700"
-                                                }`}
-                                            >
-                                                {section.label}
-                                            </button>
+                                            <div key={section.id}>
+                                                <button
+                                                    onClick={() => handleSectionClick(phase.id, section.id)}
+                                                    className={`w-full text-left rounded-lg border px-3 py-2 text-xs transition-colors flex items-center justify-between ${sectionActive
+                                                        ? "border-slate-300 bg-white font-semibold text-slate-900 shadow-sm"
+                                                        : "border-slate-200 bg-slate-50 text-slate-500 hover:bg-white hover:text-slate-700"
+                                                    }`}
+                                                >
+                                                    <span>{section.label}</span>
+                                                    {section.id === "my-forms" && formsByPack.length > 0 && (
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className={`h-3 w-3 shrink-0 transition-transform ${sectionActive && !collapsedSections["my-forms"] ? "rotate-180" : ""}`} viewBox="0 0 20 20" fill="currentColor">
+                                                            <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                                        </svg>
+                                                    )}
+                                                </button>
+
+                                                {/* sub-subsections: individual forms under "my-forms" */}
+                                                {sectionActive && section.id === "my-forms" && formsByPack.length > 0 && !collapsedSections["my-forms"] && (
+                                                    <div className="ml-3 mt-1.5 border-l-2 border-slate-100 pl-2 space-y-1">
+                                                        {formsByPack.map(({ pack, forms: packForms }) => (
+                                                            <div key={pack.id}>
+                                                                <p className="px-2 py-1 text-[10px] font-semibold uppercase tracking-widest text-red-400">
+                                                                    {pack.detailLabel}
+                                                                </p>
+                                                                {packForms.map(form => {
+                                                                    const formActive = activeFormId === form.id;
+                                                                    return (
+                                                                        <button
+                                                                            key={form.id}
+                                                                            onClick={() => handleFormClick(form.id)}
+                                                                            className={`w-full text-left rounded-md px-2 py-1.5 text-[11px] transition-colors ${formActive
+                                                                                ? "bg-slate-900 font-semibold text-white"
+                                                                                : "text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+                                                                            }`}
+                                                                        >
+                                                                            {form.title.replace(/\n/g, " ")}
+                                                                        </button>
+                                                                    );
+                                                                })}
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
                                         );
                                     })}
                                 </div>
@@ -569,7 +644,21 @@ export function MyCaseTimeline() {
 
             {/* ── Center: section content ── */}
             <div ref={contentRef} className="rounded-2xl border border-slate-200 bg-white p-6 lg:p-8 overflow-y-auto">
-                {ActiveContent && <ActiveContent />}
+                {activeFormId && activeForm ? (
+                    <div className="space-y-4">
+                        <div>
+                            <p className="text-xs text-slate-400">{activeForm.pack.label}</p>
+                            <h2 className="text-xl font-bold text-slate-900">
+                                {activeForm.form.title.replace(/\n/g, " ")}
+                            </h2>
+                        </div>
+                        <div className="rounded-xl overflow-hidden bg-slate-200">
+                            <PdfViewer url={activeForm.form.pdfUrl} />
+                        </div>
+                    </div>
+                ) : (
+                    ActiveContent && <ActiveContent />
+                )}
 
                 {/* mark complete toggle */}
                 <div className="mt-8 flex items-center justify-between border-t border-slate-100 pt-6">

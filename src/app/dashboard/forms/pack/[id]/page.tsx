@@ -104,7 +104,7 @@ export default function PackDetailPage() {
   const handleSelectMoreForms = () => {
     confirmPackSelection(pack.id, selectedForms);
     setShowModal(false);
-    router.push("/dashboard/forms");
+    router.push("/dashboard/my-forms");
   };
 
   const handleSendNow = () => {
@@ -120,7 +120,7 @@ export default function PackDetailPage() {
       <div className="mb-8">
         <button
           type="button"
-          onClick={() => router.push("/dashboard/forms")}
+          onClick={() => router.push("/dashboard/my-forms")}
           className="mb-4 flex items-center gap-1.5 text-sm text-slate-500 transition-colors hover:text-slate-900"
         >
           <svg
@@ -135,7 +135,7 @@ export default function PackDetailPage() {
               clipRule="evenodd"
             />
           </svg>
-          All Forms
+          My Forms
         </button>
         <h1 className="text-xl font-semibold text-red-500">{pack.detailLabel}</h1>
         <p className="mt-1 text-sm text-slate-500">

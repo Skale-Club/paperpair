@@ -25,6 +25,7 @@ export default async function DashboardHomePage() {
     const showScreener = !immigrationData.entryType;
 
     const profileFullName = immigrationData.fullName as string | undefined;
+    const profileSpouseName = immigrationData.spouseName as string | undefined;
     const profileCountry = immigrationData.country as string | undefined;
     const profileFilingReason = immigrationData.filingReason as string | undefined;
     const profileEntryType = immigrationData.entryType as string | undefined;
@@ -146,6 +147,7 @@ export default async function DashboardHomePage() {
                             <div className="space-y-3">
                                 {[
                                     { label: "Full Name", value: profileFullName },
+                                    { label: "Spouse's Name", value: profileSpouseName },
                                     { label: "Country of Birth", value: profileCountry },
                                     { label: "Filing Reason", value: profileFilingReason ? FILING_REASON_LABELS[profileFilingReason] ?? profileFilingReason : undefined },
                                     { label: "Entry Type", value: profileEntryType ? ENTRY_TYPE_LABELS[profileEntryType] ?? profileEntryType : undefined },

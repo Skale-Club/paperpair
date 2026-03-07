@@ -8,12 +8,15 @@ type FilingReason = "married-to-usc" | "child-of-usc" | "parent-of-usc" | "other
 
 type Answers = {
   fullName: string;
+  spouseName: string;
   country: string;
   filingReason: FilingReason | null;
   entryType: EntryType | null;
 };
 
-const STEP_COUNT = 4; // steps 1–4 (0 = welcome)
+const STEP_COUNT = 5; // steps 1–5 (0 = welcome)
+
+const toNameCase = (v: string) => v.replace(/(^|\s)\S/g, (c) => c.toUpperCase());
 
 // ── Progress dots ─────────────────────────────────────────────────────────────
 function ProgressDots({ current }: { current: number }) {
@@ -68,6 +71,9 @@ function WelcomeStep({ onNext }: { onNext: () => void }) {
         no lawyers required. Answer a few quick questions and we&apos;ll
         personalize your dashboard so you always know what to do next.
       </p>
+      <p className="mt-3 rounded-lg bg-blue-50 border border-blue-100 px-3 py-2 text-xs text-blue-800 leading-relaxed text-left">
+        <span className="font-semibold">One account is all you need.</span> Only one partner needs to create an account and manage the steps — there&apos;s no need for your spouse to sign up separately.
+      </p>
       <p className="mt-2 text-xs text-slate-400">Takes about 2 minutes.</p>
       <NextButton onClick={onNext} label="Get Started →" />
     </div>
@@ -97,7 +103,7 @@ function NameStep({
         type="text"
         autoFocus
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => onChange(toNameCase(e.target.value))}
         placeholder="e.g. María Elena García López"
         className="mt-4 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 focus:border-[var(--color-trust)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-trust)]/20"
         onKeyDown={(e) => e.key === "Enter" && value.trim() && onNext()}
@@ -107,7 +113,40 @@ function NameStep({
   );
 }
 
-// ── Step 2: Country of birth ──────────────────────────────────────────────────
+// ── Step 2: Spouse's name ─────────────────────────────────────────────────────
+function SpouseNameStep({
+  value,
+  onChange,
+  onNext,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  onNext: () => void;
+}) {
+  return (
+    <div>
+      <h3 className="text-lg font-bold text-slate-900">What is your spouse&apos;s full legal name?</h3>
+      <p className="mt-1 text-sm text-slate-500">
+        This is the name of the other partner in the application.
+      </p>
+      <p className="mt-2 rounded-lg bg-amber-50 border border-amber-100 px-3 py-2 text-xs text-amber-800 leading-relaxed">
+        <span className="font-semibold">Legal full name</span> — enter it exactly as it appears on their passport or government-issued ID, including middle name if applicable.
+      </p>
+      <input
+        type="text"
+        autoFocus
+        value={value}
+        onChange={(e) => onChange(toNameCase(e.target.value))}
+        placeholder="e.g. James Robert Smith"
+        className="mt-4 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 focus:border-[var(--color-trust)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-trust)]/20"
+        onKeyDown={(e) => e.key === "Enter" && value.trim() && onNext()}
+      />
+      <NextButton onClick={onNext} disabled={!value.trim()} />
+    </div>
+  );
+}
+
+// ── Step 3: Country of birth ──────────────────────────────────────────────────
 function CountryStep({
   value,
   onChange,
@@ -276,6 +315,7 @@ export function InitialScreener() {
 
   const [answers, setAnswers] = useState<Answers>({
     fullName: "",
+    spouseName: "",
     country: "",
     filingReason: null,
     entryType: null,
@@ -303,6 +343,7 @@ export function InitialScreener() {
           status: "IN_PROGRESS",
           data: {
             fullName: answers.fullName,
+            spouseName: answers.spouseName,
             country: answers.country,
             filingReason: answers.filingReason,
             entryType: answers.entryType,
@@ -355,13 +396,20 @@ export function InitialScreener() {
             />
           )}
           {step === 2 && (
+            <SpouseNameStep
+              value={answers.spouseName}
+              onChange={(v) => setAnswers((a) => ({ ...a, spouseName: v }))}
+              onNext={goNext}
+            />
+          )}
+          {step === 3 && (
             <CountryStep
               value={answers.country}
               onChange={(v) => setAnswers((a) => ({ ...a, country: v }))}
               onNext={goNext}
             />
           )}
-          {step === 3 && (
+          {step === 4 && (
             <FilingReasonStep
               selected={answers.filingReason}
               onSelect={(v) => {
@@ -370,7 +418,7 @@ export function InitialScreener() {
               }}
             />
           )}
-          {step === 4 && (
+          {step === 5 && (
             <EntryTypeStep
               selected={answers.entryType}
               onSelect={(v) => setAnswers((a) => ({ ...a, entryType: v }))}
@@ -382,7 +430,7 @@ export function InitialScreener() {
         </div>
 
         {/* Back link */}
-        {step > 0 && step < 4 && (
+        {step > 0 && step < 5 && (
           <div className="border-t border-slate-100 px-6 py-3 text-center">
             <button
               type="button"

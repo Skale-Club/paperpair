@@ -3,6 +3,7 @@ import { asStepData } from "@/lib/case-step-data";
 import { DASHBOARD_STEPS } from "@/lib/dashboard-steps";
 import { FEES_2026, CONCURRENT_BUNDLE_TOTAL } from "@/lib/fee-schedule";
 import { ScreenerMount } from "@/components/screener-mount";
+import { CaseProfileCard } from "@/components/case-profile-card";
 import { CivilSurgeonWidget } from "@/components/civil-surgeon-widget";
 import { DashboardCard, StatCard } from "@/components/ui/dashboard-card";
 import Link from "next/link";
@@ -45,21 +46,6 @@ export default async function DashboardHomePage() {
     const spouseBirthState = immigrationData.spouseBirthState as string | undefined;
     const spouseBirthCountry = immigrationData.spouseBirthCountry as string | undefined;
 
-    const formatPlace = (city?: string, state?: string, country?: string) => {
-        const parts = [city, state, country].filter(Boolean);
-        return parts.length ? parts.join(", ") : undefined;
-    };
-
-    const FILING_REASON_LABELS: Record<string, string> = {
-        "married-to-usc": "💍 Married to a U.S. Citizen",
-        "child-of-usc": "👶 Child of a U.S. Citizen",
-        "parent-of-usc": "👨‍👩‍👧 Parent of a U.S. Citizen (21+)",
-        "other": "📋 Other basis",
-    };
-    const ENTRY_TYPE_LABELS: Record<string, string> = {
-        "overstay": "✈️ Visa Overstay",
-        "ewi": "🚶 Entry Without Inspection (EWI)",
-    };
 
     return (
         <div className="space-y-8">
@@ -118,29 +104,22 @@ export default async function DashboardHomePage() {
                 />
             </div>
 
-            {/* Case Profile — full-width, shown after screener is complete */}
+            {/* Case Profile — full-width, editable, shown after screener is complete */}
             {!showScreener && (profileFullName || birthCountry || profileFilingReason || profileEntryType) && (
-                <DashboardCard title="Case Profile" subtitle="Information collected during setup">
-                    <div className="grid gap-x-8 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
-                        {[
-                            { label: "Full Name", value: profileFullName },
-                            { label: "Your Email", value: profileEmail },
-                            { label: "Place of Birth", value: formatPlace(birthCity, birthState, birthCountry) },
-                            { label: "Spouse's Name", value: profileSpouseName },
-                            { label: "Spouse's Email", value: profileSpouseEmail },
-                            { label: "Spouse's Place of Birth", value: formatPlace(spouseBirthCity, spouseBirthState, spouseBirthCountry) },
-                            { label: "Filing Reason", value: profileFilingReason ? FILING_REASON_LABELS[profileFilingReason] ?? profileFilingReason : undefined },
-                            { label: "Entry Type", value: profileEntryType ? ENTRY_TYPE_LABELS[profileEntryType] ?? profileEntryType : undefined },
-                        ]
-                            .filter((row) => row.value)
-                            .map(({ label, value }) => (
-                                <div key={label} className="flex flex-col gap-0.5">
-                                    <span className="text-xs font-medium uppercase tracking-wide text-slate-400">{label}</span>
-                                    <span className="text-sm font-semibold text-slate-900">{value}</span>
-                                </div>
-                            ))}
-                    </div>
-                </DashboardCard>
+                <CaseProfileCard data={{
+                    fullName: profileFullName,
+                    email: profileEmail,
+                    spouseName: profileSpouseName,
+                    spouseEmail: profileSpouseEmail,
+                    birthCity,
+                    birthState,
+                    birthCountry,
+                    spouseBirthCity,
+                    spouseBirthState,
+                    spouseBirthCountry,
+                    filingReason: profileFilingReason,
+                    entryType: profileEntryType,
+                }} />
             )}
 
             <div className="grid gap-6 lg:grid-cols-2">

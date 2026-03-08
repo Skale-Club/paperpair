@@ -668,7 +668,7 @@ export function MyCaseTimeline() {
                             {/* subsections — shown when phase is active */}
                             {active && (
                                 <div className="relative ml-1 mb-3 pl-5 pr-6 space-y-2.5">
-                                    <div className="absolute left-2 top-0 bottom-0 w-0.5 rounded-full bg-emerald-200" aria-hidden />
+                                    <div className="absolute left-2 top-0 bottom-0 w-0.5 rounded-full bg-slate-400" aria-hidden />
                                     {phase.sections.map((section) => {
                                         const sectionActive = activeSection === section.id;
                                         const sectionDone = !!(completedSections[phase.id]?.[section.id]);
@@ -676,13 +676,13 @@ export function MyCaseTimeline() {
                                             <div key={section.id}>
                                                 <button
                                                     onClick={() => handleSectionClick(phase.id, section.id)}
-                                                    className={`w-full text-left rounded-lg border px-3 py-2 text-xs transition-colors flex items-center justify-between ${sectionActive
+                                                    className={`relative w-full text-left rounded-lg border px-3 py-2 text-xs transition-colors flex items-center justify-between ${sectionActive
                                                         ? "border-slate-300 bg-white font-semibold text-slate-900 shadow-sm"
                                                         : "border-slate-200 bg-slate-50 text-slate-500 hover:bg-white hover:text-slate-700"
                                                     }`}
                                                 >
                                                     <span className="flex items-center gap-2">
-                                                        <span className="h-px w-4 bg-emerald-200" aria-hidden />
+                                                        <span className="pointer-events-none absolute left-[-18px] top-1/2 h-[2px] w-[18px] -translate-y-1/2 bg-slate-400" aria-hidden />
                                                         <span className={`flex h-5 w-5 items-center justify-center rounded-full border ${sectionDone ? "border-emerald-500 bg-emerald-50 text-emerald-600" : "border-slate-300 bg-white text-slate-300"}`}>
                                                             {sectionDone ? <CheckIcon /> : null}
                                                         </span>
@@ -698,7 +698,7 @@ export function MyCaseTimeline() {
                                                 {/* sub-subsections: individual forms under "my-forms" */}
                                                 {sectionActive && section.id === "my-forms" && formsByPack.length > 0 && !collapsedSections["my-forms"] && (
                                                     <div className="relative ml-4 mt-1.5 pl-4 space-y-2">
-                                                        <div className="absolute left-1 top-0 bottom-0 w-0.5 rounded-full bg-emerald-100" aria-hidden />
+                                                        <div className="absolute left-1 top-0 bottom-0 w-0.5 rounded-full bg-slate-300" aria-hidden />
                                                         {formsByPack.map(({ pack, forms: packForms }) => (
                                                             <div key={pack.id}>
                                                                 <p className="px-2 py-1 text-[10px] font-semibold uppercase tracking-widest text-red-400">
@@ -718,12 +718,12 @@ export function MyCaseTimeline() {
                                                                             key={form.id}
                                                                             className={`w-full rounded-lg border px-3 py-2 text-xs transition-colors relative ${status === "done"
                                                                                 ? "border-emerald-100 bg-emerald-50"
-                                                                                : status === "skipped"
-                                                                                    ? "border-slate-200 bg-slate-50 text-slate-400"
-                                                                                    : "border-slate-200 bg-white"
-                                                                            }`}
+                                                                        : status === "skipped"
+                                                                            ? "border-slate-200 bg-slate-50 text-slate-400"
+                                                                            : "border-slate-200 bg-white"
+                                                                        }`}
                                                                         >
-                                                                            <span className="absolute -left-4 top-1/2 h-px w-4 -translate-y-1/2 bg-emerald-200" aria-hidden />
+                                                                            <span className="pointer-events-none absolute -left-4 top-1/2 h-[2px] w-4 -translate-y-1/2 bg-slate-300" aria-hidden />
                                                                             <div className="flex items-start justify-between gap-3">
                                                                                 <div className="flex items-start gap-3">
                                                                                     <span className={`mt-0.5 flex h-5 w-5 items-center justify-center rounded-full border ${circleClass}`}>

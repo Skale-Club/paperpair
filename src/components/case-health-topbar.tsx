@@ -39,15 +39,15 @@ export function CaseHealthTopbar({
 
   return (
     <header
-      className="sticky top-0 z-40 flex flex-wrap items-center gap-4 px-5 py-3 shadow-sm"
+      className="sticky top-0 z-40 flex items-center gap-4 px-5 py-3 shadow-sm"
       style={{ background: "var(--color-trust)", color: "#fff" }}
     >
-      <Link href="/dashboard" className="flex items-center gap-2 shrink-0">
+      <Link href="/dashboard" className="flex shrink-0 items-center gap-2">
         <span className="text-lg font-bold tracking-tight text-white">PaperPair</span>
       </Link>
 
       {showProgress && (
-        <div className="min-w-[140px] max-w-xs">
+        <div className="hidden min-w-[160px] max-w-xs sm:block">
           <div className="mb-1 flex items-center justify-between gap-2">
             <span className="text-xs font-medium text-white/75">{t("topbar.caseHealth", lang)}</span>
             <span className="text-[11px] font-bold text-white">{percent}%</span>
@@ -62,7 +62,7 @@ export function CaseHealthTopbar({
       )}
 
       <div className="ml-auto flex items-center gap-3">
-        <nav className="hidden items-center gap-3 md:flex">
+        <nav className="hidden items-center gap-3 lg:flex">
           {NAV_LINKS.map((link) => {
             const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
             return (
@@ -100,4 +100,3 @@ export function CaseHealthTopbar({
     </header>
   );
 }
-

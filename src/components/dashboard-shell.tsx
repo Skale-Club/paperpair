@@ -3,8 +3,9 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { CaseHealthTopbar } from "@/components/case-health-topbar";
-import { DashboardSidebar } from "@/components/dashboard-sidebar";
 import { PasskeyPrompt } from "@/components/passkey-prompt";
+import { DashboardGeneralMenu } from "@/components/dashboard-general-menu";
+import { DashboardQuickRail } from "@/components/dashboard-quick-rail";
 
 type DashboardShellProps = {
   children: ReactNode;
@@ -35,7 +36,7 @@ export function DashboardShell({
           isMenuOpen={isMenuOpen}
           onMenuToggle={() => setIsMenuOpen((value) => !value)}
         />
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-6 lg:pr-24">
           {previewMode ? (
             <div className="mb-6 flex items-center justify-between rounded-2xl border border-amber-200/50 bg-amber-50/50 p-4 text-sm text-amber-700 backdrop-blur-sm">
               <div className="flex items-center gap-3">
@@ -58,7 +59,8 @@ export function DashboardShell({
         </main>
       </div>
 
-      <DashboardSidebar open={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+      <DashboardQuickRail />
+      <DashboardGeneralMenu open={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
     </div>
   );
 }

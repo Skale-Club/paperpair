@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
-import { FORM_PACKS, getSentForms, type FormItem, type FormPack } from "@/lib/form-packs";
+import { FORM_PACKS, type FormItem, type FormPack } from "@/lib/form-packs";
 import { PdfViewer } from "@/components/pdf-viewer";
 
 type SelectedForm = { form: FormItem; pack: FormPack };
+type FormStatus = "pending" | "done" | "skipped";
 
 /* ─── phase data ─── */
 type PhaseSection = {
@@ -88,6 +89,8 @@ const PHASES: Phase[] = [
 ];
 
 const STORAGE_KEY = "paperpair_timeline_complete";
+const FORM_STATUS_KEY = "paperpair_form_status";
+const REQUIRED_FORM_IDS = new Set(["i485-application", "i130-petition", "i693-medical"]);
 
 type CompletedState = {
     phases: Record<string, boolean>;
@@ -473,6 +476,7 @@ export function MyCaseTimeline() {
     const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
     const [completed, setCompleted] = useState<CompletedState>({ phases: {}, sections: {} });
     const [selectedForms, setSelectedForms] = useState<SelectedForm[]>([]);
+    const [formStatus, setFormStatus] = useState<Record<string, FormStatus>>({});
     const contentRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -491,15 +495,40 @@ export function MyCaseTimeline() {
     }, []);
 
     useEffect(() => {
-        const sentIds = getSentForms();
-        const result: SelectedForm[] = [];
+        // Show all forms by default
+        const allForms: SelectedForm[] = [];
         for (const pack of FORM_PACKS) {
             for (const form of pack.forms) {
-                if (sentIds.includes(form.id)) result.push({ form, pack });
+                allForms.push({ form, pack });
             }
         }
-        setSelectedForms(result);
+        setSelectedForms(allForms);
+
+        // Load form status
+        try {
+            const raw = localStorage.getItem(FORM_STATUS_KEY);
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                if (parsed && typeof parsed === "object") {
+                    setFormStatus(parsed as Record<string, FormStatus>);
+                }
+            }
+        } catch { /* ignore */ }
     }, []);
+
+    const recomputePhaseCompletion = (state: CompletedState): CompletedState => {
+        const nextPhases = { ...state.phases };
+        PHASES.forEach((phase) => {
+            const secMap = state.sections[phase.id] ?? {};
+            const allSectionsDone = phase.sections.every((s) => secMap[s.id]);
+            if (allSectionsDone) {
+                nextPhases[phase.id] = true;
+            } else {
+                nextPhases[phase.id] = nextPhases[phase.id] ?? false;
+            }
+        });
+        return { phases: nextPhases, sections: state.sections };
+    };
 
     const markSectionComplete = (phaseId: string, sectionId: string) => {
         setCompleted((prev) => {
@@ -508,15 +537,41 @@ export function MyCaseTimeline() {
             phaseSections[sectionId] = true;
             nextSections[phaseId] = phaseSections;
 
-            const phase = PHASES.find((p) => p.id === phaseId);
-            const allSectionsDone = phase ? phase.sections.every((s) => phaseSections[s.id]) : false;
-
-            const nextPhases = { ...prev.phases };
-            if (allSectionsDone) nextPhases[phaseId] = true;
-
-            const nextState: CompletedState = { phases: nextPhases, sections: nextSections };
+            const nextState = recomputePhaseCompletion({ phases: { ...prev.phases }, sections: nextSections });
             localStorage.setItem(STORAGE_KEY, JSON.stringify(nextState));
             return nextState;
+        });
+    };
+
+    const updateFormStatus = (formId: string, status: FormStatus) => {
+        setFormStatus((prev) => {
+            const next = { ...prev, [formId]: status };
+            localStorage.setItem(FORM_STATUS_KEY, JSON.stringify(next));
+
+            // After status change, check if all forms are satisfied; if yes, mark my-forms section complete
+            setCompleted((prevCompleted) => {
+                const allFormsSatisfied = FORM_PACKS
+                    .flatMap((p) => p.forms.map((f) => f.id))
+                    .every((id) => {
+                        const st = next[id] ?? "pending";
+                        const required = REQUIRED_FORM_IDS.has(id);
+                        return required ? st === "done" : st === "done" || st === "skipped";
+                    });
+
+                const nextSections = { ...prevCompleted.sections };
+                if (!nextSections["application"]) nextSections["application"] = {};
+                if (allFormsSatisfied) {
+                    nextSections["application"]["my-forms"] = true;
+                } else {
+                    nextSections["application"]["my-forms"] = false;
+                }
+
+                const nextState = recomputePhaseCompletion({ phases: { ...prevCompleted.phases }, sections: nextSections });
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(nextState));
+                return nextState;
+            });
+
+            return next;
         });
     };
 
@@ -640,7 +695,7 @@ export function MyCaseTimeline() {
 
                                                 {/* sub-subsections: individual forms under "my-forms" */}
                                                 {sectionActive && section.id === "my-forms" && formsByPack.length > 0 && !collapsedSections["my-forms"] && (
-                                                    <div className="ml-3 mt-1.5 border-l-2 border-slate-100 pl-2 space-y-1">
+                                                    <div className="ml-3 mt-1.5 border-l-2 border-slate-100 pl-2 space-y-2">
                                                         {formsByPack.map(({ pack, forms: packForms }) => (
                                                             <div key={pack.id}>
                                                                 <p className="px-2 py-1 text-[10px] font-semibold uppercase tracking-widest text-red-400">
@@ -648,17 +703,82 @@ export function MyCaseTimeline() {
                                                                 </p>
                                                                 {packForms.map(form => {
                                                                     const formActive = activeFormId === form.id;
+                                                                    const status: FormStatus = formStatus[form.id] ?? "pending";
+                                                                    const required = REQUIRED_FORM_IDS.has(form.id);
+                                                                    const circleClass = status === "done"
+                                                                        ? "border-emerald-500 bg-emerald-50 text-emerald-600"
+                                                                        : status === "skipped"
+                                                                            ? "border-slate-300 bg-slate-50 text-slate-300"
+                                                                            : "border-slate-300 bg-white text-slate-400";
                                                                     return (
-                                                                        <button
+                                                                        <div
                                                                             key={form.id}
-                                                                            onClick={() => handleFormClick(form.id)}
-                                                                            className={`w-full text-left rounded-md px-2 py-1.5 text-[11px] transition-colors ${formActive
-                                                                                ? "bg-slate-900 font-semibold text-white"
-                                                                                : "text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+                                                                            className={`w-full rounded-lg border px-3 py-2 text-xs transition-colors ${status === "done"
+                                                                                ? "border-emerald-100 bg-emerald-50"
+                                                                                : status === "skipped"
+                                                                                    ? "border-slate-200 bg-slate-50 text-slate-400"
+                                                                                    : "border-slate-200 bg-white"
                                                                             }`}
                                                                         >
-                                                                            {form.title.replace(/\n/g, " ")}
-                                                                        </button>
+                                                                            <div className="flex items-start justify-between gap-3">
+                                                                                <div className="flex items-start gap-3">
+                                                                                    <span className={`mt-0.5 flex h-5 w-5 items-center justify-center rounded-full border ${circleClass}`}>
+                                                                                        {status === "done" ? <CheckIcon /> : null}
+                                                                                    </span>
+                                                                                    <div>
+                                                                                        <p className={`text-sm font-semibold ${status === "skipped" ? "text-slate-400" : "text-slate-800"}`}>
+                                                                                            {form.title.replace(/\n/g, " ")}
+                                                                                        </p>
+                                                                                        <div className="mt-1 flex flex-wrap items-center gap-2">
+                                                                                            {required ? (
+                                                                                                <span className="inline-flex items-center rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700 ring-1 ring-amber-200">
+                                                                                                    Required
+                                                                                                </span>
+                                                                                            ) : (
+                                                                                                <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600 ring-1 ring-slate-200">
+                                                                                                    Optional
+                                                                                                </span>
+                                                                                            )}
+                                                                                            {status === "skipped" && (
+                                                                                                <span className="inline-flex items-center rounded-full bg-slate-200 px-2 py-0.5 text-[10px] font-semibold text-slate-600">
+                                                                                                    Skipped
+                                                                                                </span>
+                                                                                            )}
+                                                                                            {status === "done" && (
+                                                                                                <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+                                                                                                    Completed
+                                                                                                </span>
+                                                                                            )}
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div className="flex items-center gap-2">
+                                                                                    <button
+                                                                                        onClick={() => handleFormClick(form.id)}
+                                                                                        className={`rounded-md border px-3 py-1 text-[11px] font-semibold transition ${formActive
+                                                                                            ? "border-slate-900 bg-slate-900 text-white"
+                                                                                            : "border-slate-200 bg-white text-slate-700 hover:border-slate-300"
+                                                                                        }`}
+                                                                                    >
+                                                                                        Open
+                                                                                    </button>
+                                                                                    <button
+                                                                                        onClick={() => updateFormStatus(form.id, "done")}
+                                                                                        className="rounded-md bg-emerald-600 px-3 py-1 text-[11px] font-semibold text-white shadow-sm transition hover:opacity-90"
+                                                                                    >
+                                                                                        Mark done
+                                                                                    </button>
+                                                                                    {!required && (
+                                                                                        <button
+                                                                                            onClick={() => updateFormStatus(form.id, "skipped")}
+                                                                                            className="rounded-md border border-slate-200 px-3 py-1 text-[11px] font-semibold text-slate-500 transition hover:bg-slate-50"
+                                                                                        >
+                                                                                            Skip
+                                                                                        </button>
+                                                                                    )}
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
                                                                     );
                                                                 })}
                                                             </div>

@@ -593,7 +593,7 @@ export function MyCaseTimeline() {
                         <div key={phase.id} className="relative">
                             {/* connector line */}
                             {!isLast && (
-                                <div className={`absolute left-[19px] top-[48px] w-0.5 transition-all duration-300 ${active ? `h-[calc(100%_-_12px)]` : "h-[calc(100%_-_24px)]"} bg-slate-200`} />
+                                <div className={`absolute left-[31px] top-[48px] w-[2px] transition-all duration-300 ${active ? `h-[calc(100%_-_12px)]` : "h-[calc(100%_-_24px)]"} bg-slate-200`} />
                             )}
 
                             <button
@@ -630,7 +630,7 @@ export function MyCaseTimeline() {
 
                             {/* subsections — shown when phase is active */}
                             {active && (
-                                <div className="relative ml-1 mb-3 pl-5 pr-6 flex flex-col gap-2.5">
+                                <div className="relative ml-[56px] mb-3 pr-6 flex flex-col gap-2.5">
                                     {phase.sections.map((section, idx) => {
                                         const sectionActive = activeSection === section.id;
                                         const sectionDone = !!(completedSections[phase.id]?.[section.id]);
@@ -639,11 +639,11 @@ export function MyCaseTimeline() {
                                             <div key={section.id} className="relative">
                                                 <div className="relative">
                                                     {/* Vertical line top to center */}
-                                                    <div className="absolute left-[-12px] top-0 h-1/2 w-[2px] bg-slate-200" aria-hidden />
+                                                    <div className="absolute left-[-25px] top-0 h-1/2 w-[2px] bg-slate-200" aria-hidden />
                                                     {/* Vertical line center to bottom */}
-                                                    {!isLastSection && <div className="absolute left-[-12px] top-1/2 bottom-[-10px] w-[2px] bg-slate-200" aria-hidden />}
+                                                    {!isLastSection && <div className="absolute left-[-25px] top-1/2 bottom-[-10px] w-[2px] bg-slate-200" aria-hidden />}
                                                     {/* Horizontal branch */}
-                                                    <div className="absolute left-[-12px] top-1/2 w-[12px] h-[2px] -translate-y-1/2 bg-slate-200" aria-hidden />
+                                                    <div className="absolute left-[-25px] top-1/2 w-[25px] h-[2px] -translate-y-1/2 bg-slate-200" aria-hidden />
 
                                                     <button
                                                         onClick={() => handleSectionClick(phase.id, section.id)}
@@ -670,7 +670,7 @@ export function MyCaseTimeline() {
                                                 {sectionActive && section.id === "my-forms" && formsByPack.length > 0 && !collapsedSections["my-forms"] && (
                                                     <div className="relative mt-2 flex flex-col gap-2">
                                                         {/* extend MAIN phase vertical line if needed */}
-                                                        {!isLastSection && <div className="absolute left-[-12px] top-0 bottom-[-10px] w-[2px] bg-slate-200" aria-hidden />}
+                                                        {!isLastSection && <div className="absolute left-[-25px] top-0 bottom-[-10px] w-[2px] bg-slate-200" aria-hidden />}
 
                                                         {formsByPack.map((group, groupIdx) => {
                                                             const isLastGroup = groupIdx === formsByPack.length - 1;

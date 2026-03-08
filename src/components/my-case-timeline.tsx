@@ -630,7 +630,7 @@ export function MyCaseTimeline() {
                         <div key={phase.id} className="relative">
                             {/* connector line */}
                             {!isLast && (
-                                <div className={`absolute left-[19px] top-[48px] w-0.5 transition-all duration-300 ${active ? `h-[calc(100%_-_12px)]` : "h-[calc(100%_-_24px)]"} ${done ? "bg-emerald-300" : "bg-slate-200"}`} />
+                                <div className={`absolute left-[19px] top-[48px] w-0.5 transition-all duration-300 ${active ? `h-[calc(100%_-_12px)]` : "h-[calc(100%_-_24px)]"} bg-slate-200`} />
                             )}
 
                             <button
@@ -676,11 +676,11 @@ export function MyCaseTimeline() {
                                             <div key={section.id} className="relative">
                                                 <div className="relative">
                                                     {/* Vertical line top to center */}
-                                                    <div className="absolute left-[-12px] top-0 h-1/2 w-[2px] bg-slate-900" aria-hidden />
+                                                    <div className="absolute left-[-12px] top-0 h-1/2 w-[2px] bg-slate-200" aria-hidden />
                                                     {/* Vertical line center to bottom */}
-                                                    {!isLastSection && <div className="absolute left-[-12px] top-1/2 bottom-[-10px] w-[2px] bg-slate-900" aria-hidden />}
+                                                    {!isLastSection && <div className="absolute left-[-12px] top-1/2 bottom-[-10px] w-[2px] bg-slate-200" aria-hidden />}
                                                     {/* Horizontal branch */}
-                                                    <div className="absolute left-[-12px] top-1/2 w-[12px] h-[2px] -translate-y-1/2 bg-slate-900" aria-hidden />
+                                                    <div className="absolute left-[-12px] top-1/2 w-[12px] h-[2px] -translate-y-1/2 bg-slate-200" aria-hidden />
 
                                                     <button
                                                         onClick={() => handleSectionClick(phase.id, section.id)}
@@ -707,7 +707,7 @@ export function MyCaseTimeline() {
                                                 {sectionActive && section.id === "my-forms" && formsByPack.length > 0 && !collapsedSections["my-forms"] && (
                                                     <div className="relative mt-2 flex flex-col gap-2">
                                                         {/* extend MAIN phase vertical line if needed */}
-                                                        {!isLastSection && <div className="absolute left-[-12px] top-0 bottom-[-10px] w-[2px] bg-slate-900" aria-hidden />}
+                                                        {!isLastSection && <div className="absolute left-[-12px] top-0 bottom-[-10px] w-[2px] bg-slate-200" aria-hidden />}
 
                                                         {formsByPack.map((group, groupIdx) => {
                                                             const isLastGroup = groupIdx === formsByPack.length - 1;
@@ -715,8 +715,8 @@ export function MyCaseTimeline() {
                                                                 <div key={group.pack.id} className="relative flex flex-col gap-2">
                                                                     {/* Header */}
                                                                     <div className="relative">
-                                                                        <div className="absolute left-[21px] top-0 bottom-[-8px] w-[2px] bg-slate-900" aria-hidden />
-                                                                        <p className="py-1 text-[10px] font-bold uppercase tracking-widest text-slate-900 ml-[40px]">
+                                                                        <div className="absolute left-[21px] top-0 bottom-[-8px] w-[2px] bg-slate-200" aria-hidden />
+                                                                        <p className="py-1 text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-[40px]">
                                                                             {group.pack.detailLabel}
                                                                         </p>
                                                                     </div>
@@ -735,10 +735,10 @@ export function MyCaseTimeline() {
                                                                         return (
                                                                             <div key={form.id} className="relative ml-[40px]">
                                                                                 {/* Piecewise inner vertical line */}
-                                                                                <div className="absolute left-[-19px] top-0 h-1/2 w-[2px] bg-slate-900" aria-hidden />
-                                                                                {!isAbsoluteLast && <div className="absolute left-[-19px] top-1/2 bottom-[-8px] w-[2px] bg-slate-900" aria-hidden />}
+                                                                                <div className="absolute left-[-19px] top-0 h-1/2 w-[2px] bg-slate-200" aria-hidden />
+                                                                                {!isAbsoluteLast && <div className="absolute left-[-19px] top-1/2 bottom-[-8px] w-[2px] bg-slate-200" aria-hidden />}
                                                                                 {/* Horizontal inner branch */}
-                                                                                <div className="absolute left-[-19px] top-1/2 w-[19px] h-[2px] -translate-y-1/2 bg-slate-900" aria-hidden />
+                                                                                <div className="absolute left-[-19px] top-1/2 w-[19px] h-[2px] -translate-y-1/2 bg-slate-200" aria-hidden />
 
                                                                                 <div
                                                                                     className={`w-full rounded-lg border px-3 py-2 text-xs transition-colors relative ${status === "done"
@@ -779,31 +779,6 @@ export function MyCaseTimeline() {
                                                                                                     )}
                                                                                                 </div>
                                                                                             </div>
-                                                                                        </div>
-                                                                                        <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2 shrink-0">
-                                                                                            <button
-                                                                                                onClick={() => handleFormClick(form.id)}
-                                                                                                className={`rounded-md border px-3 py-1 text-[11px] font-semibold transition ${formActive
-                                                                                                    ? "border-slate-900 bg-slate-900 text-white"
-                                                                                                    : "border-slate-200 bg-white text-slate-700 hover:border-slate-300"
-                                                                                                    }`}
-                                                                                            >
-                                                                                                Open
-                                                                                            </button>
-                                                                                            <button
-                                                                                                onClick={() => updateFormStatus(form.id, "done")}
-                                                                                                className="rounded-md bg-emerald-600 px-3 py-1 text-[11px] font-semibold text-white shadow-sm transition hover:opacity-90"
-                                                                                            >
-                                                                                                Mark done
-                                                                                            </button>
-                                                                                            {!required && (
-                                                                                                <button
-                                                                                                    onClick={() => updateFormStatus(form.id, "skipped")}
-                                                                                                    className="rounded-md border border-slate-200 px-3 py-1 text-[11px] font-semibold text-slate-500 transition hover:bg-slate-50"
-                                                                                                >
-                                                                                                    Skip
-                                                                                                </button>
-                                                                                            )}
                                                                                         </div>
                                                                                     </div>
                                                                                 </div>

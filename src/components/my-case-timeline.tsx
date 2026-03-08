@@ -578,7 +578,7 @@ export function MyCaseTimeline() {
     return (
         <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
             {/* ── Left: vertical phase nav ── */}
-            <nav className="space-y-1">
+            <nav className="space-y-4">
                 <p className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Timeline</p>
                 {PHASES.map((phase, i) => {
                     const active = !!expandedPhases[phase.id];
@@ -682,7 +682,6 @@ export function MyCaseTimeline() {
                                                                     {/* Forms */}
                                                                     {group.forms.map((form, formIdx) => {
                                                                         const status: FormStatus = formStatus[form.id] ?? "pending";
-                                                                        const required = REQUIRED_FORM_IDS.has(form.id);
                                                                         const isLastForm = formIdx === group.forms.length - 1;
                                                                         const isAbsoluteLast = isLastGroup && isLastForm;
                                                                         const circleClass = status === "done"
@@ -713,29 +712,8 @@ export function MyCaseTimeline() {
                                                                                             </span>
                                                                                             <div>
                                                                                                 <p className={`text-sm font-semibold ${status === "skipped" ? "text-slate-400" : "text-slate-800"}`}>
-                                                                                                    {form.title.replace(/\n/g, " ")}
+                                                                                                    {form.title.split("- ")[0] || form.title.split(":")[0] || form.title}
                                                                                                 </p>
-                                                                                                <div className="mt-1 flex flex-wrap items-center gap-2">
-                                                                                                    {required ? (
-                                                                                                        <span className="inline-flex items-center rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700 ring-1 ring-amber-200">
-                                                                                                            Required
-                                                                                                        </span>
-                                                                                                    ) : (
-                                                                                                        <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600 ring-1 ring-slate-200">
-                                                                                                            Optional
-                                                                                                        </span>
-                                                                                                    )}
-                                                                                                    {status === "skipped" && (
-                                                                                                        <span className="inline-flex items-center rounded-full bg-slate-200 px-2 py-0.5 text-[10px] font-semibold text-slate-600">
-                                                                                                            Skipped
-                                                                                                        </span>
-                                                                                                    )}
-                                                                                                    {status === "done" && (
-                                                                                                        <span className="inline-flex items-center rounded-full bg-slate-200 px-2 py-0.5 text-[10px] font-semibold text-slate-700">
-                                                                                                            Completed
-                                                                                                        </span>
-                                                                                                    )}
-                                                                                                </div>
                                                                                             </div>
                                                                                         </div>
                                                                                     </div>
@@ -781,7 +759,14 @@ export function MyCaseTimeline() {
                     <div className="text-sm text-slate-600">Mark this phase as complete</div>
                     <button
                         type="button"
-                        onClick={() => activeSection && markSectionComplete(activePhase, activeSection)}
+                        onClick={() => {
+                            if (activeSection) {
+                                const parentPhaseId = PHASES.find(p => p.sections.some(s => s.id === activeSection))?.id;
+                                if (parentPhaseId) {
+                                    markSectionComplete(parentPhaseId, activeSection);
+                                }
+                            }
+                        }}
                         className="inline-flex items-center gap-2 rounded-full bg-[var(--color-trust)] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-trust)] focus-visible:ring-offset-2"
                     >
                         Next →

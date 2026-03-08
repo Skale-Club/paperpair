@@ -89,6 +89,11 @@ const PHASES: Phase[] = [
 
 const STORAGE_KEY = "paperpair_timeline_complete";
 
+type CompletedState = {
+    phases: Record<string, boolean>;
+    sections: Record<string, Record<string, boolean>>;
+};
+
 /* ─── helpers ─── */
 function CheckIcon() {
     return (
@@ -466,14 +471,22 @@ export function MyCaseTimeline() {
     const [activeSection, setActiveSection] = useState<string>("determine-eligibility");
     const [activeFormId, setActiveFormId] = useState<string | null>(null);
     const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
-    const [completedPhases, setCompletedPhases] = useState<Record<string, boolean>>({});
+    const [completed, setCompleted] = useState<CompletedState>({ phases: {}, sections: {} });
     const [selectedForms, setSelectedForms] = useState<SelectedForm[]>([]);
     const contentRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         try {
             const saved = localStorage.getItem(STORAGE_KEY);
-            if (saved) setCompletedPhases(JSON.parse(saved));
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (parsed && typeof parsed === "object" && "phases" in parsed && "sections" in parsed) {
+                    setCompleted(parsed as CompletedState);
+                } else if (parsed && typeof parsed === "object") {
+                    // Backward compatibility: old shape was just phases map
+                    setCompleted({ phases: parsed as Record<string, boolean>, sections: {} });
+                }
+            }
         } catch { /* ignore */ }
     }, []);
 
@@ -488,11 +501,22 @@ export function MyCaseTimeline() {
         setSelectedForms(result);
     }, []);
 
-    const markComplete = (phaseId: string) => {
-        setCompletedPhases((prev) => {
-            const next = { ...prev, [phaseId]: true };
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-            return next;
+    const markSectionComplete = (phaseId: string, sectionId: string) => {
+        setCompleted((prev) => {
+            const nextSections = { ...prev.sections };
+            const phaseSections = { ...(nextSections[phaseId] ?? {}) };
+            phaseSections[sectionId] = true;
+            nextSections[phaseId] = phaseSections;
+
+            const phase = PHASES.find((p) => p.id === phaseId);
+            const allSectionsDone = phase ? phase.sections.every((s) => phaseSections[s.id]) : false;
+
+            const nextPhases = { ...prev.phases };
+            if (allSectionsDone) nextPhases[phaseId] = true;
+
+            const nextState: CompletedState = { phases: nextPhases, sections: nextSections };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(nextState));
+            return nextState;
         });
     };
 
@@ -533,6 +557,9 @@ export function MyCaseTimeline() {
         pack,
         forms: selectedForms.filter(f => f.pack.id === pack.id).map(f => f.form),
     })).filter(g => g.forms.length > 0);
+
+    const completedPhases = completed.phases;
+    const completedSections = completed.sections;
 
     return (
         <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
@@ -588,6 +615,7 @@ export function MyCaseTimeline() {
                                 <div className="ml-5 mb-2 border-l-2 border-slate-200 pl-3 space-y-1.5">
                                     {phase.sections.map((section) => {
                                         const sectionActive = activeSection === section.id;
+                                        const sectionDone = !!(completedSections[phase.id]?.[section.id]);
                                         return (
                                             <div key={section.id}>
                                                 <button
@@ -597,7 +625,12 @@ export function MyCaseTimeline() {
                                                         : "border-slate-200 bg-slate-50 text-slate-500 hover:bg-white hover:text-slate-700"
                                                     }`}
                                                 >
-                                                    <span>{section.label}</span>
+                                                    <span className="flex items-center gap-2">
+                                                        <span className={`flex h-5 w-5 items-center justify-center rounded-full border ${sectionDone ? "border-emerald-500 bg-emerald-50 text-emerald-600" : "border-slate-300 bg-white text-slate-300"}`}>
+                                                            {sectionDone ? <CheckIcon /> : null}
+                                                        </span>
+                                                        <span>{section.label}</span>
+                                                    </span>
                                                     {section.id === "my-forms" && formsByPack.length > 0 && (
                                                         <svg xmlns="http://www.w3.org/2000/svg" className={`h-3 w-3 shrink-0 transition-transform ${sectionActive && !collapsedSections["my-forms"] ? "rotate-180" : ""}`} viewBox="0 0 20 20" fill="currentColor">
                                                             <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -665,7 +698,7 @@ export function MyCaseTimeline() {
                     <div className="text-sm text-slate-600">Mark this phase as complete</div>
                     <button
                         type="button"
-                        onClick={() => markComplete(activePhase)}
+                        onClick={() => activeSection && markSectionComplete(activePhase, activeSection)}
                         className="inline-flex items-center gap-2 rounded-full bg-[var(--color-trust)] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-trust)] focus-visible:ring-offset-2"
                     >
                         Next →

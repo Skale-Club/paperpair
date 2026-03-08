@@ -49,7 +49,7 @@ export async function POST(request: Request) {
   });
 
   // Send invite email via Supabase admin
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://paperpaired.vercel.app";
   const supabaseAdmin = createAdminClient();
 
   const { error } = await supabaseAdmin.auth.admin.inviteUserByEmail(spouseEmail, {

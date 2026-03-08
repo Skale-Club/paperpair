@@ -91,9 +91,9 @@ export function DashboardQuickRail() {
   };
 
   return (
-    <aside className="pointer-events-none fixed right-0 top-[72px] z-30 hidden h-[calc(100vh-72px)] lg:block">
+    <aside className="pointer-events-none fixed right-0 top-[72px] z-30 hidden h-[calc(100vh-72px)] md:block">
       <div className="group pointer-events-auto">
-        <div className="flex h-full w-14 flex-col overflow-hidden rounded-l-2xl border border-slate-200 bg-white/95 py-3 shadow-xl backdrop-blur transition-all duration-200 group-hover:w-64">
+        <div className="flex h-full w-16 flex-col overflow-hidden rounded-l-2xl border border-slate-200 bg-white shadow-xl backdrop-blur transition-all duration-200 group-hover:w-64">
           <ul className="space-y-1 px-2">
             {MENU_ITEMS.map((item) => {
               const active = isActive(item.href);

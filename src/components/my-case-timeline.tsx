@@ -543,38 +543,6 @@ export function MyCaseTimeline() {
         });
     };
 
-    const updateFormStatus = (formId: string, status: FormStatus) => {
-        setFormStatus((prev) => {
-            const next = { ...prev, [formId]: status };
-            localStorage.setItem(FORM_STATUS_KEY, JSON.stringify(next));
-
-            // After status change, check if all forms are satisfied; if yes, mark my-forms section complete
-            setCompleted((prevCompleted) => {
-                const allFormsSatisfied = FORM_PACKS
-                    .flatMap((p) => p.forms.map((f) => f.id))
-                    .every((id) => {
-                        const st = next[id] ?? "pending";
-                        const required = REQUIRED_FORM_IDS.has(id);
-                        return required ? st === "done" : st === "done" || st === "skipped";
-                    });
-
-                const nextSections = { ...prevCompleted.sections };
-                if (!nextSections["application"]) nextSections["application"] = {};
-                if (allFormsSatisfied) {
-                    nextSections["application"]["my-forms"] = true;
-                } else {
-                    nextSections["application"]["my-forms"] = false;
-                }
-
-                const nextState = recomputePhaseCompletion({ phases: { ...prevCompleted.phases }, sections: nextSections });
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(nextState));
-                return nextState;
-            });
-
-            return next;
-        });
-    };
-
     const handlePhaseClick = (phaseId: string) => {
         const phase = PHASES.find(p => p.id === phaseId);
         setActivePhase(phaseId);
@@ -596,11 +564,6 @@ export function MyCaseTimeline() {
         if (sectionId === "my-forms") {
             setCollapsedSections(prev => ({ ...prev, "my-forms": false }));
         }
-        contentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
-    };
-
-    const handleFormClick = (formId: string) => {
-        setActiveFormId(formId);
         contentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
     };
 
@@ -642,7 +605,7 @@ export function MyCaseTimeline() {
                             >
                                 {/* icon circle */}
                                 <div className={`relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors ${done
-                                    ? "bg-emerald-100 text-emerald-600"
+                                    ? "bg-slate-200 text-slate-700"
                                     : active
                                         ? "bg-slate-900 text-white"
                                         : "bg-slate-100 text-slate-500"
@@ -656,7 +619,7 @@ export function MyCaseTimeline() {
                                             {phase.title}
                                         </span>
                                         {done && (
-                                            <span className="inline-flex items-center rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
+                                            <span className="inline-flex items-center rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-700 ring-1 ring-inset ring-slate-600/20">
                                                 Done
                                             </span>
                                         )}
@@ -690,7 +653,7 @@ export function MyCaseTimeline() {
                                                             }`}
                                                     >
                                                         <span className="flex items-center gap-2">
-                                                            <span className={`flex h-5 w-5 items-center justify-center rounded-full border ${sectionDone ? "border-emerald-500 bg-emerald-50 text-emerald-600" : "border-slate-300 bg-white text-slate-300"}`}>
+                                                            <span className={`flex h-5 w-5 items-center justify-center rounded-full border ${sectionDone ? "border-slate-400 bg-slate-100 text-slate-700" : "border-slate-300 bg-white text-slate-300"}`}>
                                                                 {sectionDone ? <CheckIcon /> : null}
                                                             </span>
                                                             <span>{section.label}</span>
@@ -722,13 +685,12 @@ export function MyCaseTimeline() {
                                                                     </div>
                                                                     {/* Forms */}
                                                                     {group.forms.map((form, formIdx) => {
-                                                                        const formActive = activeFormId === form.id;
                                                                         const status: FormStatus = formStatus[form.id] ?? "pending";
                                                                         const required = REQUIRED_FORM_IDS.has(form.id);
                                                                         const isLastForm = formIdx === group.forms.length - 1;
                                                                         const isAbsoluteLast = isLastGroup && isLastForm;
                                                                         const circleClass = status === "done"
-                                                                            ? "border-emerald-500 bg-emerald-50 text-emerald-600"
+                                                                            ? "border-slate-400 bg-slate-100 text-slate-700"
                                                                             : status === "skipped"
                                                                                 ? "border-slate-300 bg-slate-50 text-slate-300"
                                                                                 : "border-slate-300 bg-white text-slate-400";
@@ -742,7 +704,7 @@ export function MyCaseTimeline() {
 
                                                                                 <div
                                                                                     className={`w-full rounded-lg border px-3 py-2 text-xs transition-colors relative ${status === "done"
-                                                                                        ? "border-emerald-100 bg-emerald-50"
+                                                                                        ? "border-slate-300 bg-slate-50"
                                                                                         : status === "skipped"
                                                                                             ? "border-slate-200 bg-slate-50 text-slate-400"
                                                                                             : "border-slate-200 bg-white"
@@ -773,7 +735,7 @@ export function MyCaseTimeline() {
                                                                                                         </span>
                                                                                                     )}
                                                                                                     {status === "done" && (
-                                                                                                        <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+                                                                                                        <span className="inline-flex items-center rounded-full bg-slate-200 px-2 py-0.5 text-[10px] font-semibold text-slate-700">
                                                                                                             Completed
                                                                                                         </span>
                                                                                                     )}

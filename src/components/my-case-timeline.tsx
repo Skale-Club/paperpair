@@ -667,7 +667,7 @@ export function MyCaseTimeline() {
 
                             {/* subsections — shown when phase is active */}
                             {active && (
-                                <div className="ml-1.5 mb-2 border-l-2 border-slate-200 pl-3 pr-3 space-y-2">
+                                <div className="ml-1 mb-3 border-l-2 border-slate-200 pl-3 pr-6 space-y-2.5">
                                     {phase.sections.map((section) => {
                                         const sectionActive = activeSection === section.id;
                                         const sectionDone = !!(completedSections[phase.id]?.[section.id]);
@@ -675,7 +675,7 @@ export function MyCaseTimeline() {
                                             <div key={section.id}>
                                                 <button
                                                     onClick={() => handleSectionClick(phase.id, section.id)}
-                                                    className={`mr-3 w-full text-left rounded-lg border px-3 py-2 text-xs transition-colors flex items-center justify-between ${sectionActive
+                                                    className={`w-full text-left rounded-lg border px-3 py-2 text-xs transition-colors flex items-center justify-between ${sectionActive
                                                         ? "border-slate-300 bg-white font-semibold text-slate-900 shadow-sm"
                                                         : "border-slate-200 bg-slate-50 text-slate-500 hover:bg-white hover:text-slate-700"
                                                     }`}

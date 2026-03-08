@@ -470,7 +470,7 @@ const SECTION_CONTENT: Record<string, () => React.ReactNode> = {
 };
 
 export function MyCaseTimeline() {
-    const [activePhase, setActivePhase] = useState("get-ready");
+    const [expandedPhases, setExpandedPhases] = useState<Record<string, boolean>>({ "get-ready": true, "application": true });
     const [activeSection, setActiveSection] = useState<string>("determine-eligibility");
     const [activeFormId, setActiveFormId] = useState<string | null>(null);
     const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
@@ -544,11 +544,7 @@ export function MyCaseTimeline() {
     };
 
     const handlePhaseClick = (phaseId: string) => {
-        const phase = PHASES.find(p => p.id === phaseId);
-        setActivePhase(phaseId);
-        setActiveSection(phase?.sections[0]?.id ?? "");
-        setActiveFormId(null);
-        contentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+        setExpandedPhases(prev => ({ ...prev, [phaseId]: !prev[phaseId] }));
     };
 
     const handleSectionClick = (phaseId: string, sectionId: string) => {
@@ -557,7 +553,7 @@ export function MyCaseTimeline() {
             setCollapsedSections(prev => ({ ...prev, [sectionId]: !prev[sectionId] }));
             return;
         }
-        setActivePhase(phaseId);
+        setExpandedPhases(prev => ({ ...prev, [phaseId]: true }));
         setActiveSection(sectionId);
         setActiveFormId(null);
         // Auto-expand my-forms when navigating to it
@@ -585,7 +581,7 @@ export function MyCaseTimeline() {
             <nav className="space-y-1">
                 <p className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Timeline</p>
                 {PHASES.map((phase, i) => {
-                    const active = activePhase === phase.id;
+                    const active = !!expandedPhases[phase.id];
                     const done = !!completedPhases[phase.id];
                     const isLast = i === PHASES.length - 1;
 

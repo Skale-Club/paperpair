@@ -94,19 +94,29 @@ export function DashboardQuickRail() {
     <aside className="pointer-events-none fixed right-0 top-[72px] z-30 hidden h-[calc(100vh-72px)] md:block">
       <div className="group pointer-events-auto">
         <div className="flex h-full w-16 flex-col overflow-hidden rounded-l-2xl border border-slate-200 bg-white shadow-xl backdrop-blur transition-all duration-200 group-hover:w-64">
-          <ul className="space-y-1 px-2">
+          <ul className="space-y-1 px-2 py-2">
             {MENU_ITEMS.map((item) => {
               const active = isActive(item.href);
               return (
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className={`flex h-11 items-center gap-3 rounded-xl px-2.5 transition-colors ${
-                      active ? "bg-slate-900 text-white" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                    className={`group/item relative flex h-12 items-center gap-3 rounded-xl px-2.5 transition-colors ${
+                      active
+                        ? "bg-slate-900 text-white shadow-sm"
+                        : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                     }`}
                   >
-                    <span className="shrink-0">{item.icon}</span>
-                    <span className="whitespace-nowrap text-sm font-medium opacity-0 transition-opacity duration-150 group-hover:opacity-100">
+                    <span
+                      className={`flex h-10 w-10 items-center justify-center rounded-xl border ${
+                        active
+                          ? "border-slate-800 bg-slate-800/80 text-white"
+                          : "border-slate-200 bg-slate-50 text-slate-600"
+                      }`}
+                    >
+                      {item.icon}
+                    </span>
+                    <span className="whitespace-nowrap text-sm font-medium opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-hover/item:opacity-100">
                       {t(item.labelKey, lang)}
                     </span>
                   </Link>

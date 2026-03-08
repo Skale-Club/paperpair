@@ -90,8 +90,6 @@ const PHASES: Phase[] = [
 
 const STORAGE_KEY = "paperpair_timeline_complete";
 const FORM_STATUS_KEY = "paperpair_form_status";
-const REQUIRED_FORM_IDS = new Set(["i485-application", "i130-petition", "i693-medical"]);
-
 type CompletedState = {
     phases: Record<string, boolean>;
     sections: Record<string, Record<string, boolean>>;
@@ -676,7 +674,7 @@ export function MyCaseTimeline() {
                                                                     <div className="relative">
                                                                         <div className="absolute left-[21px] top-0 bottom-[-8px] w-[2px] bg-slate-200" aria-hidden />
                                                                         <p className="py-1 text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-[40px]">
-                                                                            {group.pack.detailLabel}
+                                                                            {group.pack.label}
                                                                         </p>
                                                                     </div>
                                                                     {/* Forms */}
@@ -712,7 +710,9 @@ export function MyCaseTimeline() {
                                                                                             </span>
                                                                                             <div>
                                                                                                 <p className={`text-sm font-semibold ${status === "skipped" ? "text-slate-400" : "text-slate-800"}`}>
-                                                                                                    {form.title.split("- ")[0] || form.title.split(":")[0] || form.title}
+                                                                                                    {form.title.includes('\n')
+                                                                                                        ? form.title.split('\n')[1]
+                                                                                                        : form.title.replace(/^Form\s+/i, '')}
                                                                                                 </p>
                                                                                             </div>
                                                                                         </div>

@@ -488,9 +488,9 @@ export function MyCaseTimeline() {
         setSelectedForms(result);
     }, []);
 
-    const toggleComplete = (phaseId: string) => {
+    const markComplete = (phaseId: string) => {
         setCompletedPhases((prev) => {
-            const next = { ...prev, [phaseId]: !prev[phaseId] };
+            const next = { ...prev, [phaseId]: true };
             localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
             return next;
         });
@@ -660,19 +660,15 @@ export function MyCaseTimeline() {
                     ActiveContent && <ActiveContent />
                 )}
 
-                {/* mark complete toggle */}
+                {/* mark complete action */}
                 <div className="mt-8 flex items-center justify-between border-t border-slate-100 pt-6">
-                    <span className="text-sm text-slate-600">Mark this phase as complete</span>
+                    <div className="text-sm text-slate-600">Mark this phase as complete</div>
                     <button
                         type="button"
-                        role="switch"
-                        aria-checked={!!completedPhases[activePhase]}
-                        onClick={() => toggleComplete(activePhase)}
-                        className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 focus-visible:ring-offset-2 ${completedPhases[activePhase] ? "bg-emerald-500" : "bg-slate-300"
-                            }`}
+                        onClick={() => markComplete(activePhase)}
+                        className="inline-flex items-center gap-2 rounded-full bg-[var(--color-trust)] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-trust)] focus-visible:ring-offset-2"
                     >
-                        <span className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform duration-200 ease-in-out ${completedPhases[activePhase] ? "translate-x-5" : "translate-x-0.5"
-                            }`} />
+                        Next →
                     </button>
                 </div>
             </div>

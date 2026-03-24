@@ -206,15 +206,6 @@ async function generatePdfs(
   return generatedFiles;
 }
 
-// Determine the model to use based on selectedModelId
-function getModel(modelId: string) {
-  if (allowedModelIds.has(modelId)) {
-    return getLanguageModel(modelId);
-  }
-  // Default fallback
-  return getLanguageModel("google/gemini-2.0-flash");
-}
-
 export async function POST(request: NextRequest) {
   // Rate limiting
   const clientIp = getClientIpFromHeaders(request.headers);

@@ -8,8 +8,8 @@ import { ChatPanel } from "./chat-panel";
 import { IntakeSummary } from "./intake-summary";
 import { GeneratedFilesList } from "./generated-files-list";
 import { TemplateSelector } from "./template-selector";
-import type { Template, ChatMessage, StructuredData, RequiredField } from "./types";
-import { emptyStructuredData, getMissingFields, requiredFields } from "./types";
+import type { Template, ChatMessage, StructuredData } from "./types";
+import { emptyStructuredData, requiredFields } from "./types";
 
 function sanitizeSelectedTemplateKeys(rawKeys: string[], templates: Template[]): string[] {
   const allowedKeys = new Set(templates.map((t) => t.key));
@@ -23,23 +23,6 @@ function buildTemplateSelectionUrl(keys: string[]): string {
   return query
     ? `/documentation-filling/select-templates?${query}`
     : "/documentation-filling/select-templates";
-}
-
-function parseHeuristic(messages: Array<{ role: string; content: string }>): StructuredData {
-  const data = emptyStructuredData();
-  const userText = messages
-    .filter((m) => m.role === "user")
-    .map((m) => m.content)
-    .join("\n")
-    .toLowerCase();
-
-  const email = userText.match(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i)?.[0] ?? "";
-  const phone = userText.match(/(?:\+1\s?)?\(?\d{3}\)?[-\s]?\d{3}[-\s]?\d{4}/)?.[0] ?? "";
-
-  data.email = email;
-  data.phone = phone;
-
-  return data;
 }
 
 function extractStructuredData(messages: Array<{ role: string; content: string }>): StructuredData {
@@ -98,7 +81,7 @@ export function ChatContainer({ templates, initialSelectedTemplateKeys }: ChatCo
   const initialViewerUrl = templates.find((t) => initialKeys.includes(t.key))?.filePath ?? null;
 
   const [extractedData, setExtractedData] = useState<StructuredData>(emptyStructuredData());
-  const [generatedFiles, setGeneratedFiles] = useState<Array<{ key: string; url: string }>>([]);
+  const [generatedFiles] = useState<Array<{ key: string; url: string }>>([]);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [selectedTemplateKeys, setSelectedTemplateKeys] = useState<string[]>(initialKeys);
   const [viewerUrl, setViewerUrl] = useState<string | null>(initialViewerUrl);
@@ -142,8 +125,6 @@ export function ChatContainer({ templates, initialSelectedTemplateKeys }: ChatCo
         }));
 
       const heuristicData = extractStructuredData(simpleMessages);
-      const missing = getMissingFields(heuristicData);
-
       // Only update if we got new data
       const hasNewData = requiredFields.some(
         (field) => heuristicData[field] && heuristicData[field] !== extractedRef.current[field]
@@ -177,26 +158,10 @@ export function ChatContainer({ templates, initialSelectedTemplateKeys }: ChatCo
   }, [uploadedPdfUrl, generatedFiles, selectedTemplateKeys, templates]);
 
   const canSend = useMemo(() => status !== "streaming" && status !== "submitted", [status]);
-  const selectedTemplates = useMemo(
-    () => templates.filter((t) => selectedTemplateKeys.includes(t.key)),
-    [templates, selectedTemplateKeys]
-  );
   const templateSelectionUrl = useMemo(
     () => buildTemplateSelectionUrl(selectedTemplateKeys),
     [selectedTemplateKeys]
   );
-
-  // Extract text content from last assistant message for legacy display
-  const lastAssistantText = useMemo(() => {
-    const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant");
-    if (!lastAssistant) return "";
-    return (
-      lastAssistant.parts
-        ?.filter((p) => p.type === "text")
-        .map((p) => ("text" in p ? p.text : ""))
-        .join("") ?? ""
-    );
-  }, [messages]);
 
   const handleFileSelect = useCallback((file: File) => {
     if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);

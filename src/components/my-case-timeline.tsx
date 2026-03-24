@@ -142,7 +142,7 @@ function ActionLink({ href, children }: { href: string; children: React.ReactNod
     return (
         <Link
             href={href}
-            className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-slate-700"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-slate-700 sm:inline-flex sm:w-auto sm:justify-start"
         >
             {children}
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -475,6 +475,7 @@ export function MyCaseTimeline() {
     const [completed, setCompleted] = useState<CompletedState>({ phases: {}, sections: {} });
     const [selectedForms, setSelectedForms] = useState<SelectedForm[]>([]);
     const [formStatus, setFormStatus] = useState<Record<string, FormStatus>>({});
+    const [mobileNavOpen, setMobileNavOpen] = useState(false);
     const contentRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -554,15 +555,22 @@ export function MyCaseTimeline() {
         setExpandedPhases(prev => ({ ...prev, [phaseId]: true }));
         setActiveSection(sectionId);
         setActiveFormId(null);
+        setMobileNavOpen(false);
         // Auto-expand my-forms when navigating to it
         if (sectionId === "my-forms") {
             setCollapsedSections(prev => ({ ...prev, "my-forms": false }));
         }
         contentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+        // Fallback for mobile where scroll is on the window
+        if (typeof window !== "undefined" && window.innerWidth < 1024) {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
     };
 
     const ActiveContent = SECTION_CONTENT[activeSection];
     const activeForm = selectedForms.find(f => f.form.id === activeFormId);
+    const activePhase = PHASES.find(p => p.sections.some(s => s.id === activeSection));
+    const activeSectionLabel = activePhase?.sections.find(s => s.id === activeSection)?.label;
 
     // Group selected forms by pack for the sub-subsection nav
     const formsByPack = FORM_PACKS.map(pack => ({
@@ -575,8 +583,27 @@ export function MyCaseTimeline() {
 
     return (
         <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
+            {/* ── Mobile: nav toggle bar ── */}
+            <button
+                className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 text-left transition-colors hover:bg-slate-50 lg:hidden"
+                onClick={() => setMobileNavOpen(o => !o)}
+            >
+                <div className="min-w-0">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">{activePhase?.title}</p>
+                    <p className="truncate text-sm font-semibold text-slate-900">{activeSectionLabel}</p>
+                </div>
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className={`ml-3 h-4 w-4 shrink-0 text-slate-500 transition-transform duration-200 ${mobileNavOpen ? "rotate-180" : ""}`}
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                >
+                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+            </button>
+
             {/* ── Left: vertical phase nav ── */}
-            <nav className="space-y-4">
+            <nav className={`space-y-4 ${mobileNavOpen ? "block" : "hidden"} lg:block`}>
                 <p className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Timeline</p>
                 {PHASES.map((phase, i) => {
                     const active = !!expandedPhases[phase.id];
@@ -755,8 +782,8 @@ export function MyCaseTimeline() {
                 )}
 
                 {/* mark complete action */}
-                <div className="mt-8 flex items-center justify-between border-t border-slate-100 pt-6">
-                    <div className="text-sm text-slate-600">Mark this phase as complete</div>
+                <div className="mt-8 flex flex-col gap-3 border-t border-slate-100 pt-6 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="text-sm text-slate-600">Mark as complete and continue</div>
                     <button
                         type="button"
                         onClick={() => {
@@ -767,7 +794,7 @@ export function MyCaseTimeline() {
                                 }
                             }
                         }}
-                        className="inline-flex items-center gap-2 rounded-full bg-[var(--color-trust)] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-trust)] focus-visible:ring-offset-2"
+                        className="w-full rounded-full bg-[var(--color-trust)] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-trust)] focus-visible:ring-offset-2 sm:w-auto"
                     >
                         Next →
                     </button>

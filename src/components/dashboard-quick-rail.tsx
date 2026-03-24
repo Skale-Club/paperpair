@@ -91,41 +91,74 @@ export function DashboardQuickRail() {
   };
 
   return (
-    <aside className="pointer-events-none fixed right-0 top-[72px] z-30 hidden h-[calc(100vh-72px)] md:block">
-      <div className="group pointer-events-auto">
-        <div className="flex h-full w-16 flex-col overflow-hidden rounded-l-2xl border border-slate-200 bg-white shadow-xl backdrop-blur transition-all duration-200 group-hover:w-64">
-          <ul className="space-y-1 px-2 py-2">
-            {MENU_ITEMS.map((item) => {
-              const active = isActive(item.href);
-              return (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className={`group/item relative flex h-12 items-center gap-3 rounded-xl px-2.5 transition-colors ${
-                      active
-                        ? "bg-slate-900 text-white shadow-sm"
-                        : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                    }`}
-                  >
-                    <span
-                      className={`flex h-10 w-10 items-center justify-center rounded-xl border ${
+    <>
+      {/* Desktop: collapsible right rail */}
+      <aside className="pointer-events-none fixed right-0 top-[72px] z-30 hidden h-[calc(100vh-72px)] md:block">
+        <div className="group pointer-events-auto">
+          <div className="flex h-full w-16 flex-col overflow-hidden rounded-l-2xl border border-slate-200 bg-white shadow-xl backdrop-blur transition-all duration-200 group-hover:w-64">
+            <ul className="space-y-1 px-2 py-2">
+              {MENU_ITEMS.map((item) => {
+                const active = isActive(item.href);
+                return (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href}
+                      className={`group/item relative flex h-12 items-center gap-3 rounded-xl px-2.5 transition-colors ${
                         active
-                          ? "border-slate-800 bg-slate-800/80 text-white"
-                          : "border-slate-200 bg-slate-50 text-slate-600"
+                          ? "bg-slate-900 text-white shadow-sm"
+                          : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                       }`}
                     >
-                      {item.icon}
-                    </span>
-                    <span className="whitespace-nowrap text-sm font-medium opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-hover/item:opacity-100">
-                      {t(item.labelKey, lang)}
-                    </span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
+                      <span
+                        className={`flex h-10 w-10 items-center justify-center rounded-xl border ${
+                          active
+                            ? "border-slate-800 bg-slate-800/80 text-white"
+                            : "border-slate-200 bg-slate-50 text-slate-600"
+                        }`}
+                      >
+                        {item.icon}
+                      </span>
+                      <span className="whitespace-nowrap text-sm font-medium opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-hover/item:opacity-100">
+                        {t(item.labelKey, lang)}
+                      </span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
         </div>
-      </div>
-    </aside>
+      </aside>
+
+      {/* Mobile: bottom navigation bar */}
+      <nav className="fixed bottom-0 left-0 right-0 z-30 border-t border-slate-200 bg-white md:hidden">
+        <ul className="flex items-stretch">
+          {MENU_ITEMS.slice(0, 5).map((item) => {
+            const active = isActive(item.href);
+            return (
+              <li key={item.href} className="flex-1">
+                <Link
+                  href={item.href}
+                  className={`flex flex-col items-center gap-0.5 px-1 py-2 transition-colors ${
+                    active ? "text-slate-900" : "text-slate-400"
+                  }`}
+                >
+                  <span
+                    className={`flex h-9 w-9 items-center justify-center rounded-xl transition-colors ${
+                      active ? "bg-slate-900 text-white" : ""
+                    }`}
+                  >
+                    {item.icon}
+                  </span>
+                  <span className="text-[10px] font-medium leading-tight">
+                    {t(item.labelKey, lang)}
+                  </span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+    </>
   );
 }

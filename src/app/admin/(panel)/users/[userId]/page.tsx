@@ -31,15 +31,17 @@ function badge(status: string) {
   return "bg-red-100 text-red-700";
 }
 
-type PageParams = {
+type PageProps = {
   params: Promise<{ userId: string }>;
 };
 
 export default async function AdminUserReviewPage({ params }: PageProps) {
+  const { userId } = await params;
+  
   let user;
   try {
     user = await prisma.userProfile.findUnique({
-      where: { id: params.userId },
+      where: { id: userId },
       include: { caseSteps: true }
     });
   } catch {

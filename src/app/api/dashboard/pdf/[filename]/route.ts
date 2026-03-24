@@ -4,23 +4,21 @@ import { NextResponse } from "next/server";
 import { getCurrentUserAndProfile } from "@/lib/current-user-profile";
 
 type Params = {
-  params: { filename: string };
+  params: Promise<{ filename: string }>;
 };
+
+export async function GET(_request: Request, { params }: Params) {
+  const { filename } = await params;
   const context = await getCurrentUserAndProfile();
 
   if (!context) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const filename = params.filename;
-
-  // Reject path traversal attempts and non-PDF filenames.
   if (!filename || !/^[\w.-]+\.pdf$/.test(filename)) {
     return NextResponse.json({ error: "Invalid filename" }, { status: 400 });
   }
 
-  // Verify this PDF was generated for the authenticated user.
-  // Files are stored as `{userId}-{templateKey}-{timestamp}.pdf`.
   if (!filename.startsWith(`${context.user.id}-`)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }

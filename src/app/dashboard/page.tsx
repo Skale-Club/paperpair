@@ -1,7 +1,13 @@
 import { getCurrentUserAndProfileWithViewerSupport } from "@/lib/current-user-profile";
 import { asStepData } from "@/lib/case-step-data";
 import { DASHBOARD_STEPS } from "@/lib/dashboard-steps";
-import { FEES_2026, CONCURRENT_BUNDLE_TOTAL } from "@/lib/fee-schedule";
+import {
+  FEES_2026_I485,
+  FEES_2026_I130_PAPER
+  FEES_2026_I765_EAD_INITIAL
+  FEES_2026_BIOMETRICS
+  CONCURRENT_BUNDLE_TOTAL
+} from "@/lib/fee-schedule";
 import { ScreenerMount } from "@/components/screener-mount";
 import { CaseProfileCard } from "@/components/case-profile-card";
 import { CivilSurgeonWidget } from "@/components/civil-surgeon-widget";

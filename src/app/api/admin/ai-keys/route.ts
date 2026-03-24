@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createHash } from "node:crypto";
 import { getCurrentUserAndProfile } from "@/lib/current-user-profile";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { encryptSecret, decryptSecret } from "@/lib/secret-crypto";
+import { encryptSecret } from "@/lib/secret-crypto";
 
 const TABLE = "ai_provider_keys";
 

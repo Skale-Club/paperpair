@@ -1,6 +1,6 @@
 "use client";
 
-import { DragEvent, useRef, useState } from "react";
+import { DragEvent, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import type { Template } from "./types";
@@ -26,8 +26,6 @@ export function PdfViewer({
 }: PdfViewerProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
-  const objectUrlRef = useRef<string | null>(null);
-
   const handleFile = (file: File) => {
     if (file.type !== "application/pdf") {
       setUploadError("Only PDF files are accepted.");

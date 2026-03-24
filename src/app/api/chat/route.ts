@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
+import { streamText } from "ai";
+import { NextRequest } from "next/server";
 import path from "node:path";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { z } from "zod";
@@ -7,15 +8,29 @@ import { prisma } from "@/lib/prisma";
 import { fillPdfTemplate } from "@/lib/pdf";
 import { getClientIpFromHeaders, runRateLimit } from "@/lib/rate-limit";
 import { getUserGoogleApiKey } from "@/lib/supabase/user-ai-keys";
+import { getLanguageModel } from "@/lib/ai/providers";
+import { systemPrompt } from "@/lib/ai/prompts";
+import { allowedModelIds } from "@/lib/ai/models";
 
-const MessageSchema = z.object({
-  role: z.enum(["user", "assistant"]),
-  content: z.string().min(1)
+// Zod schemas for request validation
+const UIMessageSchema = z.object({
+  id: z.string().optional(),
+  role: z.enum(["user", "assistant", "system"]),
+  parts: z
+    .array(
+      z.object({
+        type: z.string(),
+        text: z.string().optional(),
+      })
+    )
+    .optional(),
+  content: z.string().optional(),
 });
 
 const BodySchema = z.object({
-  messages: z.array(MessageSchema).min(1),
-  selectedTemplateKeys: z.array(z.string().min(1)).optional()
+  messages: z.array(UIMessageSchema).min(1),
+  selectedModelId: z.string().optional(),
+  selectedTemplateKeys: z.array(z.string().min(1)).optional(),
 });
 
 const requiredFields = [
@@ -27,7 +42,7 @@ const requiredFields = [
   "spouseFullName",
   "marriageDate",
   "entryDateUsa",
-  "i94Number"
+  "i94Number",
 ] as const;
 
 type StructuredData = Record<(typeof requiredFields)[number], string>;
@@ -42,12 +57,43 @@ function emptyStructuredData(): StructuredData {
     spouseFullName: "",
     marriageDate: "",
     entryDateUsa: "",
-    i94Number: ""
+    i94Number: "",
   };
 }
 
 function getMissingFields(data: StructuredData) {
   return requiredFields.filter((field) => !data[field]);
+}
+
+// Extract text from AI SDK UIMessage (supports parts format)
+function extractTextFromMessage(msg: {
+  role: string;
+  parts?: Array<{ type: string; text?: string }>;
+  content?: string;
+}): string {
+  if (msg.content) return msg.content;
+  if (msg.parts) {
+    return msg.parts
+      .filter((p) => p.type === "text")
+      .map((p) => p.text ?? "")
+      .join("");
+  }
+  return "";
+}
+
+function convertUIMessagesToLegacy(
+  messages: Array<{
+    role: string;
+    parts?: Array<{ type: string; text?: string }>;
+    content?: string;
+  }>
+): Array<{ role: "user" | "assistant"; content: string }> {
+  return messages
+    .filter((m) => m.role === "user" || m.role === "assistant")
+    .map((m) => ({
+      role: m.role as "user" | "assistant",
+      content: extractTextFromMessage(m),
+    }));
 }
 
 function parseHeuristic(messages: Array<{ role: "user" | "assistant"; content: string }>): StructuredData {
@@ -67,71 +113,52 @@ function parseHeuristic(messages: Array<{ role: "user" | "assistant"; content: s
   return data;
 }
 
-async function callGoogleModel(
-  apiKey: string,
-  prompt: string,
-  options?: {
-    responseMimeType?: "application/json" | "text/plain";
-    temperature?: number;
-  }
-): Promise<string> {
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        contents: [
-          {
-            role: "user",
-            parts: [{ text: prompt }]
-          }
-        ],
-        generationConfig: {
-          temperature: options?.temperature ?? 0,
-          responseMimeType: options?.responseMimeType ?? "text/plain"
-        }
-      })
-    }
-  );
-
-  if (!response.ok) {
-    throw new Error("Google model request failed");
-  }
-
-  const payload = (await response.json()) as {
-    candidates?: Array<{
-      content?: {
-        parts?: Array<{ text?: string }>;
-      };
-    }>;
-  };
-
-  return payload.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ?? "";
-}
-
+// Use user's Google API key for extraction (fallback if AI SDK provider fails)
 async function extractWithGoogle(
   googleApiKey: string,
   messages: Array<{ role: "user" | "assistant"; content: string }>
 ): Promise<StructuredData> {
   const transcript = messages.map((m) => `${m.role}: ${m.content}`).join("\n");
 
-  const raw = await callGoogleModel(
-    googleApiKey,
-    [
-      "Extract case data and return valid JSON only.",
-      "Required keys: fullName,dateOfBirth,email,phone,currentAddress,spouseFullName,marriageDate,entryDateUsa,i94Number.",
-      "Use an empty string for missing values.",
-      "Conversation transcript:",
-      transcript
-    ].join("\n"),
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(googleApiKey)}`,
     {
-      responseMimeType: "application/json",
-      temperature: 0
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [
+          {
+            role: "user",
+            parts: [
+              {
+                text: [
+                  "Extract case data and return valid JSON only.",
+                  "Required keys: fullName,dateOfBirth,email,phone,currentAddress,spouseFullName,marriageDate,entryDateUsa,i94Number.",
+                  "Use an empty string for missing values.",
+                  "Conversation transcript:",
+                  transcript,
+                ].join("\n"),
+              },
+            ],
+          },
+        ],
+        generationConfig: {
+          temperature: 0,
+          responseMimeType: "application/json",
+        },
+      }),
     }
   );
+
+  if (!response.ok) {
+    throw new Error("Google extraction request failed");
+  }
+
+  const payload = (await response.json()) as {
+    candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+  };
+
+  const raw = payload.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ?? "{}";
   const parsed = JSON.parse(raw) as Partial<StructuredData>;
   const merged = emptyStructuredData();
 
@@ -142,54 +169,18 @@ async function extractWithGoogle(
   return merged;
 }
 
-async function generateAssistantReply(
-  googleApiKey: string | null,
-  extractedData: StructuredData,
-  messages: Array<{ role: "user" | "assistant"; content: string }>
-): Promise<string> {
-  const missing = getMissingFields(extractedData);
-  if (!googleApiKey) {
-    if (!missing.length) {
-      return "Great. We already have all essential data. If you want, type 'generate pdf'.";
-    }
-    return `Thanks. Still missing: ${missing.join(", ")}. Please share the next detail.`;
-  }
-
-  const transcript = messages.map((m) => `${m.role}: ${m.content}`).join("\n");
-
-  const reply = await callGoogleModel(
-    googleApiKey,
-    [
-      "You are a data-intake assistant for marriage-based Adjustment of Status.",
-      "Ask the next concise question to collect only missing fields.",
-      "If nothing is missing, ask the user to type 'generate pdf'.",
-      "Respond in English.",
-      `Fields already extracted: ${JSON.stringify(extractedData)}`,
-      "Transcript:",
-      transcript
-    ].join("\n"),
-    {
-      responseMimeType: "text/plain",
-      temperature: 0.3
-    }
-  );
-
-  return reply || "Please share the next detail.";
-}
-
-async function generatePdfs(data: StructuredData, selectedTemplateKeys: string[], userId: string) {
+async function generatePdfs(
+  data: StructuredData,
+  selectedTemplateKeys: string[],
+  userId: string
+) {
   const templates = await prisma.documentTemplate.findMany({
-    where: selectedTemplateKeys.length ? { key: { in: selectedTemplateKeys } } : undefined
+    where: selectedTemplateKeys.length ? { key: { in: selectedTemplateKeys } } : undefined,
   });
   const generatedFiles: Array<{ key: string; url: string }> = [];
 
-  if (!templates.length) {
-    return generatedFiles;
-  }
+  if (!templates.length) return generatedFiles;
 
-  // Store outside /public so Next.js never serves these statically.
-  // Files are scoped by userId and served only through the auth-gated
-  // /api/dashboard/pdf/[filename] route.
   const generatedDir = path.join(process.cwd(), "private", "generated");
   await mkdir(generatedDir, { recursive: true });
 
@@ -199,87 +190,164 @@ async function generatePdfs(data: StructuredData, selectedTemplateKeys: string[]
       const templateBytes = await readFile(templatePath);
       const filledBytes = await fillPdfTemplate(templateBytes, data);
 
-      // Prefix with userId so the download route can verify ownership.
       const filename = `${userId}-${template.key}-${Date.now()}.pdf`;
       const outputPath = path.join(generatedDir, filename);
       await writeFile(outputPath, Buffer.from(filledBytes));
 
       generatedFiles.push({
         key: template.key,
-        url: `/api/dashboard/pdf/${encodeURIComponent(filename)}`
+        url: `/api/dashboard/pdf/${encodeURIComponent(filename)}`,
       });
     } catch {
-      // Continue for other templates even if one file is missing or corrupt.
+      // Continue for other templates
     }
   }
 
   return generatedFiles;
 }
 
+// Determine the model to use based on selectedModelId
+function getModel(modelId: string) {
+  if (allowedModelIds.has(modelId)) {
+    return getLanguageModel(modelId);
+  }
+  // Default fallback
+  return getLanguageModel("google/gemini-2.0-flash");
+}
+
 export async function POST(request: NextRequest) {
+  // Rate limiting
   const clientIp = getClientIpFromHeaders(request.headers);
   const rateLimit = runRateLimit({
     key: `chat:${clientIp}`,
     windowMs: 60_000,
     max: 30,
-    blockDurationMs: 5 * 60_000
+    blockDurationMs: 5 * 60_000,
   });
 
   if (!rateLimit.ok) {
-    return NextResponse.json(
-      { error: "Too many attempts. Try again shortly." },
-      {
-        status: 429,
-        headers: {
-          "Retry-After": String(rateLimit.retryAfterSeconds)
-        }
-      }
-    );
+    return new Response(JSON.stringify({ error: "Too many attempts. Try again shortly." }), {
+      status: 429,
+      headers: {
+        "Content-Type": "application/json",
+        "Retry-After": String(rateLimit.retryAfterSeconds),
+      },
+    });
   }
 
-  const parsedBody = BodySchema.safeParse(await request.json());
+  // Parse request body
+  let parsedBody;
+  try {
+    const json = await request.json();
+    parsedBody = BodySchema.safeParse(json);
+  } catch {
+    return new Response(JSON.stringify({ error: "Invalid JSON" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 
   if (!parsedBody.success) {
-    return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
+    return new Response(JSON.stringify({ error: "Invalid payload", details: parsedBody.error }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 
-  const messages = parsedBody.data.messages;
-  const selectedTemplateKeys = parsedBody.data.selectedTemplateKeys ?? [];
+  const { messages, selectedModelId, selectedTemplateKeys } = parsedBody.data;
+
+  // Auth check
   const context = await getCurrentUserAndProfile();
-
   if (!context) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 
-  const googleApiKey = (await getUserGoogleApiKey(context.user.id))?.trim() || null;
+  // Convert UIMessages to legacy format for data extraction
+  const legacyMessages = convertUIMessagesToLegacy(messages);
 
+  // Extract structured data
+  const googleApiKey = (await getUserGoogleApiKey(context.user.id))?.trim() || null;
   let extractedData = emptyStructuredData();
 
   try {
     extractedData = googleApiKey
-      ? await extractWithGoogle(googleApiKey, messages)
-      : parseHeuristic(messages);
+      ? await extractWithGoogle(googleApiKey, legacyMessages)
+      : parseHeuristic(legacyMessages);
   } catch {
-    extractedData = parseHeuristic(messages);
+    extractedData = parseHeuristic(legacyMessages);
   }
 
-  const lastUserMessage = messages.filter((m) => m.role === "user").at(-1)?.content.toLowerCase() ?? "";
+  // Check for PDF generation intent
+  const lastUserMessage = legacyMessages.filter((m) => m.role === "user").at(-1)?.content.toLowerCase() ?? "";
   const wantsPdf =
     lastUserMessage.includes("gerar pdf") ||
     lastUserMessage.includes("generate pdf") ||
     lastUserMessage.includes("finalizar");
 
-  let generatedFiles: Array<{ key: string; url: string }> | undefined;
-
   if (wantsPdf) {
-    generatedFiles = await generatePdfs(extractedData, selectedTemplateKeys, context.user.id);
+    const generatedFiles = await generatePdfs(
+      extractedData,
+      selectedTemplateKeys ?? [],
+      context.user.id
+    );
+
+    if (generatedFiles.length > 0) {
+      const fileList = generatedFiles.map((f) => `- ${f.key}: ${f.url}`).join("\n");
+      return new Response(
+        JSON.stringify({
+          role: "assistant",
+          content: `I've generated your PDFs:\n${fileList}\n\nYou can download them from the sidebar.`,
+          extractedData,
+          generatedFiles,
+        }),
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
   }
 
-  const reply = await generateAssistantReply(googleApiKey, extractedData, messages);
+  // Build system prompt with extraction context
+  const missing = getMissingFields(extractedData);
+  const dataContext = `Fields already collected: ${JSON.stringify(extractedData)}. Missing fields: ${missing.join(", ") || "none"}`;
+  const fullSystemPrompt = `${systemPrompt}\n\n${dataContext}`;
 
-  return NextResponse.json({
-    reply,
-    extractedData,
-    generatedFiles
+  // Convert messages to AI SDK model messages format
+  const modelMessages = messages.map((m) => ({
+    role: m.role as "user" | "assistant" | "system",
+    content: extractTextFromMessage(m),
+  }));
+
+  // Get the model from admin-configured keys
+  const modelId = selectedModelId ?? "google/gemini-2.0-flash";
+  if (!allowedModelIds.has(modelId)) {
+    return new Response(JSON.stringify({ error: "Invalid model selected" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  let model;
+  try {
+    model = await getLanguageModel(modelId, googleApiKey);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "Model not available";
+    return new Response(JSON.stringify({ error: msg }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  // Use AI SDK streamText for streaming responses
+  const result = streamText({
+    model,
+    system: fullSystemPrompt,
+    messages: modelMessages,
+    temperature: 0.3,
   });
+
+  return result.toUIMessageStreamResponse();
 }

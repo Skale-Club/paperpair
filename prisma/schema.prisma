@@ -59,6 +59,18 @@ model UserProfile {
   spouseInvites SpouseInvite[]
 }
 
+// Platform-level AI provider keys (admin only)
+model AiProviderKey {
+  id           String   @id @default(cuid())
+  provider     String   // "google", "openai", "openrouter"
+  encryptedKey String
+  isActive     Boolean  @default(true)
+  updatedAt    DateTime @updatedAt
+  createdAt    DateTime @default(now())
+
+  @@unique([provider])
+}
+
 model SpouseInvite {
   id            String   @id @default(cuid())
   token         String   @unique @default(cuid())

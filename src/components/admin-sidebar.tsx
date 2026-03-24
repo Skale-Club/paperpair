@@ -37,6 +37,11 @@ const navItems = [
     description: "Publish public articles"
   },
   {
+    href: "/admin/ai-keys",
+    label: "AI Keys",
+    description: "Google, OpenAI, OpenRouter"
+  },
+  {
     href: "/admin/preferences",
     label: "Preferences",
     description: "Lighting, sounds, layout"

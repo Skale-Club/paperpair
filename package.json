@@ -22,11 +22,15 @@
     "supabase:status": "npx supabase status"
   },
   "dependencies": {
+    "@ai-sdk/google": "^3.0.53",
+    "@ai-sdk/openai": "^3.0.48",
+    "@ai-sdk/react": "^3.0.139",
     "@prisma/client": "^6.4.1",
     "@simplewebauthn/browser": "^13.2.2",
     "@simplewebauthn/server": "^13.2.3",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.97.0",
+    "ai": "^6.0.137",
     "clsx": "^2.1.1",
     "next": "^15.5.14",
     "pdf-lib": "^1.17.1",

@@ -1,6 +1,8 @@
-"use { useCallback, useEffect, useRef, useState } from "react";
-import { Button } from "@/components/ui/button";
+"use client";
+
+import { DragEvent, useRef, useState } from "react";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import type { Template } from "./types";
 
 type PdfViewerProps = {

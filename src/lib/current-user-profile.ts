@@ -20,7 +20,7 @@ function getStringMetadata(user: User, key: string): string | null {
 }
 
 async function getCurrentUser(): Promise<UserWithEmail | null> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user }
   } = await supabase.auth.getUser();

@@ -15,8 +15,9 @@ function parseSelectedTemplateKeys(templateParam: SearchParams["template"]) {
 export default async function DocumentationFillingPage({
   searchParams
 }: {
-  searchParams: SearchParams;
+  searchParams: Promise<SearchParams>;
 }) {
+  const resolved = await searchParams;
   let templates: Awaited<ReturnType<typeof prisma.documentTemplate.findMany>>;
   try {
     templates = await prisma.documentTemplate.findMany({
@@ -25,7 +26,7 @@ export default async function DocumentationFillingPage({
   } catch {
     templates = [];
   }
-  const initialSelectedTemplateKeys = parseSelectedTemplateKeys(searchParams.template);
+  const initialSelectedTemplateKeys = parseSelectedTemplateKeys(resolved.template);
 
   return (
     <section className="space-y-4">

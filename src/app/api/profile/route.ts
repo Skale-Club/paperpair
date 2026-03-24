@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET() {
     try {
-        const supabase = createClient();
+        const supabase = await createClient();
         const { data: { user }, error } = await supabase.auth.getUser();
         if (error || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -22,7 +22,7 @@ export async function GET() {
 
 export async function PATCH(request: Request) {
     try {
-        const supabase = createClient();
+        const supabase = await createClient();
         const { data: { user }, error: authError } = await supabase.auth.getUser();
 
         if (authError || !user) {

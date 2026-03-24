@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 
 export async function isAdminSession(): Promise<boolean> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) return false;
@@ -11,7 +11,7 @@ export async function isAdminSession(): Promise<boolean> {
 }
 
 export async function getAuthenticatedUser() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   return user;
 }

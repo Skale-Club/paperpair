@@ -75,8 +75,11 @@ model CaseStep {
   id            String     @id @default(cuid())
   userProfileId String
   stepSlug      String
+  stepOrder     Int        @default(0)
   status        StepStatus @default(NOT_STARTED)
-  data          String     @default("{}")
+  data          Json       @default("{}")
+  completedAt   DateTime?
+  notes         String?
   updatedAt     DateTime   @updatedAt
   createdAt     DateTime   @default(now())
 

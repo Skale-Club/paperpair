@@ -70,6 +70,7 @@ export function sanitizeField(value: string | undefined, required = false): stri
  */
 export async function fillPdfTemplate(
   templateBytes: Uint8Array,
+  data: Record<string, string>
 ): Promise<Uint8Array> {
   const pdfDoc = await PDFDocument.load(templateBytes);
 

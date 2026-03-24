@@ -7,7 +7,7 @@ const ALLOWED = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 export async function POST(request: Request) {
     try {
-        const supabase = createClient();
+        const supabase = await createClient();
         const {
             data: { user },
             error: authError

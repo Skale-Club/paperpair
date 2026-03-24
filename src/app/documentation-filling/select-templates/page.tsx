@@ -21,8 +21,9 @@ function parseSelectedTemplateKeys(templateParam: SearchParams["template"]) {
 export default async function SelectTemplatesPage({
   searchParams
 }: {
-  searchParams: SearchParams;
+  searchParams: Promise<SearchParams>;
 }) {
+  const resolved = await searchParams;
   let templates: Template[];
   try {
     templates = await prisma.documentTemplate.findMany({
@@ -37,7 +38,7 @@ export default async function SelectTemplatesPage({
     templates = [];
   }
 
-  const selectedFromQuery = parseSelectedTemplateKeys(searchParams.template);
+  const selectedFromQuery = parseSelectedTemplateKeys(resolved.template);
   const availableKeys = new Set(templates.map((template) => template.key));
   const selectedKeys = selectedFromQuery.filter((key) => availableKeys.has(key));
 

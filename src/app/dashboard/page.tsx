@@ -3,9 +3,9 @@ import { asStepData } from "@/lib/case-step-data";
 import { DASHBOARD_STEPS } from "@/lib/dashboard-steps";
 import {
   FEES_2026_I485,
-  FEES_2026_I130_PAPER
-  FEES_2026_I765_EAD_INITIAL
-  FEES_2026_BIOMETRICS
+  FEES_2026_I130_PAPER,
+  FEES_2026_I765_EAD_INITIAL,
+  FEES_2026_BIOMETRICS,
   CONCURRENT_BUNDLE_TOTAL
 } from "@/lib/fee-schedule";
 import { ScreenerMount } from "@/components/screener-mount";
@@ -210,10 +210,10 @@ export default async function DashboardHomePage() {
                     <DashboardCard title="2026 Filing Fee Overview" subtitle="Fees effective Jan 2026 (USCIS)">
                         <div className="space-y-3">
                             {[
-                                { label: "I-485 (Adjustment of Status)", amount: FEES_2026.i485 },
-                                { label: "I-130 (Petition for Alien Relative)", amount: FEES_2026.i130_paper },
-                                { label: "I-765 (Employment Authorization)", amount: FEES_2026.ead_initial },
-                                { label: "Biometrics", amount: FEES_2026.biometrics },
+                                { label: "I-485 (Adjustment of Status)", amount: FEES_2026_I485 },
+                                { label: "I-130 (Petition for Alien Relative)", amount: FEES_2026_I130_PAPER },
+                                { label: "I-765 (Employment Authorization)", amount: FEES_2026_I765_EAD_INITIAL },
+                                { label: "Biometrics", amount: FEES_2026_BIOMETRICS },
                             ].map(({ label, amount }) => (
                                 <div key={label} className="flex justify-between text-sm items-center">
                                     <span className="text-slate-600">{label}</span>

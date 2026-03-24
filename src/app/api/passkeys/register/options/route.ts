@@ -13,7 +13,7 @@ function getHostParts(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
     error: authError

@@ -1,6 +1,6 @@
 "use client";
 
-"use Link from "next/link";
+import Link from "next/link";
 import type { ChatResponse } from "./types";
 
 function buildDocumentsPageUrl(

@@ -69,12 +69,13 @@ function formatPageCount(pageCount: number | null) {
 export default async function DocumentationDocumentsPage({
   searchParams
 }: {
-  searchParams: SearchParams;
+  searchParams: Promise<SearchParams>;
 }) {
-  const filesParam = searchParams.file;
+  const resolved = await searchParams;
+  const filesParam = resolved.file;
   const filesRaw = Array.isArray(filesParam) ? filesParam : filesParam ? [filesParam] : [];
   const files = Array.from(new Set(filesRaw.map(normalizePath).filter(Boolean)));
-  const focus = searchParams.focus ? normalizePath(searchParams.focus) : "";
+  const focus = resolved.focus ? normalizePath(resolved.focus) : "";
   const activeFile = focus && files.includes(focus) ? focus : files[0] ?? "";
   const documents: DocumentPreview[] = await Promise.all(
     files.map(async (filePath) => ({

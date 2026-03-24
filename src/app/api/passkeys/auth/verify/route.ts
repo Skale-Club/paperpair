@@ -59,9 +59,9 @@ export async function POST(request: Request) {
     expectedChallenge: challengeRow.challenge,
     expectedOrigin: origin,
     expectedRPID: rpID,
-    authenticator: {
-      credentialID: isoBase64URL.toBuffer(credential.credential_id),
-      credentialPublicKey: isoBase64URL.toBuffer(credential.public_key),
+    credential: {
+      id: credential.credential_id,
+      publicKey: isoBase64URL.toBuffer(credential.public_key),
       counter: Number(credential.counter)
     }
   });
@@ -70,7 +70,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Verification failed" }, { status: 400 });
   }
 
-  // Update counter and clear challenge
   const newCounter = verification.authenticationInfo.newCounter;
   await supabase
     .from("webauthn_credentials")

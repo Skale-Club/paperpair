@@ -2,7 +2,6 @@ import { createClient } from "@/lib/supabase/server";
 import {
   generateAuthenticationOptions
 } from "@simplewebauthn/server";
-import { isoBase64URL } from "@simplewebauthn/server/helpers";
 import { NextResponse } from "next/server";
 
 function getHostParts(request: Request) {
@@ -40,7 +39,7 @@ export async function POST(request: Request) {
     timeout: 60_000,
     userVerification: "preferred",
     allowCredentials: credentials.map((cred) => ({
-      id: isoBase64URL.toBuffer(cred.credential_id),
+      id: cred.credential_id,
       type: "public-key" as const,
       transports: cred.transports ?? undefined
     }))

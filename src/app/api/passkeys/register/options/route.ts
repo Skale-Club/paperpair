@@ -2,7 +2,6 @@ import { createClient } from "@/lib/supabase/server";
 import {
   generateRegistrationOptions
 } from "@simplewebauthn/server";
-import { isoBase64URL } from "@simplewebauthn/server/helpers";
 import { NextResponse } from "next/server";
 
 function getHostParts(request: Request) {
@@ -34,7 +33,7 @@ export async function POST(request: Request) {
   const options = await generateRegistrationOptions({
     rpName: "PaperPair",
     rpID,
-    userID: user.id,
+    userID: new TextEncoder().encode(user.id),
     userName: user.email ?? "user",
     timeout: 60_000,
     attestationType: "none",
@@ -44,13 +43,12 @@ export async function POST(request: Request) {
     },
     excludeCredentials:
       existingCreds?.map((cred) => ({
-        id: isoBase64URL.toBuffer(cred.credential_id),
+        id: cred.credential_id,
         type: "public-key" as const
       })) ?? [],
-    supportedAlgorithmIDs: [-7, -257] // ES256, RS256
+    supportedAlgorithmIDs: [-7, -257]
   });
 
-  // Persist challenge for verification
   await supabase
     .from("webauthn_challenges")
     .upsert({

@@ -7,22 +7,27 @@ Projeto web para apoio ao processo de Adjustment of Status via casamento, com á
 ## Stack
 
 - Next.js 14 (App Router)
+- TypeScript
 - Tailwind CSS
-- NextAuth (Credentials)
-- Prisma + SQLite
+- Supabase Auth (Email/OAuth + Passkeys)
+- Prisma + PostgreSQL (Supabase)
 - Google Gemini API (user-provided key)
-- pdf-lib
+- pdf-lib / pdfjs-dist (PDF generation and preview)
+- @simplewebauthn (WebAuthn/Passkeys)
 
 ## Rotas
 
 - `/` Home
-- `/chat` Chat principal
-- `/contato` Suporte
-- `/guia` Guias públicos (conteúdo educacional para casais)
+- `/documentation-filling` Chat principal (coleta de dados)
+- `/contact` Suporte
+- `/guide` Guias públicos (conteúdo educacional para casais)
+- `/dashboard` Painel do usuário (progresso do caso)
+- `/login` Login
+- `/signup` Cadastro
 - `/admin/login` Login restrito
 - `/admin/dashboard` Dashboard privado
 - `/admin/cms` Edição de páginas públicas
-- `/admin/documentos` Upload e gestão de PDFs
+- `/admin/documents` Upload e gestão de PDFs
 
 ## Configuração
 
@@ -34,14 +39,13 @@ cp .env.example .env
 
 2. Preencha `.env` com:
 
-- `ADMIN_ALLOWED_EMAIL` (e-mail oficial da Skale Club)
-- `ADMIN_PASSWORD`
-- `NEXTAUTH_SECRET`
-- `DATABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `SUPABASE_SERVICE_ROLE_KEY` (apenas para rotas administrativas)
-- `AI_KEYS_ENCRYPTION_SECRET` (segredo para criptografar chaves Gemini por usuário)
+- `DATABASE_URL` - PostgreSQL connection string
+- `POSTGRES_PRISMA_URL` - Prisma connection URL (pooled)
+- `POSTGRES_URL_NON_POOLING` - Direct PostgreSQL URL
+- `NEXT_PUBLIC_SUPABASE_URL` - URL do projeto Supabase
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Chave anônima do Supabase
+- `SUPABASE_SERVICE_ROLE_KEY` - Chave de serviço (apenas rotas admin)
+- `AI_KEYS_ENCRYPTION_SECRET` - Segredo para criptografar chaves Gemini por usuário
 
 Para usar IA no chat, cada usuario conecta sua propria chave Google AI em `/dashboard/settings`.
 A chave é criptografada no servidor e salva de forma privada no Supabase.
@@ -52,11 +56,11 @@ A chave é criptografada no servidor e salva de forma privada no Supabase.
 npm install
 ```
 
-4. Gere o cliente Prisma e inicialize o banco SQLite:
+4. Configure o banco de dados:
 
 ```bash
 npm run prisma:generate
-npm run db:init
+npx prisma db push
 ```
 
 5. Rode em localhost:
@@ -67,11 +71,12 @@ npm run dev
 
 ## Fluxo resumido
 
-- Admin sobe templates PDF em `/admin/documentos`.
-- Usuário conversa no `/chat`.
-- Backend extrai JSON estruturado.
-- Ao pedir "gerar pdf", o sistema preenche os templates usando `pdf-lib` e gera arquivos em `public/generated`.
-- Guias públicos ficam em `src/content/guides/*.md` e são exibidos em `/guia`.
+- Admin sobe templates PDF em `/admin/documents`.
+- Usuário conversa no `/documentation-filling`.
+- Backend extrai JSON estruturado via Google Gemini API.
+- Ao pedir "gerar pdf", o sistema preenche os templates usando `pdf-lib`.
+- PDFs gerados ficam disponíveis em `/dashboard/my-forms`.
+- Guias públicos ficam em `src/content/guides/*.md` e são exibidos em `/guide`.
 
 ## Privacidade
 

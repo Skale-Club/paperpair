@@ -27,7 +27,6 @@ export async function POST(request: Request) {
   const body = await request.json();
   const { origin, rpID } = getHostParts(request);
 
-  // Load stored challenge
   const { data: challengeRow } = await supabase
     .from("webauthn_challenges")
     .select("challenge")
@@ -53,19 +52,22 @@ export async function POST(request: Request) {
   }
 
   const {
-    credentialID,
-    credentialPublicKey,
-    counter,
+    credential,
     credentialDeviceType,
     credentialBackedUp
   } = registrationInfo;
 
+  const {
+    id: credentialID,
+    publicKey: credentialPublicKey,
+    counter
+  } = credential;
+
   const transports = body?.response?.transports ?? null;
 
-  // Store credential (upsert by credential_id)
   await supabase.from("webauthn_credentials").upsert({
     user_id: user.id,
-    credential_id: isoBase64URL.fromBuffer(credentialID),
+    credential_id: credentialID,
     public_key: isoBase64URL.fromBuffer(credentialPublicKey),
     counter,
     device_type: credentialDeviceType,
@@ -73,7 +75,6 @@ export async function POST(request: Request) {
     transports
   });
 
-  // Clear challenge
   await supabase
     .from("webauthn_challenges")
     .delete()

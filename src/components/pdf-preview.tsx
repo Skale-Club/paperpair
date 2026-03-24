@@ -50,7 +50,7 @@ export function PdfPreview({ url, className = "" }: Props) {
         const ctx = canvas.getContext("2d");
         if (!ctx || cancelled) return;
 
-        await page.render({ canvasContext: ctx, viewport }).promise;
+        await page.render({ canvasContext: ctx, viewport, canvas }).promise;
         if (!cancelled) setLoaded(true);
       } catch {
         // silently ignore — fallback to skeleton

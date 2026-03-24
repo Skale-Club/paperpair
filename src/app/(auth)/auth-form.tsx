@@ -6,6 +6,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
 
+import type { Provider } from "@supabase/supabase-js";
+
 type Variant = "signin" | "signup";
 
 type AuthFormProps = {
@@ -36,14 +38,15 @@ export default function AuthForm({
   const [message, setMessage] = useState<string | null>(null);
 
   const oauthProviders = useMemo(
-    () => [
-      { id: "google", label: "Continue with Google" },
-      {
-        id: "azure",
-        label: "Continue with Microsoft",
-        helper: "Works for Outlook / Hotmail accounts"
-      }
-    ],
+    () =>
+      [
+        { id: "google", label: "Continue with Google", helper: "" },
+        {
+          id: "azure",
+          label: "Continue with Microsoft",
+          helper: "Works for Outlook / Hotmail accounts"
+        }
+      ] as const,
     []
   );
 
@@ -64,7 +67,7 @@ export default function AuthForm({
     }
   }, [incomingError]);
 
-  const handleOAuthLogin = async (provider: string) => {
+  const handleOAuthLogin = async (provider: Provider) => {
     setError(null);
     setMessage(null);
     setOauthLoading(provider);

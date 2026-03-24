@@ -17,7 +17,7 @@ const patchSchema = z
   .object({
     stepSlug: z.string().min(1),
     status: z.nativeEnum(StepStatus).optional(),
-    data: z.record(z.unknown()).optional()
+    data: z.record(z.string(), z.unknown()).optional()
   })
   .superRefine((payload, ctx) => {
     if (!isDashboardStepSlug(payload.stepSlug)) {

@@ -31,7 +31,11 @@ function badge(status: string) {
   return "bg-red-100 text-red-700";
 }
 
-export default async function AdminUserReviewPage({ params }: { params: { userId: string } }) {
+type PageParams = {
+  params: Promise<{ userId: string }>;
+};
+
+export default async function AdminUserReviewPage({ params }: PageProps) {
   let user;
   try {
     user = await prisma.userProfile.findUnique({

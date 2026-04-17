@@ -11,6 +11,7 @@ type DocumentRowProps = {
   signedUrl: string | null;
   onDelete: (id: string) => void;
   onExtract: (id: string) => void;
+  extractStatus?: "loading" | "success" | "error" | null;
 };
 
 function getDocLabel(docType: string): string {
@@ -25,6 +26,7 @@ export function DocumentRow({
   signedUrl,
   onDelete,
   onExtract,
+  extractStatus,
 }: DocumentRowProps) {
   const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -88,10 +90,17 @@ export function DocumentRow({
           <button
             type="button"
             onClick={() => onExtract(id)}
-            className="rounded-md px-2 py-1 text-xs font-medium text-white transition"
+            disabled={extractStatus === "loading"}
+            className="rounded-md px-2 py-1 text-xs font-medium text-white transition disabled:opacity-50"
             style={{ background: "var(--color-trust)", minHeight: "32px" }}
           >
-            Extract to profile
+            {extractStatus === "loading"
+              ? "Extracting data…"
+              : extractStatus === "success"
+                ? "Data saved to your case profile."
+                : extractStatus === "error"
+                  ? "Extraction failed. Try again or enter the information manually in your case profile."
+                  : "Extract to profile"}
           </button>
         )}
 

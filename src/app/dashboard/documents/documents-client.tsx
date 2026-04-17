@@ -26,6 +26,7 @@ export function DocumentsClient({
   const [selectedDocType, setSelectedDocType] = useState<string>("");
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [extracting, setExtracting] = useState<Record<string, "loading" | "success" | "error">>({});
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0] ?? null;
@@ -85,9 +86,28 @@ export function DocumentsClient({
     }
   }
 
-  function handleExtract(id: string) {
-    // Handled in Plan 07 (02-07-PLAN.md) — placeholder for now
-    window.location.href = `/dashboard/documents/${id}/extract`;
+  async function handleExtract(id: string) {
+    setExtracting(prev => ({ ...prev, [id]: "loading" }));
+    try {
+      const res = await fetch("/api/documents/extract", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ documentId: id }),
+      });
+      if (res.ok) {
+        setExtracting(prev => ({ ...prev, [id]: "success" }));
+        // Clear success state after 3 seconds
+        setTimeout(() => setExtracting(prev => {
+          const next = { ...prev };
+          delete next[id];
+          return next;
+        }), 3000);
+      } else {
+        setExtracting(prev => ({ ...prev, [id]: "error" }));
+      }
+    } catch {
+      setExtracting(prev => ({ ...prev, [id]: "error" }));
+    }
   }
 
   return (
@@ -216,6 +236,7 @@ export function DocumentsClient({
               {...doc}
               onDelete={handleDelete}
               onExtract={handleExtract}
+              extractStatus={extracting[doc.id] ?? null}
             />
           ))}
         </div>

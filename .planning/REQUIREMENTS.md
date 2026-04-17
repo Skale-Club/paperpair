@@ -12,9 +12,9 @@
 - [ ] **BUG-01**: Timeline checklist progress persisted to database (not localStorage)
 - [ ] **BUG-02**: My Forms selection persisted to database (not localStorage)
 - [ ] **BUG-03**: Generated PDFs stored in Supabase Storage (not ephemeral Vercel disk)
-- [ ] **BUG-04**: Chat messages persisted across navigation (ChatSession + ChatMessage tables)
+- [x] **BUG-04**: Chat messages persisted across navigation (ChatSession + ChatMessage tables)
 - [ ] **BUG-05**: AI extraction results saved back to CaseStep (wizard ↔ chat in sync)
-- [ ] **BUG-06**: Fee inconsistency resolved — single source of truth from `fee-schedule.ts`
+- [x] **BUG-06**: Fee inconsistency resolved — single source of truth from `fee-schedule.ts`
 - [ ] **BUG-07**: AI legal guardrail added — LLM deflects eligibility/legal questions
 - [ ] **BUG-08**: UPL disclaimer displayed on all form, chat, and screener pages
 - [ ] **BUG-09**: Edition locks added for all 6 forms (I-130, I-130A, I-131, I-765, I-864, I-864A)

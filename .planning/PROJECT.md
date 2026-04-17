@@ -12,17 +12,14 @@ The applicant always knows exactly what to do next — no confusion, no missed s
 
 ### Validated
 
-(None yet — ship to validate)
+*Validated in Phase 1: Foundation & Auth* — user auth, dashboard shell, onboarding, screener framework, case step persistence
+*Validated in Phase 2: Core Case Features* — eligibility screener with entryType save, EWI warning, forms browser with instructions + edition warnings + USCIS links, AI chat with history persistence + AP travel warning + field extraction, document upload/list/download/delete with Supabase Storage, AI document extraction to case profile
 
 ### Active
 
-- [ ] Complete AOS timeline with per-step checklist tracking
-- [ ] Document upload and management (gather evidence, organize files)
-- [ ] Immigration form browser with PDF previews (I-130, I-130A, I-485, I-864, I-765, I-131, I-693)
-- [ ] AI chat assistant for case-specific questions
+- [ ] Complete AOS timeline with per-step checklist tracking (DB persistence pending)
 - [ ] Interview preparation (practice questions, what to bring)
-- [ ] User authentication (email/password + OAuth)
-- [ ] Dashboard with overall progress tracking
+- [ ] PDF form auto-fill from collected case data
 
 ### Out of Scope
 
@@ -55,4 +52,4 @@ The applicant always knows exactly what to do next — no confusion, no missed s
 | AOS-only v1 scope | Deep quality over breadth | — Pending |
 
 ---
-*Last updated: 2026-04-17 after initial project initialization*
+*Last updated: 2026-04-17 after Phase 2: Core Case Features completion*

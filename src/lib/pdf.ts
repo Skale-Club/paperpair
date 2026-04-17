@@ -1,6 +1,11 @@
 /**
  * PDF form filling utilities for USCIS immigration forms.
  * @module pdf
+ *
+ * Generated PDFs are uploaded to Supabase Storage bucket "generated-pdfs" (BUG-03).
+ * PREREQUISITE: "generated-pdfs" bucket must exist in Supabase Storage as a private bucket.
+ * RLS policy: (auth.uid()::text) = (storage.foldername(name))[1]
+ * Create via: Supabase Dashboard > Storage > New bucket > name: generated-pdfs, Private
  */
 
 import { PDFDocument } from "pdf-lib";

@@ -1,16 +1,18 @@
 import { streamText } from "ai";
 import { NextRequest } from "next/server";
 import path from "node:path";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import { z } from "zod";
 import { getCurrentUserAndProfile } from "@/lib/current-user-profile";
 import { prisma } from "@/lib/prisma";
 import { fillPdfTemplate } from "@/lib/pdf";
-import { getClientIpFromHeaders, runRateLimit } from "@/lib/rate-limit";
+import { runRateLimit } from "@/lib/rate-limit";
 import { getUserGoogleApiKey } from "@/lib/supabase/user-ai-keys";
 import { getLanguageModel } from "@/lib/ai/providers";
 import { systemPrompt } from "@/lib/ai/prompts";
 import { allowedModelIds } from "@/lib/ai/models";
+import { createClient } from "@/lib/supabase/server";
+import { StepStatus } from "@prisma/client";
 
 // Zod schemas for request validation
 const UIMessageSchema = z.object({
@@ -169,6 +171,46 @@ async function extractWithGoogle(
   return merged;
 }
 
+// BUG-05: Field-to-slug mapping for AI extraction sync
+const FIELD_TO_SLUG: Record<string, string> = {
+  fullName: "personal-info",
+  dateOfBirth: "personal-info",
+  email: "personal-info",
+  phone: "personal-info",
+  currentAddress: "personal-info",
+  i94Number: "personal-info",
+  entryDateUsa: "personal-info",
+  spouseFullName: "spouse-info",
+  marriageDate: "marriage-details",
+};
+
+// BUG-05: Upsert extracted fields to the correct CaseStep slug, merging with existing data
+async function saveExtractedFields(userProfileId: string, fields: Record<string, string>) {
+  const bySlug: Record<string, Record<string, string>> = {};
+  for (const [field, value] of Object.entries(fields)) {
+    const slug = FIELD_TO_SLUG[field];
+    if (!slug || !value) continue;
+    bySlug[slug] ??= {};
+    bySlug[slug][field] = value;
+  }
+
+  for (const [slug, newData] of Object.entries(bySlug)) {
+    const existing = await prisma.caseStep.findUnique({
+      where: { userProfileId_stepSlug: { userProfileId, stepSlug: slug } },
+    });
+    const existingData = (existing?.data as Record<string, string>) ?? {};
+    await prisma.caseStep.upsert({
+      where: { userProfileId_stepSlug: { userProfileId, stepSlug: slug } },
+      create: { userProfileId, stepSlug: slug, status: StepStatus.IN_PROGRESS, data: { ...existingData, ...newData } },
+      update: { data: { ...existingData, ...newData } },
+    });
+  }
+}
+
+// BUG-03: Generate PDFs and upload to Supabase Storage (not disk)
+// PREREQUISITE: "generated-pdfs" bucket must exist in Supabase Storage as a private bucket
+// with RLS policy: (auth.uid()::text) = (storage.foldername(name))[1]
+// Create via: Supabase Dashboard > Storage > New bucket > name: generated-pdfs, Private
 async function generatePdfs(
   data: StructuredData,
   selectedTemplateKeys: string[],
@@ -181,8 +223,7 @@ async function generatePdfs(
 
   if (!templates.length) return generatedFiles;
 
-  const generatedDir = path.join(process.cwd(), "private", "generated");
-  await mkdir(generatedDir, { recursive: true });
+  const supabase = await createClient();
 
   for (const template of templates) {
     try {
@@ -190,14 +231,28 @@ async function generatePdfs(
       const templateBytes = await readFile(templatePath);
       const filledBytes = await fillPdfTemplate(templateBytes, data);
 
-      const filename = `${userId}-${template.key}-${Date.now()}.pdf`;
-      const outputPath = path.join(generatedDir, filename);
-      await writeFile(outputPath, Buffer.from(filledBytes));
+      const storagePath = `generated/${userId}/${Date.now()}-${template.key}.pdf`;
+      const { error: uploadError } = await supabase.storage
+        .from("generated-pdfs")
+        .upload(storagePath, Buffer.from(filledBytes), {
+          contentType: "application/pdf",
+          upsert: true,
+        });
 
-      generatedFiles.push({
-        key: template.key,
-        url: `/api/dashboard/pdf/${encodeURIComponent(filename)}`,
-      });
+      if (uploadError) {
+        // Log and continue for other templates
+        console.error(`PDF storage failed for ${template.key}:`, uploadError.message);
+        continue;
+      }
+
+      const { data: signedData } = await supabase.storage
+        .from("generated-pdfs")
+        .createSignedUrl(storagePath, 3600);
+      const pdfUrl = signedData?.signedUrl ?? null;
+
+      if (pdfUrl) {
+        generatedFiles.push({ key: template.key, url: pdfUrl });
+      }
     } catch {
       // Continue for other templates
     }
@@ -215,11 +270,22 @@ function getModel(modelId: string) {
   return getLanguageModel("google/gemini-2.0-flash");
 }
 
+// suppress unused warning — kept for potential future use
+void getModel;
+
 export async function POST(request: NextRequest) {
-  // Rate limiting
-  const clientIp = getClientIpFromHeaders(request.headers);
+  // Auth check FIRST (BUG-10 prerequisite: rate limit keyed by user ID, not IP)
+  const context = await getCurrentUserAndProfile();
+  if (!context) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  // Rate limiting keyed by user ID (BUG-10: prevents IP spoofing)
   const rateLimit = runRateLimit({
-    key: `chat:${clientIp}`,
+    key: `chat:${context.userProfile.id}`,  // BUG-10: user-ID keyed, not IP
     windowMs: 60_000,
     max: 30,
     blockDurationMs: 5 * 60_000,
@@ -256,12 +322,19 @@ export async function POST(request: NextRequest) {
 
   const { messages, selectedModelId, selectedTemplateKeys } = parsedBody.data;
 
-  // Auth check
-  const context = await getCurrentUserAndProfile();
-  if (!context) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
-      status: 401,
-      headers: { "Content-Type": "application/json" },
+  // BUG-04: Upsert ChatSession (one per user — D-01)
+  const session = await prisma.chatSession.upsert({
+    where: { userProfileId: context.userProfile.id },
+    create: { userProfileId: context.userProfile.id },
+    update: {},
+  });
+
+  // BUG-04: Save the last user message before streaming
+  const lastMsg = messages[messages.length - 1];
+  if (lastMsg?.role === "user") {
+    const userContent = extractTextFromMessage(lastMsg);
+    await prisma.chatMessage.create({
+      data: { sessionId: session.id, role: "user", content: userContent },
     });
   }
 
@@ -347,6 +420,16 @@ export async function POST(request: NextRequest) {
     system: fullSystemPrompt,
     messages: modelMessages,
     temperature: 0.3,
+    abortSignal: request.signal,  // BUG-13: cancel LLM call on client disconnect
+    onFinish: async ({ text }) => {
+      // BUG-04: Save assistant message to ChatMessage
+      await prisma.chatMessage.create({
+        data: { sessionId: session.id, role: "assistant", content: text },
+      });
+
+      // BUG-05: Upsert extracted fields to correct CaseStep slugs
+      await saveExtractedFields(context.userProfile.id, extractedData);
+    },
   });
 
   return result.toUIMessageStreamResponse();

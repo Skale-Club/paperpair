@@ -32,7 +32,7 @@ Plans:
 - [x] 01-03-PLAN.md — Security guardrails: legal guardrail, UPL disclaimer, edition locks, MIME check, PDF cleanup
 - [x] 01-04-PLAN.md — Auth + spouse invite acceptance page
 - [ ] 01-05-PLAN.md — Gap closure: replace hardcoded fee amounts in timeline-checklists.ts and my-case-timeline.tsx (BUG-06)
-- [ ] 01-06-PLAN.md — Gap closure: UplDisclaimer on /dashboard screener page (BUG-08) + REQUIREMENTS.md corrections (AUTH-03, BUG-10)
+- [x] 01-06-PLAN.md — Gap closure: UplDisclaimer on /dashboard screener page (BUG-08) + REQUIREMENTS.md corrections (AUTH-03, BUG-10)
 **UI hint**: yes
 
 ### Phase 2: Core Case Features
@@ -76,7 +76,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation & Bug Fixes | 4/6 | Gap closure in progress | 2026-04-17 |
+| 1. Foundation & Bug Fixes | 5/6 | In Progress|  |
 | 2. Core Case Features | 0/? | Not started | - |
 | 3. Completion Tools | 0/? | Not started | - |
 | 4. Interview Prep | 0/? | Not started | - |

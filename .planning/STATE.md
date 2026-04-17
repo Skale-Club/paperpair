@@ -4,12 +4,12 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 01
 status: verifying
-last_updated: "2026-04-17T18:36:52.136Z"
+last_updated: "2026-04-17T18:56:37.141Z"
 progress:
   total_phases: 4
-  completed_phases: 1
-  total_plans: 4
-  completed_plans: 4
+  completed_phases: 0
+  total_plans: 6
+  completed_plans: 5
 ---
 
 # PaperPair — Project State
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-04-17)
 
 | # | Phase | Status |
 |---|-------|--------|
-| 1 | Foundation & Bug Fixes | Executing (3/4 plans complete) |
+| 1 | Foundation & Bug Fixes | Complete (6/6 plans done) |
 | 2 | Core Case Features | Not started |
 | 3 | Completion Tools | Not started |
 | 4 | Interview Prep | Not started |
@@ -46,7 +46,7 @@ Plan: 4 of 4
 | Status | Executing |
 | Progress | 1/4 plans complete in Phase 01 |
 
-**Progress bar:** [████████░░] 75%
+**Progress bar:** [█████████░] 83%
 
 ---
 
@@ -63,6 +63,7 @@ Plan: 4 of 4
 | Phase 01 P02 | 8 | 2 tasks | 11 files |
 | Phase 01 P04 | 12 | 2 tasks | 6 files |
 | Phase 01 P03 | 15 | 2 tasks | 16 files |
+| Phase 01 P06 | 8 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -85,6 +86,8 @@ Plan: 4 of 4
 | Accept button redirects to /login?invite_token= | auth/callback already handles viewerOfId assignment; no separate POST accept endpoint needed | 2026-04-17 |
 | UplDisclaimer placed on documentation-filling page | /chat/page.tsx redirects to /documentation-filling; disclaimer must live on the destination | 2026-04-17 |
 | FEES_2026 barrel export added to fee-schedule.ts | Pre-existing test expected grouped object; individual named exports remain canonical | 2026-04-17 |
+| UplDisclaimer unconditional on /dashboard | Not gated on showScreener — renders for all dashboard visitors matching my-forms and documentation-filling pattern | 2026-04-17 |
+| BUG-10 description corrected in REQUIREMENTS.md | Scope was user-ID keyed in-memory; Upstash Redis evaluated and deferred to Phase 2 per D-07 | 2026-04-17 |
 
 ### Active Blockers
 
@@ -98,11 +101,11 @@ None
 
 ## Session Continuity
 
-**Last action:** Completed 01-03-PLAN.md — security guardrails, UPL disclaimer, MIME magic byte validation, edition locks, PDF cleanup (2026-04-17T18:36:00Z)
-**Next action:** Phase 01 complete — all 4 plans executed; ready for verification
+**Last action:** Completed 01-06-PLAN.md — UplDisclaimer on /dashboard, REQUIREMENTS.md AUTH-03 ticked, BUG-10 description corrected (2026-04-17T14:55:00Z)
+**Next action:** Phase 01 complete — all 6 plans executed; ready for verification
 
 ---
 
 ## Last Updated
 
-2026-04-17 — Executed 01-03: getMagicMime utility, legal guardrail in systemPrompt, UplDisclaimer component, edition locks on 6 FormPacks, loadingTask.destroy() fix, FEES_2026 barrel export
+2026-04-17 — Executed 01-06: UplDisclaimer added to /dashboard page, REQUIREMENTS.md AUTH-03 ticked and BUG-10 description corrected

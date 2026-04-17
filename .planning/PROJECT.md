@@ -14,6 +14,7 @@ The applicant always knows exactly what to do next — no confusion, no missed s
 
 *Validated in Phase 1: Foundation & Auth* — user auth, dashboard shell, onboarding, screener framework, case step persistence
 *Validated in Phase 2: Core Case Features* — eligibility screener with entryType save, EWI warning, forms browser with instructions + edition warnings + USCIS links, AI chat with history persistence + AP travel warning + field extraction, document upload/list/download/delete with Supabase Storage, AI document extraction to case profile
+*Validated in Phase 3: Completion Tools* — I-864 income calculator with 2026 HHS poverty guidelines, 125% threshold calculation, joint sponsor explanation, CaseStep persistence; submission packet page with AP travel warning, form download list, assembly checklist, USCIS lockbox link
 
 ### Active
 
@@ -52,4 +53,4 @@ The applicant always knows exactly what to do next — no confusion, no missed s
 | AOS-only v1 scope | Deep quality over breadth | — Pending |
 
 ---
-*Last updated: 2026-04-17 after Phase 2: Core Case Features completion*
+*Last updated: 2026-04-17 after Phase 3: Completion Tools completion*

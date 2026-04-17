@@ -79,10 +79,10 @@
 
 ### Submission
 
-- [ ] **SUB-01**: User can download their filled PDF forms as a complete package
-- [ ] **SUB-02**: Submission checklist guides user through packet assembly and mailing
-- [ ] **SUB-03**: Correct USCIS lockbox address displayed (never hardcoded — links to USCIS.gov)
-- [ ] **SUB-04**: Advance Parole travel warning shown prominently before submission
+- [x] **SUB-01**: User can download their filled PDF forms as a complete package
+- [x] **SUB-02**: Submission checklist guides user through packet assembly and mailing
+- [x] **SUB-03**: Correct USCIS lockbox address displayed (never hardcoded — links to USCIS.gov)
+- [x] **SUB-04**: Advance Parole travel warning shown prominently before submission
 
 ### Interview Prep
 

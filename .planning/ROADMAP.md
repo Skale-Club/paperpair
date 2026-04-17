@@ -8,7 +8,7 @@
 
 - [x] **Phase 1: Foundation & Bug Fixes** — Stabilize the existing app: fix all P0 bugs, lock in DB persistence, auth flows, and timeline tracking (completed 2026-04-17)
 - [x] **Phase 2: Core Case Features** — Deliver the full guided experience: case setup, forms browser, AI chat, and document management (completed 2026-04-17)
-- [ ] **Phase 3: Completion Tools** — Guide the user to the finish line: income calculator and submission packet assembly
+- [x] **Phase 3: Completion Tools** — Guide the user to the finish line: income calculator and submission packet assembly (completed 2026-04-17)
 - [ ] **Phase 4: Interview Prep** — Prepare both spouses for the USCIS interview
 
 ---
@@ -69,7 +69,7 @@ Plans:
 **Plans**: 2 plans
 Plans:
 - [x] 03-01-PLAN.md — Income Calculator: poverty-guidelines.ts, DASHBOARD_STEPS slug, page + client widget, sidebar nav
-- [ ] 03-02-PLAN.md — Submission Packet page: AP warning, form download list, assembly checklist, USCIS lockbox link
+- [x] 03-02-PLAN.md — Submission Packet page: AP warning, form download list, assembly checklist, USCIS lockbox link
 
 ### Phase 4: Interview Prep
 **Goal**: Both spouses feel prepared and organized for their USCIS interview
@@ -90,7 +90,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1. Foundation & Bug Fixes | 5/6 | In Progress|  |
 | 2. Core Case Features | 8/8 | Complete   | 2026-04-17 |
-| 3. Completion Tools | 1/2 | In Progress|  |
+| 3. Completion Tools | 2/2 | Complete   | 2026-04-17 |
 | 4. Interview Prep | 0/? | Not started | - |
 
 ---

@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import type { ChatResponse } from "./types";
 
 function buildDocumentsPageUrl(
   files: Array<{ key: string; url: string }>,

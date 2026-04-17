@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ChatMessage } from "./chat-message";
 import { ChatInput } from "./chat-input";
 import type { Message } from "./types";
-import { chatModels, modelsByProvider } from "@/lib/ai/models";
+import { chatModels } from "@/lib/ai/models";
 
 type ChatPanelProps = {
   isOpen: boolean;

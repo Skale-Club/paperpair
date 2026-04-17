@@ -66,7 +66,7 @@
 
 - [x] **DOC-01**: User can upload supporting documents (passport, marriage cert, bank statements, etc.)
 - [x] **DOC-02**: Uploaded documents are tagged by type (passport, birth certificate, marriage certificate, etc.)
-- [ ] **DOC-03**: Documents are stored privately in Supabase Storage with per-user access control
+- [x] **DOC-03**: Documents are stored privately in Supabase Storage with per-user access control
 - [ ] **DOC-04**: User can view and download their uploaded documents via signed URLs
 - [x] **DOC-05**: Uploaded documents can be used to auto-populate form fields via AI extraction
 

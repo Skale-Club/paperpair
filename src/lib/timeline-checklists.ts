@@ -1,3 +1,5 @@
+import { FEES_2026_I130_PAPER, FEES_2026_I765_EAD_INITIAL } from "@/lib/fee-schedule";
+
 export type ChecklistItem = {
   id: string;
   label: string;
@@ -61,7 +63,7 @@ export const SECTION_CHECKLISTS: Record<string, ChecklistItem[]> = {
     { id: "i130-6", label: "Attach petitioner's proof of U.S. citizenship (copy of passport or birth certificate)" },
     { id: "i130-7", label: "Attach certified copy of the marriage certificate" },
     { id: "i130-8", label: "Include 2 passport-style photos of petitioner and 2 of beneficiary in a labeled envelope" },
-    { id: "i130-9", label: "Prepare filing fee: $675 — check or money order payable to 'U.S. Department of Homeland Security'" },
+    { id: "i130-9", label: `Prepare filing fee: $${FEES_2026_I130_PAPER} — check or money order payable to 'U.S. Department of Homeland Security'` },
   ],
 
   "form-i130a": [
@@ -108,7 +110,7 @@ export const SECTION_CHECKLISTS: Record<string, ChecklistItem[]> = {
     { id: "i765-3", label: "If requesting a new SSN for the first time, check the appropriate box" },
     { id: "i765-4", label: "Beneficiary signs and dates Form I-765" },
     { id: "i765-5", label: "Include 2 passport-style photos and copies of passport bio page and I-94" },
-    { id: "i765-6", label: "Prepare filing fee: $260 — separate check" },
+    { id: "i765-6", label: `Prepare filing fee: $${FEES_2026_I765_EAD_INITIAL} — separate check` },
     { id: "i131-1", label: "Download Form I-131 (current edition) from uscis.gov/i-131" },
     { id: "i131-2", label: "Mark application type: Advance Parole for a pending Adjustment of Status (box 1.d)" },
     { id: "i131-3", label: "Describe intended travel: country to visit and general purpose (e.g., visit family)" },

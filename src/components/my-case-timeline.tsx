@@ -3,6 +3,13 @@
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { SECTION_CHECKLISTS } from "@/lib/timeline-checklists";
+import {
+  FEES_2026_I130_PAPER,
+  FEES_2026_I485,
+  FEES_2026_I765_EAD_INITIAL,
+} from "@/lib/fee-schedule";
+
+const FEES_2026_I131_STANDALONE = 630;
 
 /* ─── types ─── */
 type PhaseSection = { id: string; label: string };
@@ -350,7 +357,7 @@ function SectionDocumentationBundle() {
                 {[
                     { pos: 1, item: "Cover letter", note: "List every enclosed form and document" },
                     { pos: 2, item: "Form G-1145", note: "E-notification of acceptance — clip to very top" },
-                    { pos: 3, item: "Filing fee payments", note: "Separate checks for each form (I-130: $675, I-485: $1,440, I-765: $260, I-131: $630)" },
+                    { pos: 3, item: "Filing fee payments", note: `Separate checks for each form (I-130: $${FEES_2026_I130_PAPER}, I-485: $${FEES_2026_I485.toLocaleString()}, I-765: $${FEES_2026_I765_EAD_INITIAL}, I-131: $${FEES_2026_I131_STANDALONE})` },
                     { pos: 4, item: "Form I-130 + supporting docs", note: "Citizenship proof, marriage certificate, 2 photos each spouse" },
                     { pos: 5, item: "Form I-130A + supporting docs", note: "Passport copy, I-94, birth certificate + translation" },
                     { pos: 6, item: "Form I-485 + 2 photos + I-693", note: "Sealed medical exam envelope on top of I-485" },

@@ -72,10 +72,10 @@
 
 ### I-864 Income Calculator
 
-- [ ] **CALC-01**: User enters household size and petitioner's annual income
-- [ ] **CALC-02**: Calculator displays 125% federal poverty guideline threshold for that household size
-- [ ] **CALC-03**: Calculator tells user if income qualifies or if a joint sponsor is needed
-- [ ] **CALC-04**: Calculator explains joint sponsor requirements if income is insufficient
+- [x] **CALC-01**: User enters household size and petitioner's annual income
+- [x] **CALC-02**: Calculator displays 125% federal poverty guideline threshold for that household size
+- [x] **CALC-03**: Calculator tells user if income qualifies or if a joint sponsor is needed
+- [x] **CALC-04**: Calculator explains joint sponsor requirements if income is insufficient
 
 ### Submission
 

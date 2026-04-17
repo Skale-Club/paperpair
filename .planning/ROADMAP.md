@@ -68,7 +68,7 @@ Plans:
   4. A submission checklist walks the user through packet assembly and mailing, with the correct USCIS lockbox address linked (never hardcoded) and a prominent Advance Parole travel warning shown before they submit
 **Plans**: 2 plans
 Plans:
-- [ ] 03-01-PLAN.md — Income Calculator: poverty-guidelines.ts, DASHBOARD_STEPS slug, page + client widget, sidebar nav
+- [x] 03-01-PLAN.md — Income Calculator: poverty-guidelines.ts, DASHBOARD_STEPS slug, page + client widget, sidebar nav
 - [ ] 03-02-PLAN.md — Submission Packet page: AP warning, form download list, assembly checklist, USCIS lockbox link
 
 ### Phase 4: Interview Prep
@@ -90,7 +90,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1. Foundation & Bug Fixes | 5/6 | In Progress|  |
 | 2. Core Case Features | 8/8 | Complete   | 2026-04-17 |
-| 3. Completion Tools | 0/2 | Not started | - |
+| 3. Completion Tools | 1/2 | In Progress|  |
 | 4. Interview Prep | 0/? | Not started | - |
 
 ---

@@ -45,7 +45,16 @@ Plans:
   3. A user can chat with the AI assistant, have it collect their names, dates, and addresses conversationally, and see that data saved automatically to their case profile — with chat history intact after navigating away
   4. A user can upload a passport or marriage certificate, tag it by document type, and later download it via a signed URL — with access blocked to anyone else
   5. Data extracted by the AI from uploaded documents is auto-populated into the correct form fields
-**Plans**: TBD
+**Plans**: 8 plans
+Plans:
+- [ ] 02-01-PLAN.md — Wave 0 test scaffolds for all Phase 2 requirements (RED state)
+- [ ] 02-02-PLAN.md — Document Prisma model + schema migration + document-types.ts utility
+- [ ] 02-03-PLAN.md — Forms enrichment: FormPack type extension + pack detail instructions + edition warning banner
+- [ ] 02-04-PLAN.md — Screener wiring: save-on-complete + EWI warning + timeline entry-type filter
+- [ ] 02-05-PLAN.md — Chat history API (GET /api/chat/history) + AP travel warning in systemPrompt
+- [ ] 02-06-PLAN.md — Documents page + upload extension + GET/DELETE /api/documents
+- [ ] 02-07-PLAN.md — Document AI extraction route + Extract to profile button wire-up
+- [ ] 02-08-PLAN.md — Chat initialMessages wire-up + human verification checkpoint
 **UI hint**: yes
 
 ### Phase 3: Completion Tools
@@ -77,7 +86,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation & Bug Fixes | 5/6 | In Progress|  |
-| 2. Core Case Features | 0/? | Not started | - |
+| 2. Core Case Features | 0/8 | Planning complete | - |
 | 3. Completion Tools | 0/? | Not started | - |
 | 4. Interview Prep | 0/? | Not started | - |
 
@@ -149,3 +158,4 @@ Plans:
 *Roadmap created: 2026-04-17*
 *Phase 1 planned: 2026-04-17 — 4 plans, 2 execution waves*
 *Phase 1 gap closure: 2026-04-17 — 2 additional plans (01-05, 01-06) for 4 verification gaps*
+*Phase 2 planned: 2026-04-17 — 8 plans, 2 execution waves*

@@ -7,7 +7,7 @@
 ## Phases
 
 - [x] **Phase 1: Foundation & Bug Fixes** — Stabilize the existing app: fix all P0 bugs, lock in DB persistence, auth flows, and timeline tracking (completed 2026-04-17)
-- [ ] **Phase 2: Core Case Features** — Deliver the full guided experience: case setup, forms browser, AI chat, and document management
+- [x] **Phase 2: Core Case Features** — Deliver the full guided experience: case setup, forms browser, AI chat, and document management (completed 2026-04-17)
 - [ ] **Phase 3: Completion Tools** — Guide the user to the finish line: income calculator and submission packet assembly
 - [ ] **Phase 4: Interview Prep** — Prepare both spouses for the USCIS interview
 
@@ -54,7 +54,7 @@ Plans:
 - [x] 02-05-PLAN.md — Chat history API (GET /api/chat/history) + AP travel warning in systemPrompt
 - [x] 02-06-PLAN.md — Documents page + upload extension + GET/DELETE /api/documents
 - [x] 02-07-PLAN.md — Document AI extraction route + Extract to profile button wire-up
-- [ ] 02-08-PLAN.md — Chat initialMessages wire-up + human verification checkpoint
+- [x] 02-08-PLAN.md — Chat initialMessages wire-up + human verification checkpoint
 **UI hint**: yes
 
 ### Phase 3: Completion Tools
@@ -86,7 +86,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation & Bug Fixes | 5/6 | In Progress|  |
-| 2. Core Case Features | 7/8 | In Progress|  |
+| 2. Core Case Features | 8/8 | Complete   | 2026-04-17 |
 | 3. Completion Tools | 0/? | Not started | - |
 | 4. Interview Prep | 0/? | Not started | - |
 

@@ -210,3 +210,71 @@ export const SECTION_CHECKLISTS: Record<string, ChecklistItem[]> = {
     { id: "post-8", label: "In 3 years (if continuously married to a U.S. citizen), you may qualify for naturalization" },
   ],
 };
+
+// ── Timeline section types and data ──────────────────────────────────────────
+
+/** A named section in the AOS timeline with its ordered checklist items. */
+export type TimelineSection = {
+  id: string;
+  title: string;
+  items: ChecklistItem[];
+};
+
+/**
+ * Ordered array of all standard AOS timeline sections.
+ * Each section's `items` is sourced from SECTION_CHECKLISTS above.
+ * This canonical order matches the progression shown in my-case-timeline.tsx.
+ */
+export const TIMELINE_SECTIONS: TimelineSection[] = [
+  { id: "determine-eligibility", title: "Determine Eligibility", items: SECTION_CHECKLISTS["determine-eligibility"] },
+  { id: "gather-documents", title: "Gather Documents", items: SECTION_CHECKLISTS["gather-documents"] },
+  { id: "relationship-evidence", title: "Relationship Evidence", items: SECTION_CHECKLISTS["relationship-evidence"] },
+  { id: "medical-exam-prep", title: "Schedule Medical Exam", items: SECTION_CHECKLISTS["medical-exam-prep"] },
+  { id: "medical-exam-complete", title: "Complete Medical Exam", items: SECTION_CHECKLISTS["medical-exam-complete"] },
+  { id: "form-i130", title: "Form I-130", items: SECTION_CHECKLISTS["form-i130"] },
+  { id: "form-i130a", title: "Form I-130A", items: SECTION_CHECKLISTS["form-i130a"] },
+  { id: "form-i485", title: "Form I-485", items: SECTION_CHECKLISTS["form-i485"] },
+  { id: "form-i864", title: "Form I-864", items: SECTION_CHECKLISTS["form-i864"] },
+  { id: "form-i765-i131", title: "Forms I-765 & I-131", items: SECTION_CHECKLISTS["form-i765-i131"] },
+  { id: "documentation-bundle", title: "Documentation Bundle", items: SECTION_CHECKLISTS["documentation-bundle"] },
+  { id: "instructions", title: "Assembly Rules", items: SECTION_CHECKLISTS["instructions"] },
+  { id: "mailing", title: "Mailing", items: SECTION_CHECKLISTS["mailing"] },
+  { id: "track-notices", title: "Track Notices", items: SECTION_CHECKLISTS["track-notices"] },
+  { id: "biometrics", title: "Biometrics", items: SECTION_CHECKLISTS["biometrics"] },
+  { id: "ead-ap-card", title: "EAD / Advance Parole", items: SECTION_CHECKLISTS["ead-ap-card"] },
+  { id: "interview-prep", title: "Interview Prep", items: SECTION_CHECKLISTS["interview-prep"] },
+  { id: "interview-day", title: "Interview Day", items: SECTION_CHECKLISTS["interview-day"] },
+  { id: "next-steps", title: "After Approval", items: SECTION_CHECKLISTS["next-steps"] },
+];
+
+/** Extra timeline section shown to EWI and overstay applicants — per D-03, CASE-02 */
+const EWI_CONSULT_SECTION: TimelineSection = {
+  id: "ewi-consult",
+  title: "Consult an Immigration Attorney",
+  items: [
+    {
+      id: "ewi-consult-1",
+      label: "Schedule a consultation with a licensed immigration attorney",
+    },
+    {
+      id: "ewi-consult-2",
+      label: "Ask about unlawful presence bars and any applicable waivers",
+    },
+  ],
+};
+
+/**
+ * Returns the timeline sections appropriate for the user's entry type.
+ * EWI and overstay users see an extra "Consult an Attorney" section prepended.
+ * Lawful-entry users and unknown types see the standard sections.
+ *
+ * per D-03 (CASE-02): filter logic lives in timeline-checklists.ts
+ */
+export function filterTimelineByEntryType(
+  entryType: string | null | undefined
+): TimelineSection[] {
+  if (entryType === "ewi" || entryType === "overstay") {
+    return [EWI_CONSULT_SECTION, ...TIMELINE_SECTIONS];
+  }
+  return TIMELINE_SECTIONS;
+}

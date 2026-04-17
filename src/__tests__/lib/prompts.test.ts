@@ -12,3 +12,17 @@ describe("systemPrompt legal guardrail (BUG-07)", () => {
     expect(systemPrompt).toContain("PaperPair provides general information only");
   });
 });
+
+describe("AP travel warning in systemPrompt (CHAT-06)", () => {
+  it("systemPrompt contains Advance Parole warning instruction", () => {
+    expect(systemPrompt.toUpperCase()).toContain("ADVANCE PAROLE");
+  });
+
+  it("systemPrompt warns against traveling without AP approval", () => {
+    expect(systemPrompt).toContain("I-485");
+  });
+
+  it("AP warning mentions I-131 form", () => {
+    expect(systemPrompt).toContain("I-131");
+  });
+});

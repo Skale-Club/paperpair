@@ -2,18 +2,10 @@
 
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
-import { FORM_PACKS, type FormItem, type FormPack } from "@/lib/form-packs";
-import { PdfViewer } from "@/components/pdf-viewer";
+import { SECTION_CHECKLISTS } from "@/lib/timeline-checklists";
 
-type SelectedForm = { form: FormItem; pack: FormPack };
-type FormStatus = "pending" | "done" | "skipped";
-
-/* ─── phase data ─── */
-type PhaseSection = {
-    id: string;
-    label: string;
-};
-
+/* ─── types ─── */
+type PhaseSection = { id: string; label: string };
 type Phase = {
     id: string;
     number: number;
@@ -23,6 +15,7 @@ type Phase = {
     sections: PhaseSection[];
 };
 
+/* ─── phase / section data ─── */
 const PHASES: Phase[] = [
     {
         id: "get-ready",
@@ -32,13 +25,14 @@ const PHASES: Phase[] = [
         sections: [
             { id: "determine-eligibility", label: "Determine eligibility" },
             { id: "gather-documents", label: "Gather documents" },
-            { id: "annotations", label: "Annotations" },
+            { id: "relationship-evidence", label: "Relationship evidence" },
+            { id: "medical-exam-prep", label: "Schedule medical exam" },
         ],
         icon: (
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
             </svg>
-        )
+        ),
     },
     {
         id: "application",
@@ -46,14 +40,18 @@ const PHASES: Phase[] = [
         title: "Application",
         subtitle: "Forms & medical exam",
         sections: [
-            { id: "my-forms", label: "My forms" },
-            { id: "what-to-expect", label: "What to expect" },
+            { id: "medical-exam-complete", label: "Complete medical exam" },
+            { id: "form-i130", label: "Form I-130" },
+            { id: "form-i130a", label: "Form I-130A" },
+            { id: "form-i485", label: "Form I-485" },
+            { id: "form-i864", label: "Form I-864" },
+            { id: "form-i765-i131", label: "Forms I-765 & I-131" },
         ],
         icon: (
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" />
             </svg>
-        )
+        ),
     },
     {
         id: "submission",
@@ -62,43 +60,54 @@ const PHASES: Phase[] = [
         subtitle: "Print, collate & mail",
         sections: [
             { id: "documentation-bundle", label: "Documentation bundle" },
-            { id: "instructions", label: "Instructions" },
+            { id: "instructions", label: "Assembly rules" },
             { id: "mailing", label: "Mailing" },
         ],
         icon: (
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="2" y="7" width="20" height="14" rx="2" ry="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
             </svg>
-        )
+        ),
     },
     {
-        id: "finalizing",
+        id: "after-filing",
         number: 4,
-        title: "Finalizing",
-        subtitle: "Interview preparation",
+        title: "After Filing",
+        subtitle: "Notices, biometrics & interview",
         sections: [
-            { id: "interview-instructions", label: "Interview instructions" },
-            { id: "next-steps", label: "Next Steps" },
+            { id: "track-notices", label: "Track notices" },
+            { id: "biometrics", label: "Biometrics" },
+            { id: "ead-ap-card", label: "EAD / Advance Parole" },
+            { id: "interview-prep", label: "Interview prep" },
+            { id: "interview-day", label: "Interview day" },
+            { id: "next-steps", label: "After approval" },
         ],
         icon: (
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M17 8h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2v4l-4-4H9a1.994 1.994 0 0 1-1.414-.586m0 0L11 14h4a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2v4l.586-.586z" />
+                <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
             </svg>
-        )
-    }
+        ),
+    },
 ];
 
-const STORAGE_KEY = "paperpair_timeline_complete";
-const FORM_STATUS_KEY = "paperpair_form_status";
+/* flat list of all sections for prev/next navigation */
+const ALL_SECTIONS = PHASES.flatMap(p => p.sections.map(s => ({ ...s, phaseId: p.id })));
+
+/* ─── persistence ─── */
+const STORAGE_KEY = "paperpair_timeline_v2";
+
 type CompletedState = {
     phases: Record<string, boolean>;
     sections: Record<string, Record<string, boolean>>;
+    items: Record<string, Record<string, boolean>>;
 };
 
+const DEFAULT_STATE: CompletedState = { phases: {}, sections: {}, items: {} };
+
 /* ─── helpers ─── */
-function CheckIcon() {
+function CheckIcon({ className = "h-4 w-4" }: { className?: string }) {
     return (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+        <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
         </svg>
     );
@@ -122,27 +131,11 @@ function Warning({ children }: { children: React.ReactNode }) {
     );
 }
 
-function DocItem({ label, desc }: { label: string; desc: string }) {
-    return (
-        <div className="flex items-start gap-3 rounded-lg border border-slate-100 bg-slate-50 px-4 py-3">
-            <div className="mt-1 shrink-0 text-indigo-500">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
-                </svg>
-            </div>
-            <div>
-                <p className="text-sm font-semibold text-slate-800">{label}</p>
-                <p className="text-xs text-slate-500 mt-0.5">{desc}</p>
-            </div>
-        </div>
-    );
-}
-
 function ActionLink({ href, children }: { href: string; children: React.ReactNode }) {
     return (
         <Link
             href={href}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-slate-700 sm:inline-flex sm:w-auto sm:justify-start"
+            className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-slate-700"
         >
             {children}
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -152,172 +145,223 @@ function ActionLink({ href, children }: { href: string; children: React.ReactNod
     );
 }
 
-/* ─── section content ─── */
+/* ─── section content components ─── */
 
 function SectionDetermineEligibility() {
     return (
-        <div className="space-y-6">
+        <div className="space-y-4">
             <div>
                 <h2 className="text-2xl font-bold text-slate-900">Determine eligibility</h2>
-                <p className="mt-1 text-sm text-slate-500">Phase 1: Get Ready — Determine eligibility, gather evidence, and build your foundation.</p>
+                <p className="mt-1 text-sm text-slate-500">Phase 1: Get Ready — Confirm you meet the requirements before investing time in paperwork.</p>
             </div>
-            <div className="space-y-2 text-sm text-slate-700">
-                <p>Before you begin, confirm you meet the basic requirements for a marriage-based green card:</p>
-                <ul className="ml-4 list-disc space-y-1.5 text-slate-600">
-                    <li>Your spouse is a U.S. citizen or lawful permanent resident</li>
-                    <li>Your marriage is legally valid and bona fide</li>
-                    <li>You entered the U.S. lawfully (or qualify for an exception)</li>
-                    <li>You have no disqualifying criminal history or immigration violations</li>
-                </ul>
-            </div>
+            <p className="text-sm text-slate-600">
+                Before you begin, confirm you meet the basic requirements for a marriage-based green card (Adjustment of Status).
+                Check every item below — if any do not apply to your situation, consult an immigration attorney before proceeding.
+            </p>
         </div>
     );
 }
 
 function SectionGatherDocuments() {
     return (
-        <div className="space-y-6">
+        <div className="space-y-4">
             <div>
-                <h2 className="text-2xl font-bold text-slate-900">Gather documents</h2>
-                <p className="mt-1 text-sm text-slate-500">Phase 1: Get Ready — Determine eligibility, gather evidence, and build your foundation.</p>
+                <h2 className="text-2xl font-bold text-slate-900">Gather personal documents</h2>
+                <p className="mt-1 text-sm text-slate-500">Phase 1: Get Ready — Collect all required identity and civil documents.</p>
             </div>
-            <Tip>Start building evidence of your genuine relationship now — it will be critical later.</Tip>
-            <div className="space-y-2 mb-2">
-                <DocItem label="Birth Certificate" desc="Original with English translation if in a foreign language." />
-                <DocItem label="Valid Passport" desc="Must not expire within 6 months of filing." />
-                <DocItem label="Marriage Certificate" desc="Original certified copy from the issuing authority." />
-                <DocItem label="Passport-Style Photos" desc="Two 2x2 inch photos per USCIS specs." />
-                <DocItem label="Government ID" desc="Driver's license, state ID, or national ID card." />
-                <DocItem label="Divorce Decrees / Death Certificates" desc="Proof that prior marriages were legally terminated (if any)." />
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-                {[
-                    { title: "Joint Bank Account", desc: "Open a shared checking or savings account and use it regularly." },
-                    { title: "Shared Car Insurance", desc: "Add your spouse to your policy or combine under one." },
-                    { title: "Shared Address", desc: "Ensure both names are on the lease, mortgage, or utility bills." },
-                    { title: "Joint Tax Return", desc: "File taxes together as 'Married Filing Jointly' if possible." },
-                    { title: "Shared Health Insurance", desc: "Add your spouse to your employer plan or vice versa." },
-                    { title: "Beneficiary Designations", desc: "Name each other as beneficiaries on bank, 401k, or life insurance." }
-                ].map((item) => (
-                    <div key={item.title} className="rounded-xl border border-slate-100 bg-white p-4 shadow-sm">
-                        <p className="text-sm font-semibold text-slate-800">{item.title}</p>
-                        <p className="mt-1 text-xs text-slate-500">{item.desc}</p>
-                    </div>
-                ))}
-            </div>
-            <div className="rounded-2xl border border-indigo-100 bg-indigo-50/50 p-5">
-                <p className="text-sm font-semibold text-indigo-900 mb-2">Ready to upload your documents?</p>
-                <p className="text-sm text-indigo-700 mb-4">
-                    Head to the Documents page to upload your personal files. You can return here anytime.
-                </p>
-                <ActionLink href="/dashboard/documents/gather">Go to Documents</ActionLink>
-            </div>
+            <Tip>Start gathering documents now — obtaining certified copies and translations from abroad can take weeks.</Tip>
+            <p className="text-sm text-slate-600">
+                Collect original or certified copies of every document below. Foreign-language documents must be accompanied
+                by a certified English translation. Make photocopies of everything — you will send copies and keep originals
+                for the interview.
+            </p>
         </div>
     );
 }
 
-function SectionAnnotations() {
+function SectionRelationshipEvidence() {
     return (
-        <div className="space-y-6">
+        <div className="space-y-4">
             <div>
-                <h2 className="text-2xl font-bold text-slate-900">Annotations</h2>
-                <p className="mt-1 text-sm text-slate-500">Phase 1: Get Ready — Determine eligibility, gather evidence, and build your foundation.</p>
+                <h2 className="text-2xl font-bold text-slate-900">Build relationship evidence</h2>
+                <p className="mt-1 text-sm text-slate-500">Phase 1: Get Ready — Demonstrate that your marriage is genuine.</p>
             </div>
             <Tip>
-                Start gathering a photo album now! Collect dated photos of you and your spouse together — trips, holidays, family events.
-                USCIS may ask for 10–20 photos spanning your relationship. Include timestamps and label who is in each photo.
+                Start collecting evidence now — USCIS looks for variety and consistency over time.
+                A single type of evidence (e.g., only photos) is not enough. Aim for at least 4–5 different categories.
             </Tip>
+            <p className="text-sm text-slate-600">
+                Bona fide evidence is critical to your case. USCIS evaluates whether your marriage is genuine, not a
+                marriage of convenience. The more variety and the longer the timeline your evidence spans, the stronger your case.
+            </p>
         </div>
     );
 }
 
-function SectionMyForms() {
+function SectionMedicalExamPrep() {
     return (
-        <div className="space-y-6">
+        <div className="space-y-4">
             <div>
-                <h2 className="text-2xl font-bold text-slate-900">My forms</h2>
-                <p className="mt-1 text-sm text-slate-500">Phase 2: Application — Select your forms, prepare your documentation, and get your medical exam.</p>
+                <h2 className="text-2xl font-bold text-slate-900">Schedule your medical exam</h2>
+                <p className="mt-1 text-sm text-slate-500">Phase 1: Get Ready — Book your I-693 appointment early.</p>
+            </div>
+            <Tip>
+                Schedule your appointment as early as possible. Civil Surgeons book up quickly, and results can take
+                1–2 weeks. You need the completed sealed envelope before you can mail your packet.
+            </Tip>
+            <p className="text-sm text-slate-600">
+                Every applicant must complete a medical exam (Form I-693) performed by a USCIS-designated Civil Surgeon.
+                The exam covers required vaccinations, TB screening, and other health checks. The doctor provides a
+                sealed envelope that you include in your filing packet — do not open it.
+            </p>
+        </div>
+    );
+}
+
+function SectionMedicalExamComplete() {
+    return (
+        <div className="space-y-4">
+            <div>
+                <h2 className="text-2xl font-bold text-slate-900">Complete the medical exam</h2>
+                <p className="mt-1 text-sm text-slate-500">Phase 2: Application — Attend your Civil Surgeon appointment and get the sealed I-693.</p>
+            </div>
+            <Warning>Do NOT open the sealed I-693 envelope under any circumstances. USCIS will reject an opened envelope.</Warning>
+            <p className="text-sm text-slate-600">
+                Attend your Civil Surgeon appointment with your passport and vaccination records. The doctor will perform
+                the required exams and may schedule a follow-up visit (e.g., to read a TB skin test). When finished,
+                you receive a sealed envelope containing Form I-693 — store it safely until packet assembly.
+                The I-693 is valid for 2 years from the doctor's signature date.
+            </p>
+        </div>
+    );
+}
+
+function SectionFormI130() {
+    return (
+        <div className="space-y-4">
+            <div>
+                <h2 className="text-2xl font-bold text-slate-900">Form I-130 — Petition for Alien Relative</h2>
+                <p className="mt-1 text-sm text-slate-500">Phase 2: Application — The petitioner (U.S. citizen spouse) files this to establish your family relationship.</p>
+            </div>
+            <Tip>The petitioner fills and signs I-130. The beneficiary does NOT sign this form — that is what I-130A is for.</Tip>
+            <p className="text-sm text-slate-600">
+                Form I-130 is the foundation of your petition. The U.S. citizen spouse (petitioner) submits it to
+                establish that a qualifying family relationship exists. It is filed concurrently with I-485 for
+                Adjustment of Status.
+            </p>
+            <ActionLink href="/dashboard/forms">Open Forms Page</ActionLink>
+        </div>
+    );
+}
+
+function SectionFormI130A() {
+    return (
+        <div className="space-y-4">
+            <div>
+                <h2 className="text-2xl font-bold text-slate-900">Form I-130A — Supplemental Information</h2>
+                <p className="mt-1 text-sm text-slate-500">Phase 2: Application — Biographical history submitted by the beneficiary alongside I-130.</p>
             </div>
             <p className="text-sm text-slate-600">
-                Head to the Forms page to select and begin filling out your required immigration forms.
-                PaperPair will guide you through each one step by step.
+                Form I-130A is completed by the beneficiary (the immigrant spouse) and filed together with I-130.
+                It requires a full 5-year residential and employment history with no gaps. If there are gaps,
+                explain them (e.g., "unemployed" or "between addresses") — never leave unexplained blank periods.
             </p>
-            <div className="rounded-2xl border border-indigo-100 bg-indigo-50/50 p-5">
-                <p className="text-sm font-semibold text-indigo-900 mb-2">Go to the Forms page</p>
-                <p className="text-sm text-indigo-700 mb-4">
-                    Select your required forms and begin filling them in. Your uploaded documents can be used to auto-fill fields.
-                </p>
-                <ActionLink href="/dashboard/forms">Go to Forms</ActionLink>
-            </div>
+            <ActionLink href="/dashboard/forms">Open Forms Page</ActionLink>
         </div>
     );
 }
 
-function SectionWhatToExpect() {
+function SectionFormI485() {
     return (
-        <div className="space-y-6">
+        <div className="space-y-4">
             <div>
-                <h2 className="text-2xl font-bold text-slate-900">What to expect</h2>
-                <p className="mt-1 text-sm text-slate-500">Phase 2: Application — Select your forms, prepare your documentation, and get your medical exam.</p>
+                <h2 className="text-2xl font-bold text-slate-900">Form I-485 — Application to Register Permanent Residence</h2>
+                <p className="mt-1 text-sm text-slate-500">Phase 2: Application — The core Adjustment of Status application filed by the beneficiary.</p>
             </div>
-            <div className="space-y-2 text-sm text-slate-600 mb-4">
-                <p>Every applicant needs a medical exam (Form I-693) from a USCIS-designated Civil Surgeon.</p>
-                <ul className="ml-4 list-disc space-y-1.5">
-                    <li>Find a Civil Surgeon near you using the USCIS tool on your Dashboard</li>
-                    <li>Bring your vaccination records and photo ID to the appointment</li>
-                    <li>The doctor will provide a <strong>sealed envelope</strong> — do not open it</li>
-                    <li>The I-693 is valid for 2 years from the date of the doctor&apos;s signature</li>
-                </ul>
+            <Warning>
+                Answer ALL questions on I-485 honestly, including those about unlawful presence and unauthorized employment.
+                Misrepresentation is grounds for permanent inadmissibility.
+            </Warning>
+            <p className="text-sm text-slate-600">
+                I-485 is the primary application for changing the beneficiary's status to Lawful Permanent Resident.
+                It is a long form — read every question carefully and answer N/A if something does not apply.
+                The filing fee ($1,440) covers biometrics and is non-refundable.
+            </p>
+            <ActionLink href="/dashboard/forms">Open Forms Page</ActionLink>
+        </div>
+    );
+}
+
+function SectionFormI864() {
+    return (
+        <div className="space-y-4">
+            <div>
+                <h2 className="text-2xl font-bold text-slate-900">Form I-864 — Affidavit of Support</h2>
+                <p className="mt-1 text-sm text-slate-500">Phase 2: Application — The petitioner pledges financial responsibility for the beneficiary.</p>
             </div>
-            <div className="space-y-2 text-sm text-slate-600 mb-4">
-                <p>Before you move to submission, make sure you have:</p>
-                <ul className="ml-4 list-disc space-y-1.5">
-                    <li>All forms completed and signed</li>
-                    <li>Two passport-style photos per applicant</li>
-                    <li>Copies of all supporting documents (keep originals safe)</li>
-                    <li>Payment (check or money order) for filing fees</li>
-                </ul>
+            <Tip>
+                If the petitioner's income alone does not reach 125% of the federal poverty guideline,
+                a joint sponsor can file a separate I-864 using their own income — independently, not combined.
+                Check the current threshold at uscis.gov/i-864p.
+            </Tip>
+            <p className="text-sm text-slate-600">
+                The Affidavit of Support legally binds the petitioner to financially support the beneficiary
+                above 125% of the federal poverty level. USCIS requires recent tax transcripts, W-2s, and
+                an employer letter to verify income. Every field must be completed — blank fields are a
+                common cause of RFEs (Requests for Evidence).
+            </p>
+        </div>
+    );
+}
+
+function SectionFormI765I131() {
+    return (
+        <div className="space-y-4">
+            <div>
+                <h2 className="text-2xl font-bold text-slate-900">Forms I-765 & I-131 — Work Authorization & Travel Document</h2>
+                <p className="mt-1 text-sm text-slate-500">Phase 2: Application — Filed concurrently to allow the beneficiary to work and travel while AOS is pending.</p>
             </div>
-            <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
-                <div className="flex items-center gap-2 mb-2">
-                    <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-700 ring-1 ring-inset ring-blue-600/20">
-                        Beta
-                    </span>
-                    <p className="text-sm font-semibold text-slate-800">AI Auto-Fill (Coming Soon)</p>
-                </div>
-                <p className="text-sm text-slate-600">
-                    Once your personal documents are uploaded, PaperPair can extract key data (names, dates, addresses)
-                    using AI and automatically populate your government forms.
-                </p>
-            </div>
+            <Warning>
+                Do NOT travel internationally while I-485 is pending without the Advance Parole document in hand.
+                Leaving the U.S. without it will abandon your I-485 application.
+            </Warning>
+            <p className="text-sm text-slate-600">
+                <strong>I-765 (Employment Authorization Document):</strong> Allows the beneficiary to work legally in the U.S. while
+                the green card is pending. Category (c)(9) applies to AOS applicants based on marriage to a U.S. citizen.
+            </p>
+            <p className="text-sm text-slate-600">
+                <strong>I-131 (Advance Parole):</strong> Allows the beneficiary to travel outside the U.S. and return without
+                abandoning the pending I-485. Both documents typically arrive together as a combo card within 3–5 months.
+            </p>
+            <ActionLink href="/dashboard/forms">Open Forms Page</ActionLink>
         </div>
     );
 }
 
 function SectionDocumentationBundle() {
     return (
-        <div className="space-y-6">
+        <div className="space-y-4">
             <div>
-                <h2 className="text-2xl font-bold text-slate-900">Documentation bundle</h2>
-                <p className="mt-1 text-sm text-slate-500">Phase 3: Submission — Download your completed forms, prepare the physical packet, and mail it.</p>
+                <h2 className="text-2xl font-bold text-slate-900">Assemble the documentation bundle</h2>
+                <p className="mt-1 text-sm text-slate-500">Phase 3: Submission — Stack all forms and documents in the correct order before mailing.</p>
             </div>
-            <p className="text-sm text-slate-600 mb-3">
-                Once all forms are filled out, download the finalized PDFs and assemble your packet.
-                Stack your documents in this exact order, top to bottom:
+            <p className="text-sm text-slate-600">
+                Assemble your entire packet in the order below, top to bottom. Use binder clips — not staples — to
+                hold each section together. Make a complete photocopy of the assembled packet before sealing the envelope.
             </p>
-            <ActionLink href="/dashboard/forms/i485">Download Completed Forms</ActionLink>
-            <div className="space-y-1 mt-4">
+            <div className="space-y-1">
                 {[
-                    { pos: 1, item: "Filing fee (check or money order)", note: "Placed on top, clipped to G-1145" },
-                    { pos: 2, item: "Form G-1145", note: "E-notification of acceptance" },
-                    { pos: 3, item: "Form I-130 (Petition for Alien Relative)", note: "With supporting evidence" },
-                    { pos: 4, item: "Form I-130A (Supplemental Info)", note: "If applicable" },
-                    { pos: 5, item: "Form I-485 (Adjustment of Status)", note: "With 2 passport photos" },
-                    { pos: 6, item: "Form I-765 (Employment Authorization)", note: "With 2 passport photos" },
-                    { pos: 7, item: "Form I-131 (Advance Parole)", note: "With 2 passport photos" },
-                    { pos: 8, item: "Form I-693 (Medical Exam)", note: "Sealed envelope from Civil Surgeon" },
-                    { pos: 9, item: "Form I-864 (Affidavit of Support)", note: "With tax returns & W-2s" },
-                    { pos: 10, item: "Supporting Documents", note: "Birth certificates, marriage cert, bona fide evidence" }
+                    { pos: 1, item: "Cover letter", note: "List every enclosed form and document" },
+                    { pos: 2, item: "Form G-1145", note: "E-notification of acceptance — clip to very top" },
+                    { pos: 3, item: "Filing fee payments", note: "Separate checks for each form (I-130: $675, I-485: $1,440, I-765: $260, I-131: $630)" },
+                    { pos: 4, item: "Form I-130 + supporting docs", note: "Citizenship proof, marriage certificate, 2 photos each spouse" },
+                    { pos: 5, item: "Form I-130A + supporting docs", note: "Passport copy, I-94, birth certificate + translation" },
+                    { pos: 6, item: "Form I-485 + 2 photos + I-693", note: "Sealed medical exam envelope on top of I-485" },
+                    { pos: 7, item: "Form I-864 (Petitioner)", note: "Tax transcript, W-2s, pay stubs, employer letter" },
+                    { pos: 8, item: "Form I-864 (Joint Sponsor)", note: "Include only if joint sponsor is needed" },
+                    { pos: 9, item: "Form I-765 (EAD) + 2 photos", note: "Employment Authorization application" },
+                    { pos: 10, item: "Form I-131 (Advance Parole) + 2 photos", note: "Travel document application" },
+                    { pos: 11, item: "Bona fide evidence packet", note: "Bank statements, utility bills, joint photos" },
                 ].map((entry) => (
                     <div key={entry.pos} className="flex items-center gap-3 rounded-lg px-4 py-2.5 hover:bg-slate-50">
                         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-900 text-xs font-bold text-white">
@@ -336,26 +380,26 @@ function SectionDocumentationBundle() {
 
 function SectionInstructions() {
     return (
-        <div className="space-y-6">
+        <div className="space-y-4">
             <div>
-                <h2 className="text-2xl font-bold text-slate-900">Instructions</h2>
-                <p className="mt-1 text-sm text-slate-500">Phase 3: Submission — Download your completed forms, prepare the physical packet, and mail it.</p>
+                <h2 className="text-2xl font-bold text-slate-900">Printing & assembly rules</h2>
+                <p className="mt-1 text-sm text-slate-500">Phase 3: Submission — USCIS strictly enforces these rules. Violations result in packet rejection.</p>
             </div>
-            <div className="space-y-3">
-                <Warning>These rules are strictly enforced by USCIS. Violating them may result in your packet being returned.</Warning>
-                <div className="grid gap-3 sm:grid-cols-2">
-                    {[
-                        { rule: "Print Single-Sided", desc: "All forms and documents must be printed on one side of 8.5\" × 11\" paper only." },
-                        { rule: "Binder Clips ONLY", desc: "Never use staples! Use binder clips to hold each form section together." },
-                        { rule: "Check or Money Order", desc: "Pay filing fees by personal check or money order payable to 'U.S. Department of Homeland Security'." },
-                        { rule: "No Highlights or Marks", desc: "Do not highlight, circle, or mark on any government form." }
-                    ].map((item) => (
-                        <div key={item.rule} className="rounded-xl border border-red-100 bg-red-50/50 p-4">
-                            <p className="text-sm font-bold text-red-900">{item.rule}</p>
-                            <p className="mt-1 text-xs text-red-700">{item.desc}</p>
-                        </div>
-                    ))}
-                </div>
+            <Warning>These rules are strictly enforced. A rejected packet resets your timeline and delays your case.</Warning>
+            <div className="grid gap-3 sm:grid-cols-2">
+                {[
+                    { rule: "Print Single-Sided", desc: "All forms must be printed on one side of 8.5\" × 11\" paper only." },
+                    { rule: "Binder Clips ONLY", desc: "Never use staples. Use binder clips to hold each form section." },
+                    { rule: "Check or Money Order", desc: "Payable to 'U.S. Department of Homeland Security'. No cash accepted." },
+                    { rule: "No Marks or Highlights", desc: "Do not highlight, circle, or write anything on any government form." },
+                    { rule: "Current Edition Dates", desc: "Verify every form shows the current edition date before printing." },
+                    { rule: "All Signatures Present", desc: "Every required signature field must be completed before mailing." },
+                ].map((item) => (
+                    <div key={item.rule} className="rounded-xl border border-red-100 bg-red-50/50 p-4">
+                        <p className="text-sm font-bold text-red-900">{item.rule}</p>
+                        <p className="mt-1 text-xs text-red-700">{item.desc}</p>
+                    </div>
+                ))}
             </div>
         </div>
     );
@@ -363,441 +407,474 @@ function SectionInstructions() {
 
 function SectionMailing() {
     return (
-        <div className="space-y-6">
+        <div className="space-y-4">
             <div>
-                <h2 className="text-2xl font-bold text-slate-900">Mailing</h2>
-                <p className="mt-1 text-sm text-slate-500">Phase 3: Submission — Download your completed forms, prepare the physical packet, and mail it.</p>
+                <h2 className="text-2xl font-bold text-slate-900">Mail your packet</h2>
+                <p className="mt-1 text-sm text-slate-500">Phase 3: Submission — Send your packet to the correct USCIS lockbox with tracking.</p>
             </div>
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <p className="text-sm font-semibold text-slate-900 mb-2">USCIS Lockbox Facility</p>
+                <p className="text-sm font-semibold text-slate-900 mb-2">USCIS Lockbox — Concurrent Filing (IL residents)</p>
                 <p className="text-sm text-slate-600 mb-3">
-                    For concurrent filing (I-130 + I-485 together), mail your packet to the appropriate USCIS lockbox.
-                    The exact address depends on your state of residence — check USCIS.gov for the latest instructions.
+                    The correct lockbox address depends on your state of residence. Verify the exact address for your state
+                    at uscis.gov before mailing — addresses change and using the wrong address causes rejection.
                 </p>
                 <div className="rounded-lg bg-slate-50 p-4 text-sm text-slate-700 font-mono">
                     USCIS Chicago Lockbox<br />
                     P.O. Box 805887<br />
                     Chicago, IL 60680-4120
                 </div>
-                <p className="mt-3 text-xs text-slate-500">
-                    Use USPS Certified Mail with Return Receipt to get proof of delivery.
-                </p>
             </div>
             <Tip>
-                After USCIS receives your packet, your next milestone is the <strong>I-797C (Notice of Action)</strong> —
-                this is your official receipt confirming your case has been accepted. You&apos;ll typically receive it 2–4 weeks after mailing.
+                Use USPS Certified Mail with Return Receipt (or Priority Mail with tracking). Save your tracking
+                number — it is your only proof of submission until USCIS sends the I-797C receipt notice.
             </Tip>
         </div>
     );
 }
 
-function SectionInterviewInstructions() {
+function SectionTrackNotices() {
     return (
-        <div className="space-y-6">
+        <div className="space-y-4">
             <div>
-                <h2 className="text-2xl font-bold text-slate-900">Interview instructions</h2>
-                <p className="mt-1 text-sm text-slate-500">Phase 4: Finalizing — Prepare for your interview and wrap up the process.</p>
+                <h2 className="text-2xl font-bold text-slate-900">Track your receipt notices</h2>
+                <p className="mt-1 text-sm text-slate-500">Phase 4: After Filing — Wait for I-797C notices confirming USCIS received your forms.</p>
             </div>
-            <div className="space-y-2 text-sm text-slate-600 mb-4">
-                <p>
-                    After USCIS processes your application, you&apos;ll be scheduled for an in-person interview at your local USCIS field office.
-                    Both spouses must attend.
-                </p>
-                <ul className="ml-4 list-disc space-y-1.5">
-                    <li>The officer will verify your identity and place you under oath</li>
-                    <li>They&apos;ll review your application and ask questions about your relationship</li>
-                    <li>They may ask you and your spouse questions separately</li>
-                    <li>Bring originals of all submitted documents plus any new evidence</li>
-                    <li>Typical duration: 15–30 minutes</li>
-                </ul>
+            <p className="text-sm text-slate-600">
+                After USCIS receives your packet, they will mail an I-797C (Notice of Action) for each form filed.
+                These receipts confirm your case was accepted and include receipt numbers you use to track your case online.
+                Expect them 2–4 weeks after delivery. Set up a myUSCIS account to get online updates.
+            </p>
+        </div>
+    );
+}
+
+function SectionBiometrics() {
+    return (
+        <div className="space-y-4">
+            <div>
+                <h2 className="text-2xl font-bold text-slate-900">Biometrics appointment</h2>
+                <p className="mt-1 text-sm text-slate-500">Phase 4: After Filing — USCIS schedules fingerprints and a photo at an Application Support Center.</p>
             </div>
-            <div className="space-y-2">
-                <DocItem label="Interview Notice (I-797C)" desc="The official notice scheduling your interview — do not forget this." />
-                <DocItem label="Valid Passports" desc="Both spouses must bring current passports." />
-                <DocItem label="Original Documents" desc="Birth certificates, marriage certificate, and all originals of submitted copies." />
-                <DocItem label="New Bona Fide Evidence" desc="Recent bank statements, photos, travel records since filing." />
-                <DocItem label="State Photo ID" desc="Driver's license or state ID for both spouses." />
+            <p className="text-sm text-slate-600">
+                Shortly after receiving your receipt notices, USCIS will mail a separate I-797C scheduling your
+                biometrics appointment at a local Application Support Center (ASC). The appointment takes about
+                15–20 minutes. Bring your appointment notice and passport. Biometrics clear you for background checks.
+            </p>
+        </div>
+    );
+}
+
+function SectionEadApCard() {
+    return (
+        <div className="space-y-4">
+            <div>
+                <h2 className="text-2xl font-bold text-slate-900">EAD / Advance Parole combo card</h2>
+                <p className="mt-1 text-sm text-slate-500">Phase 4: After Filing — Receive your work authorization and travel document while I-485 is pending.</p>
             </div>
+            <Warning>
+                Do NOT travel internationally until the Advance Parole card is physically in your hands.
+                Departure without it while I-485 is pending will abandon your application.
+            </Warning>
+            <p className="text-sm text-slate-600">
+                The EAD/AP combo card typically arrives within 3–5 months of filing. It authorizes the beneficiary
+                to work in the U.S. (EAD) and travel abroad and return (Advance Parole) while the green card
+                application is pending. Monitor myUSCIS for approval updates.
+            </p>
+        </div>
+    );
+}
+
+function SectionInterviewPrep() {
+    return (
+        <div className="space-y-4">
+            <div>
+                <h2 className="text-2xl font-bold text-slate-900">Prepare for your interview</h2>
+                <p className="mt-1 text-sm text-slate-500">Phase 4: After Filing — Both spouses must attend. Bring originals and updated evidence.</p>
+            </div>
+            <Tip>
+                USCIS typically schedules AOS interviews 8–14 months after filing. Use that time to build
+                more bona fide evidence — recent bank statements, joint travel, new photos.
+            </Tip>
+            <p className="text-sm text-slate-600">
+                When your interview is scheduled, you will receive an I-797C with the date, time, and location
+                of your local USCIS field office. Both spouses must attend. The officer will review your
+                application, ask questions about your relationship, and may ask each spouse questions separately.
+            </p>
+        </div>
+    );
+}
+
+function SectionInterviewDay() {
+    return (
+        <div className="space-y-4">
+            <div>
+                <h2 className="text-2xl font-bold text-slate-900">Interview day</h2>
+                <p className="mt-1 text-sm text-slate-500">Phase 4: After Filing — The moment you have been preparing for.</p>
+            </div>
+            <p className="text-sm text-slate-600">
+                Arrive early, bring everything, and answer honestly. The interview typically lasts 15–30 minutes.
+                The officer places both spouses under oath. Questions cover your relationship, daily life,
+                and the details in your application. If asked questions separately, stay consistent.
+                If something is unclear, ask for clarification — it is allowed.
+            </p>
         </div>
     );
 }
 
 function SectionNextSteps() {
     return (
-        <div className="space-y-6">
+        <div className="space-y-4">
             <div>
-                <h2 className="text-2xl font-bold text-slate-900">Next Steps</h2>
-                <p className="mt-1 text-sm text-slate-500">Phase 4: Finalizing — Prepare for your interview and wrap up the process.</p>
+                <h2 className="text-2xl font-bold text-slate-900">After your interview</h2>
+                <p className="mt-1 text-sm text-slate-500">Phase 4: After Filing — What to expect from approval through receiving your green card.</p>
             </div>
-            <p className="text-sm text-slate-600 mb-4">
-                For comprehensive interview practice — including common questions, flashcards, tips, and what-to-bring checklists —
-                head to the dedicated Next Steps page.
+            <p className="text-sm text-slate-600">
+                If approved at the interview, the officer will tell you verbally. Your green card will arrive
+                by mail within 2–3 weeks. If your marriage is less than 2 years old at the time of approval,
+                you receive a conditional green card (CR-1) valid for 2 years — you must file I-751 to remove
+                the conditions before it expires. After 3 years as a permanent resident married to a U.S. citizen,
+                you may be eligible to apply for naturalization.
             </p>
-            <div className="rounded-2xl border border-teal-100 bg-teal-50/50 p-5">
-                <p className="text-sm font-semibold text-teal-900 mb-2">Full Interview Preparation</p>
-                <p className="text-sm text-teal-700 mb-4">
-                    Practice questions, study guides, flashcards, and tips to help you feel confident on the big day.
-                </p>
-                <Link
-                    href="/dashboard/interview"
-                    className="inline-flex items-center gap-2 rounded-xl bg-teal-600 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-teal-700"
-                >
-                    Go to Next Steps — Interview Prep
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                    </svg>
-                </Link>
-            </div>
         </div>
     );
 }
 
-/* ─── main component ─── */
-
+/* ─── section content registry ─── */
 const SECTION_CONTENT: Record<string, () => React.ReactNode> = {
     "determine-eligibility": SectionDetermineEligibility,
     "gather-documents": SectionGatherDocuments,
-    "annotations": SectionAnnotations,
-    "my-forms": SectionMyForms,
-    "what-to-expect": SectionWhatToExpect,
+    "relationship-evidence": SectionRelationshipEvidence,
+    "medical-exam-prep": SectionMedicalExamPrep,
+    "medical-exam-complete": SectionMedicalExamComplete,
+    "form-i130": SectionFormI130,
+    "form-i130a": SectionFormI130A,
+    "form-i485": SectionFormI485,
+    "form-i864": SectionFormI864,
+    "form-i765-i131": SectionFormI765I131,
     "documentation-bundle": SectionDocumentationBundle,
     "instructions": SectionInstructions,
     "mailing": SectionMailing,
-    "interview-instructions": SectionInterviewInstructions,
+    "track-notices": SectionTrackNotices,
+    "biometrics": SectionBiometrics,
+    "ead-ap-card": SectionEadApCard,
+    "interview-prep": SectionInterviewPrep,
+    "interview-day": SectionInterviewDay,
     "next-steps": SectionNextSteps,
 };
 
+/* ─── main component ─── */
 export function MyCaseTimeline() {
-    const [expandedPhases, setExpandedPhases] = useState<Record<string, boolean>>({ "get-ready": true, "application": true });
+    const [expandedPhases, setExpandedPhases] = useState<Record<string, boolean>>({ "get-ready": true });
     const [activeSection, setActiveSection] = useState<string>("determine-eligibility");
-    const [activeFormId, setActiveFormId] = useState<string | null>(null);
-    const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
-    const [completed, setCompleted] = useState<CompletedState>({ phases: {}, sections: {} });
-    const [selectedForms, setSelectedForms] = useState<SelectedForm[]>([]);
-    const [formStatus, setFormStatus] = useState<Record<string, FormStatus>>({});
+    const [completed, setCompleted] = useState<CompletedState>(DEFAULT_STATE);
     const [mobileNavOpen, setMobileNavOpen] = useState(false);
     const contentRef = useRef<HTMLDivElement>(null);
 
+    /* load persisted state */
     useEffect(() => {
         try {
-            const saved = localStorage.getItem(STORAGE_KEY);
-            if (saved) {
-                const parsed = JSON.parse(saved);
-                if (parsed && typeof parsed === "object" && "phases" in parsed && "sections" in parsed) {
-                    setCompleted(parsed as CompletedState);
-                } else if (parsed && typeof parsed === "object") {
-                    // Backward compatibility: old shape was just phases map
-                    setCompleted({ phases: parsed as Record<string, boolean>, sections: {} });
-                }
-            }
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) return;
+            const parsed = JSON.parse(raw) as Partial<CompletedState>;
+            setCompleted({
+                phases: parsed.phases ?? {},
+                sections: parsed.sections ?? {},
+                items: parsed.items ?? {},
+            });
         } catch { /* ignore */ }
     }, []);
 
-    useEffect(() => {
-        // Show all forms by default
-        const allForms: SelectedForm[] = [];
-        for (const pack of FORM_PACKS) {
-            for (const form of pack.forms) {
-                allForms.push({ form, pack });
-            }
-        }
-        setSelectedForms(allForms);
+    /* ─── persistence helpers ─── */
+    function persist(state: CompletedState) {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch { /* ignore */ }
+    }
 
-        // Load form status
-        try {
-            const raw = localStorage.getItem(FORM_STATUS_KEY);
-            if (raw) {
-                const parsed = JSON.parse(raw);
-                if (parsed && typeof parsed === "object") {
-                    setFormStatus(parsed as Record<string, FormStatus>);
-                }
-            }
-        } catch { /* ignore */ }
-    }, []);
-
-    const recomputePhaseCompletion = (state: CompletedState): CompletedState => {
+    function recomputePhaseCompletion(state: CompletedState): CompletedState {
         const nextPhases = { ...state.phases };
-        PHASES.forEach((phase) => {
+        PHASES.forEach(phase => {
             const secMap = state.sections[phase.id] ?? {};
-            const allSectionsDone = phase.sections.every((s) => secMap[s.id]);
-            if (allSectionsDone) {
-                nextPhases[phase.id] = true;
-            } else {
-                nextPhases[phase.id] = nextPhases[phase.id] ?? false;
+            const allDone = phase.sections.every(s => secMap[s.id]);
+            nextPhases[phase.id] = allDone;
+        });
+        return { ...state, phases: nextPhases };
+    }
+
+    /* ─── toggle individual checklist item ─── */
+    function toggleItem(sectionId: string, itemId: string) {
+        setCompleted(prev => {
+            const prevSectionItems = prev.items[sectionId] ?? {};
+            const nextValue = !prevSectionItems[itemId];
+            const nextSectionItems = { ...prevSectionItems, [itemId]: nextValue };
+            const nextItems = { ...prev.items, [sectionId]: nextSectionItems };
+
+            // auto-complete the section when all items are checked
+            const allItems = SECTION_CHECKLISTS[sectionId] ?? [];
+            const allChecked = allItems.length > 0 && allItems.every(item => nextSectionItems[item.id]);
+
+            let nextSections = { ...prev.sections };
+            if (allChecked) {
+                const phase = PHASES.find(p => p.sections.some(s => s.id === sectionId));
+                if (phase) {
+                    nextSections = { ...nextSections, [phase.id]: { ...(nextSections[phase.id] ?? {}), [sectionId]: true } };
+                }
             }
+
+            const next = recomputePhaseCompletion({ ...prev, sections: nextSections, items: nextItems });
+            persist(next);
+            return next;
         });
-        return { phases: nextPhases, sections: state.sections };
-    };
+    }
 
-    const markSectionComplete = (phaseId: string, sectionId: string) => {
-        setCompleted((prev) => {
-            const nextSections = { ...prev.sections };
-            const phaseSections = { ...(nextSections[phaseId] ?? {}) };
-            phaseSections[sectionId] = true;
-            nextSections[phaseId] = phaseSections;
-
-            const nextState = recomputePhaseCompletion({ phases: { ...prev.phases }, sections: nextSections });
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(nextState));
-            return nextState;
+    /* ─── manually mark section complete ─── */
+    function markSectionComplete(phaseId: string, sectionId: string) {
+        setCompleted(prev => {
+            const nextSections = { ...prev.sections, [phaseId]: { ...(prev.sections[phaseId] ?? {}), [sectionId]: true } };
+            const next = recomputePhaseCompletion({ ...prev, sections: nextSections });
+            persist(next);
+            return next;
         });
-    };
+    }
 
-    const handlePhaseClick = (phaseId: string) => {
-        setExpandedPhases(prev => ({ ...prev, [phaseId]: !prev[phaseId] }));
-    };
-
-    const handleSectionClick = (phaseId: string, sectionId: string) => {
-        if (activeSection === sectionId && sectionId === "my-forms") {
-            // Toggle collapse when clicking the already-active my-forms section
-            setCollapsedSections(prev => ({ ...prev, [sectionId]: !prev[sectionId] }));
-            return;
-        }
+    /* ─── navigation ─── */
+    function navigateToSection(phaseId: string, sectionId: string) {
         setExpandedPhases(prev => ({ ...prev, [phaseId]: true }));
         setActiveSection(sectionId);
-        setActiveFormId(null);
         setMobileNavOpen(false);
-        // Auto-expand my-forms when navigating to it
-        if (sectionId === "my-forms") {
-            setCollapsedSections(prev => ({ ...prev, "my-forms": false }));
-        }
         contentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
-        // Fallback for mobile where scroll is on the window
         if (typeof window !== "undefined" && window.innerWidth < 1024) {
             window.scrollTo({ top: 0, behavior: "smooth" });
         }
-    };
+    }
 
-    const ActiveContent = SECTION_CONTENT[activeSection];
-    const activeForm = selectedForms.find(f => f.form.id === activeFormId);
+    function handlePhaseClick(phaseId: string) {
+        setExpandedPhases(prev => ({ ...prev, [phaseId]: !prev[phaseId] }));
+    }
+
+    function handleSectionClick(phaseId: string, sectionId: string) {
+        navigateToSection(phaseId, sectionId);
+    }
+
+    function handleNext() {
+        const parentPhase = PHASES.find(p => p.sections.some(s => s.id === activeSection));
+        if (parentPhase) markSectionComplete(parentPhase.id, activeSection);
+
+        const idx = ALL_SECTIONS.findIndex(s => s.id === activeSection);
+        if (idx < ALL_SECTIONS.length - 1) {
+            const next = ALL_SECTIONS[idx + 1];
+            navigateToSection(next.phaseId, next.id);
+        }
+    }
+
+    /* ─── derived values ─── */
     const activePhase = PHASES.find(p => p.sections.some(s => s.id === activeSection));
     const activeSectionLabel = activePhase?.sections.find(s => s.id === activeSection)?.label;
+    const ActiveContent = SECTION_CONTENT[activeSection];
+    const sectionChecklist = SECTION_CHECKLISTS[activeSection] ?? [];
+    const sectionItemState = completed.items[activeSection] ?? {};
+    const checkedCount = sectionChecklist.filter(item => sectionItemState[item.id]).length;
+    const totalCount = sectionChecklist.length;
 
-    // Group selected forms by pack for the sub-subsection nav
-    const formsByPack = FORM_PACKS.map(pack => ({
-        pack,
-        forms: selectedForms.filter(f => f.pack.id === pack.id).map(f => f.form),
-    })).filter(g => g.forms.length > 0);
-
-    const completedPhases = completed.phases;
-    const completedSections = completed.sections;
+    /* ─── overall progress ─── */
+    const totalSections = ALL_SECTIONS.length;
+    const completedSectionCount = PHASES.reduce((acc, phase) => {
+        const secMap = completed.sections[phase.id] ?? {};
+        return acc + phase.sections.filter(s => secMap[s.id]).length;
+    }, 0);
 
     return (
-        <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
-            {/* ── Mobile: nav toggle bar ── */}
-            <button
-                className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 text-left transition-colors hover:bg-slate-50 lg:hidden"
-                onClick={() => setMobileNavOpen(o => !o)}
-            >
-                <div className="min-w-0">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">{activePhase?.title}</p>
-                    <p className="truncate text-sm font-semibold text-slate-900">{activeSectionLabel}</p>
+        <div className="space-y-4">
+            {/* overall progress bar */}
+            <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3">
+                <div className="flex-1 rounded-full bg-slate-100 h-2">
+                    <div
+                        className="rounded-full bg-slate-900 h-2 transition-all duration-500"
+                        style={{ width: `${(completedSectionCount / totalSections) * 100}%` }}
+                    />
                 </div>
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className={`ml-3 h-4 w-4 shrink-0 text-slate-500 transition-transform duration-200 ${mobileNavOpen ? "rotate-180" : ""}`}
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
+                <span className="text-xs font-semibold text-slate-500 shrink-0">
+                    {completedSectionCount}/{totalSections} sections
+                </span>
+            </div>
+
+            <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
+                {/* mobile nav toggle */}
+                <button
+                    className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 text-left transition-colors hover:bg-slate-50 lg:hidden"
+                    onClick={() => setMobileNavOpen(o => !o)}
                 >
-                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
-            </button>
+                    <div className="min-w-0">
+                        <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">{activePhase?.title}</p>
+                        <p className="truncate text-sm font-semibold text-slate-900">{activeSectionLabel}</p>
+                    </div>
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className={`ml-3 h-4 w-4 shrink-0 text-slate-500 transition-transform duration-200 ${mobileNavOpen ? "rotate-180" : ""}`}
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                    >
+                        <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                </button>
 
-            {/* ── Left: vertical phase nav ── */}
-            <nav className={`space-y-4 ${mobileNavOpen ? "block" : "hidden"} lg:block`}>
-                <p className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Timeline</p>
-                {PHASES.map((phase, i) => {
-                    const active = !!expandedPhases[phase.id];
-                    const done = !!completedPhases[phase.id];
-                    const isLast = i === PHASES.length - 1;
+                {/* sidebar nav */}
+                <nav className={`space-y-4 ${mobileNavOpen ? "block" : "hidden"} lg:block`}>
+                    <p className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Timeline</p>
+                    {PHASES.map((phase, i) => {
+                        const isExpanded = !!expandedPhases[phase.id];
+                        const isDone = !!completed.phases[phase.id];
+                        const isLast = i === PHASES.length - 1;
 
-                    return (
-                        <div key={phase.id} className="relative">
-                            {/* connector line */}
-                            {!isLast && (
-                                <div className={`absolute left-[31px] top-[48px] w-[2px] transition-all duration-300 ${active ? `h-[calc(100%_-_12px)]` : "h-[calc(100%_-_24px)]"} bg-slate-200`} />
-                            )}
+                        return (
+                            <div key={phase.id} className="relative">
+                                {!isLast && (
+                                    <div className={`absolute left-[31px] top-[48px] w-[2px] transition-all duration-300 ${isExpanded ? "h-[calc(100%_-_12px)]" : "h-[calc(100%_-_24px)]"} bg-slate-200`} />
+                                )}
 
-                            <button
-                                onClick={() => handlePhaseClick(phase.id)}
-                                className={`relative flex w-full items-start gap-3 rounded-xl px-3 py-3 text-left transition-all ${active
-                                    ? "bg-white shadow-sm ring-1 ring-slate-200"
-                                    : "hover:bg-slate-50"
-                                    }`}
-                            >
-                                {/* icon circle */}
-                                <div className={`relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors ${done
-                                    ? "bg-slate-200 text-slate-700"
-                                    : active
-                                        ? "bg-slate-900 text-white"
-                                        : "bg-slate-100 text-slate-500"
-                                    }`}>
-                                    {done ? <CheckIcon /> : phase.icon}
-                                </div>
-
-                                <div className="flex-1 min-w-0 pt-0.5">
-                                    <div className="flex items-center gap-2">
-                                        <span className={`text-sm font-semibold ${active ? "text-slate-900" : "text-slate-700"}`}>
-                                            {phase.title}
-                                        </span>
-                                        {done && (
-                                            <span className="inline-flex items-center rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-700 ring-1 ring-inset ring-slate-600/20">
-                                                Done
-                                            </span>
-                                        )}
+                                <button
+                                    onClick={() => handlePhaseClick(phase.id)}
+                                    className={`relative flex w-full items-start gap-3 rounded-xl px-3 py-3 text-left transition-all ${isExpanded
+                                        ? "bg-white shadow-sm ring-1 ring-slate-200"
+                                        : "hover:bg-slate-50"
+                                        }`}
+                                >
+                                    <div className={`relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors ${isDone
+                                        ? "bg-slate-200 text-slate-700"
+                                        : isExpanded
+                                            ? "bg-slate-900 text-white"
+                                            : "bg-slate-100 text-slate-500"
+                                        }`}>
+                                        {isDone ? <CheckIcon /> : phase.icon}
                                     </div>
-                                    <p className="text-xs text-slate-500 truncate">{phase.subtitle}</p>
-                                </div>
-                            </button>
+                                    <div className="flex-1 min-w-0 pt-0.5">
+                                        <div className="flex items-center gap-2">
+                                            <span className={`text-sm font-semibold ${isExpanded ? "text-slate-900" : "text-slate-700"}`}>
+                                                {phase.title}
+                                            </span>
+                                            {isDone && (
+                                                <span className="inline-flex items-center rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-700 ring-1 ring-inset ring-slate-600/20">
+                                                    Done
+                                                </span>
+                                            )}
+                                        </div>
+                                        <p className="text-xs text-slate-500 truncate">{phase.subtitle}</p>
+                                    </div>
+                                </button>
 
-                            {/* subsections — shown when phase is active */}
-                            {active && (
-                                <div className="relative ml-[56px] mb-3 pr-6 flex flex-col gap-2.5">
-                                    {phase.sections.map((section, idx) => {
-                                        const sectionActive = activeSection === section.id;
-                                        const sectionDone = !!(completedSections[phase.id]?.[section.id]);
-                                        const isLastSection = idx === phase.sections.length - 1;
-                                        return (
-                                            <div key={section.id} className="relative">
-                                                <div className="relative">
-                                                    {/* Vertical line top to center */}
+                                {isExpanded && (
+                                    <div className="relative ml-[56px] mb-3 pr-2 flex flex-col gap-2">
+                                        {phase.sections.map((section, idx) => {
+                                            const isActive = activeSection === section.id;
+                                            const isDoneSection = !!(completed.sections[phase.id]?.[section.id]);
+                                            const isLastSection = idx === phase.sections.length - 1;
+
+                                            // calculate item progress for this section
+                                            const items = SECTION_CHECKLISTS[section.id] ?? [];
+                                            const checkedItems = items.filter(item => completed.items[section.id]?.[item.id]).length;
+                                            const hasPartialProgress = checkedItems > 0 && checkedItems < items.length;
+
+                                            return (
+                                                <div key={section.id} className="relative">
                                                     <div className="absolute left-[-25px] top-0 h-1/2 w-[2px] bg-slate-200" aria-hidden />
-                                                    {/* Vertical line center to bottom */}
                                                     {!isLastSection && <div className="absolute left-[-25px] top-1/2 bottom-[-10px] w-[2px] bg-slate-200" aria-hidden />}
-                                                    {/* Horizontal branch */}
                                                     <div className="absolute left-[-25px] top-1/2 w-[25px] h-[2px] -translate-y-1/2 bg-slate-200" aria-hidden />
 
                                                     <button
                                                         onClick={() => handleSectionClick(phase.id, section.id)}
-                                                        className={`relative w-full text-left rounded-lg border px-3 py-2 text-xs transition-colors flex items-center justify-between ${sectionActive
+                                                        className={`relative w-full text-left rounded-lg border px-3 py-2 text-xs transition-colors flex items-center justify-between ${isActive
                                                             ? "border-slate-300 bg-white font-semibold text-slate-900 shadow-sm"
                                                             : "border-slate-200 bg-slate-50 text-slate-500 hover:bg-white hover:text-slate-700"
                                                             }`}
                                                     >
                                                         <span className="flex items-center gap-2">
-                                                            <span className={`flex h-5 w-5 items-center justify-center rounded-full border ${sectionDone ? "border-slate-400 bg-slate-100 text-slate-700" : "border-slate-300 bg-white text-slate-300"}`}>
-                                                                {sectionDone ? <CheckIcon /> : null}
+                                                            <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-colors ${isDoneSection
+                                                                ? "border-slate-400 bg-slate-100 text-slate-700"
+                                                                : hasPartialProgress
+                                                                    ? "border-slate-400 bg-slate-50"
+                                                                    : "border-slate-300 bg-white text-slate-300"
+                                                                }`}>
+                                                                {isDoneSection ? <CheckIcon className="h-3 w-3" /> : null}
                                                             </span>
                                                             <span>{section.label}</span>
                                                         </span>
-                                                        {section.id === "my-forms" && formsByPack.length > 0 && (
-                                                            <svg xmlns="http://www.w3.org/2000/svg" className={`h-3 w-3 shrink-0 transition-transform ${sectionActive && !collapsedSections["my-forms"] ? "rotate-180" : ""}`} viewBox="0 0 20 20" fill="currentColor">
-                                                                <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                                            </svg>
+                                                        {hasPartialProgress && !isDoneSection && items.length > 0 && (
+                                                            <span className="text-[10px] text-slate-400 shrink-0">{checkedItems}/{items.length}</span>
                                                         )}
                                                     </button>
                                                 </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
+                </nav>
 
-                                                {/* sub-subsections: individual forms under "my-forms" */}
-                                                {sectionActive && section.id === "my-forms" && formsByPack.length > 0 && !collapsedSections["my-forms"] && (
-                                                    <div className="relative mt-2 flex flex-col gap-2">
-                                                        {/* extend MAIN phase vertical line if needed */}
-                                                        {!isLastSection && <div className="absolute left-[-25px] top-0 bottom-[-10px] w-[2px] bg-slate-200" aria-hidden />}
+                {/* content panel */}
+                <div ref={contentRef} className="rounded-2xl border border-slate-200 bg-white p-6 lg:p-8 overflow-y-auto">
+                    {/* section content */}
+                    {ActiveContent && <ActiveContent />}
 
-                                                        {formsByPack.map((group, groupIdx) => {
-                                                            const isLastGroup = groupIdx === formsByPack.length - 1;
-                                                            return (
-                                                                <div key={group.pack.id} className="relative flex flex-col gap-2">
-                                                                    {/* Header */}
-                                                                    <div className="relative">
-                                                                        <div className="absolute left-[21px] top-0 bottom-[-8px] w-[2px] bg-slate-200" aria-hidden />
-                                                                        <p className="py-1 text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-[40px]">
-                                                                            {group.pack.label}
-                                                                        </p>
-                                                                    </div>
-                                                                    {/* Forms */}
-                                                                    {group.forms.map((form, formIdx) => {
-                                                                        const status: FormStatus = formStatus[form.id] ?? "pending";
-                                                                        const isLastForm = formIdx === group.forms.length - 1;
-                                                                        const isAbsoluteLast = isLastGroup && isLastForm;
-                                                                        const circleClass = status === "done"
-                                                                            ? "border-slate-400 bg-slate-100 text-slate-700"
-                                                                            : status === "skipped"
-                                                                                ? "border-slate-300 bg-slate-50 text-slate-300"
-                                                                                : "border-slate-300 bg-white text-slate-400";
-                                                                        return (
-                                                                            <div key={form.id} className="relative ml-[40px]">
-                                                                                {/* Piecewise inner vertical line */}
-                                                                                <div className="absolute left-[-19px] top-0 h-1/2 w-[2px] bg-slate-200" aria-hidden />
-                                                                                {!isAbsoluteLast && <div className="absolute left-[-19px] top-1/2 bottom-[-8px] w-[2px] bg-slate-200" aria-hidden />}
-                                                                                {/* Horizontal inner branch */}
-                                                                                <div className="absolute left-[-19px] top-1/2 w-[19px] h-[2px] -translate-y-1/2 bg-slate-200" aria-hidden />
-
-                                                                                <div
-                                                                                    className={`w-full rounded-lg border px-3 py-2 text-xs transition-colors relative ${status === "done"
-                                                                                        ? "border-slate-300 bg-slate-50"
-                                                                                        : status === "skipped"
-                                                                                            ? "border-slate-200 bg-slate-50 text-slate-400"
-                                                                                            : "border-slate-200 bg-white"
-                                                                                        }`}
-                                                                                >
-                                                                                    <div className="flex items-start justify-between gap-3">
-                                                                                        <div className="flex items-start gap-3">
-                                                                                            <span className={`mt-0.5 flex h-5 w-5 items-center justify-center rounded-full border shrink-0 ${circleClass}`}>
-                                                                                                {status === "done" ? <CheckIcon /> : null}
-                                                                                            </span>
-                                                                                            <div>
-                                                                                                <p className={`text-sm font-semibold ${status === "skipped" ? "text-slate-400" : "text-slate-800"}`}>
-                                                                                                    {form.title.includes('\n')
-                                                                                                        ? form.title.split('\n')[1]
-                                                                                                        : form.title.replace(/^Form\s+/i, '')}
-                                                                                                </p>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                        );
-                                                                    })}
-                                                                </div>
-                                                            );
-                                                        })}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        );
-                                    })}
+                    {/* checklist */}
+                    {sectionChecklist.length > 0 && (
+                        <div className="mt-8 space-y-3">
+                            {/* progress bar */}
+                            <div className="flex items-center gap-3">
+                                <div className="flex-1 rounded-full bg-slate-100 h-1.5">
+                                    <div
+                                        className="rounded-full bg-slate-900 h-1.5 transition-all duration-300"
+                                        style={{ width: totalCount > 0 ? `${(checkedCount / totalCount) * 100}%` : "0%" }}
+                                    />
                                 </div>
-                            )}
-                        </div>
-                    );
-                })}
-            </nav>
+                                <span className="text-xs font-semibold text-slate-500 shrink-0">{checkedCount}/{totalCount}</span>
+                            </div>
 
-            {/* ── Center: section content ── */}
-            <div ref={contentRef} className="rounded-2xl border border-slate-200 bg-white p-6 lg:p-8 overflow-y-auto">
-                {activeFormId && activeForm ? (
-                    <div className="space-y-4">
-                        <div>
-                            <p className="text-xs text-slate-400">{activeForm.pack.label}</p>
-                            <h2 className="text-xl font-bold text-slate-900">
-                                {activeForm.form.title.replace(/\n/g, " ")}
-                            </h2>
+                            {/* items */}
+                            <div className="space-y-2">
+                                {sectionChecklist.map((item) => {
+                                    const checked = !!sectionItemState[item.id];
+                                    return (
+                                        <label
+                                            key={item.id}
+                                            className={`flex cursor-pointer items-start gap-3 rounded-lg border px-4 py-3 transition-colors ${checked
+                                                ? "border-slate-200 bg-slate-50"
+                                                : "border-slate-200 bg-white hover:bg-slate-50"
+                                                }`}
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                className="mt-0.5 h-4 w-4 shrink-0 rounded border-slate-300 text-slate-900 accent-slate-900 cursor-pointer"
+                                                checked={checked}
+                                                onChange={() => toggleItem(activeSection, item.id)}
+                                            />
+                                            <span className={`text-sm leading-snug ${checked ? "text-slate-400 line-through" : "text-slate-700"}`}>
+                                                {item.label}
+                                            </span>
+                                        </label>
+                                    );
+                                })}
+                            </div>
                         </div>
-                        <div className="rounded-xl overflow-hidden bg-slate-200">
-                            <PdfViewer url={activeForm.form.pdfUrl} />
-                        </div>
-                    </div>
-                ) : (
-                    ActiveContent && <ActiveContent />
-                )}
+                    )}
 
-                {/* mark complete action */}
-                <div className="mt-8 flex flex-col gap-3 border-t border-slate-100 pt-6 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="text-sm text-slate-600">Mark as complete and continue</div>
-                    <button
-                        type="button"
-                        onClick={() => {
-                            if (activeSection) {
-                                const parentPhaseId = PHASES.find(p => p.sections.some(s => s.id === activeSection))?.id;
-                                if (parentPhaseId) {
-                                    markSectionComplete(parentPhaseId, activeSection);
-                                }
+                    {/* footer actions */}
+                    <div className="mt-8 flex flex-col gap-3 border-t border-slate-100 pt-6 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="text-sm text-slate-500">
+                            {checkedCount === totalCount && totalCount > 0
+                                ? "All items complete ✓"
+                                : totalCount > 0
+                                    ? `${totalCount - checkedCount} item${totalCount - checkedCount === 1 ? "" : "s"} remaining`
+                                    : "Mark as complete to continue"
                             }
-                        }}
-                        className="w-full rounded-full bg-[var(--color-trust)] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-trust)] focus-visible:ring-offset-2 sm:w-auto"
-                    >
-                        Next →
-                    </button>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={handleNext}
+                            className="w-full rounded-full bg-[var(--color-trust)] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-trust)] focus-visible:ring-offset-2 sm:w-auto"
+                        >
+                            Next →
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

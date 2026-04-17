@@ -9,6 +9,7 @@ import {
   CONCURRENT_BUNDLE_TOTAL
 } from "@/lib/fee-schedule";
 import { ScreenerMount } from "@/components/screener-mount";
+import { EwiWarning } from "@/components/initial-screener";
 import { UplDisclaimer } from "@/components/upl-disclaimer";
 import { CaseProfileCard } from "@/components/case-profile-card";
 import { CivilSurgeonWidget } from "@/components/civil-surgeon-widget";
@@ -57,6 +58,7 @@ export default async function DashboardHomePage() {
     return (
         <div className="space-y-8">
             {showScreener && <ScreenerMount />}
+            {!showScreener && profileEntryType === "ewi" && <EwiWarning />}
             <UplDisclaimer />
             {/* Viewer banner */}
             {isViewer && (

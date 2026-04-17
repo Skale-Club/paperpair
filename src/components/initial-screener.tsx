@@ -3,6 +3,32 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
+// ── EWI inline warning — shown on dashboard after screener for EWI users ──────
+// Per D-02, CASE-02: not a modal; rendered inline after screener dismisses.
+// This component is rendered by the PARENT (dashboard/page.tsx), not inside
+// the screener modal. Export it so the parent can use it.
+export function EwiWarning() {
+  return (
+    <div
+      role="alert"
+      className="flex items-start gap-3 rounded-lg border-l-4 px-4 py-3 text-sm"
+      style={{
+        background: "var(--color-warning-bg, #fffbeb)",
+        borderLeftColor: "var(--color-warning-border, #f59e0b)",
+        color: "var(--color-warning-text, #92400e)",
+      }}
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" className="mt-0.5 h-4 w-4 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+      </svg>
+      <div>
+        <p className="font-semibold">Review your eligibility</p>
+        <p className="mt-0.5">Entering without inspection may affect your AOS eligibility. We recommend consulting a licensed immigration attorney before proceeding.</p>
+      </div>
+    </div>
+  );
+}
+
 type EntryType = "overstay" | "ewi";
 type FilingReason = "married-to-usc" | "child-of-usc" | "parent-of-usc" | "other";
 
@@ -376,7 +402,7 @@ function EntryTypeStep({
       <NextButton
         onClick={onFinish}
         disabled={!selected || saving}
-        label={saving ? "Saving your profile…" : "Finish Setup →"}
+        label={saving ? "Saving…" : "Continue to my case"}
       />
     </div>
   );

@@ -9,6 +9,7 @@ import {
   CONCURRENT_BUNDLE_TOTAL
 } from "@/lib/fee-schedule";
 import { ScreenerMount } from "@/components/screener-mount";
+import { UplDisclaimer } from "@/components/upl-disclaimer";
 import { CaseProfileCard } from "@/components/case-profile-card";
 import { CivilSurgeonWidget } from "@/components/civil-surgeon-widget";
 import { DashboardCard, StatCard } from "@/components/ui/dashboard-card";
@@ -56,6 +57,7 @@ export default async function DashboardHomePage() {
     return (
         <div className="space-y-8">
             {showScreener && <ScreenerMount />}
+            <UplDisclaimer />
             {/* Viewer banner */}
             {isViewer && (
                 <div className="flex items-center gap-3 rounded-xl border border-blue-200 bg-blue-50 px-5 py-3 text-sm text-blue-800">

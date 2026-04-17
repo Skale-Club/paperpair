@@ -28,7 +28,7 @@
 **Plans**: 4 plans
 Plans:
 - [x] 01-01-PLAN.md — Schema foundation: ChatSession/ChatMessage models + FEES_2026 barrel export
-- [ ] 01-02-PLAN.md — DB persistence migrations: timeline, forms, chat, PDF storage, abortSignal, rate limiter upgrade
+- [x] 01-02-PLAN.md — DB persistence migrations: timeline, forms, chat, PDF storage, abortSignal, rate limiter upgrade
 - [ ] 01-03-PLAN.md — Security guardrails: legal guardrail, UPL disclaimer, edition locks, MIME check, PDF cleanup
 - [ ] 01-04-PLAN.md — Auth + spouse invite acceptance page
 **UI hint**: yes
@@ -74,7 +74,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation & Bug Fixes | 1/4 | In Progress|  |
+| 1. Foundation & Bug Fixes | 2/4 | In Progress|  |
 | 2. Core Case Features | 0/? | Not started | - |
 | 3. Completion Tools | 0/? | Not started | - |
 | 4. Interview Prep | 0/? | Not started | - |

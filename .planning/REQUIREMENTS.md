@@ -9,19 +9,19 @@
 
 ### Bug Fixes (P0 — must ship before any new feature)
 
-- [ ] **BUG-01**: Timeline checklist progress persisted to database (not localStorage)
-- [ ] **BUG-02**: My Forms selection persisted to database (not localStorage)
-- [ ] **BUG-03**: Generated PDFs stored in Supabase Storage (not ephemeral Vercel disk)
+- [x] **BUG-01**: Timeline checklist progress persisted to database (not localStorage)
+- [x] **BUG-02**: My Forms selection persisted to database (not localStorage)
+- [x] **BUG-03**: Generated PDFs stored in Supabase Storage (not ephemeral Vercel disk)
 - [x] **BUG-04**: Chat messages persisted across navigation (ChatSession + ChatMessage tables)
-- [ ] **BUG-05**: AI extraction results saved back to CaseStep (wizard ↔ chat in sync)
+- [x] **BUG-05**: AI extraction results saved back to CaseStep (wizard ↔ chat in sync)
 - [x] **BUG-06**: Fee inconsistency resolved — single source of truth from `fee-schedule.ts`
 - [ ] **BUG-07**: AI legal guardrail added — LLM deflects eligibility/legal questions
 - [ ] **BUG-08**: UPL disclaimer displayed on all form, chat, and screener pages
 - [ ] **BUG-09**: Edition locks added for all 6 forms (I-130, I-130A, I-131, I-765, I-864, I-864A)
-- [ ] **BUG-10**: In-memory rate limiter replaced with Upstash Redis (keyed by user ID)
+- [x] **BUG-10**: In-memory rate limiter replaced with Upstash Redis (keyed by user ID)
 - [ ] **BUG-11**: File upload MIME type validated server-side (magic byte check)
 - [ ] **BUG-12**: PDF viewer loadingTask.destroy() called on component unmount
-- [ ] **BUG-13**: abortSignal passed to streamText to cancel on client disconnect
+- [x] **BUG-13**: abortSignal passed to streamText to cancel on client disconnect
 
 ### Authentication
 
@@ -40,11 +40,11 @@
 
 ### Timeline & Checklist
 
-- [ ] **TIME-01**: User can view the full 19-section AOS timeline
-- [ ] **TIME-02**: User can check/uncheck individual checklist items within each section
-- [ ] **TIME-03**: Section auto-completes when all items are checked
-- [ ] **TIME-04**: Overall progress bar reflects completed sections
-- [ ] **TIME-05**: Timeline progress persists to database across devices
+- [x] **TIME-01**: User can view the full 19-section AOS timeline
+- [x] **TIME-02**: User can check/uncheck individual checklist items within each section
+- [x] **TIME-03**: Section auto-completes when all items are checked
+- [x] **TIME-04**: Overall progress bar reflects completed sections
+- [x] **TIME-05**: Timeline progress persists to database across devices
 
 ### Forms
 

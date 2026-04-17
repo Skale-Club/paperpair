@@ -4,12 +4,12 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 01
 status: executing
-last_updated: "2026-04-17T18:08:43.047Z"
+last_updated: "2026-04-17T18:17:22.568Z"
 progress:
   total_phases: 4
   completed_phases: 0
   total_plans: 4
-  completed_plans: 1
+  completed_plans: 2
 ---
 
 # PaperPair — Project State
@@ -20,7 +20,7 @@ See: .planning/PROJECT.md (updated 2026-04-17)
 
 **Core value:** The applicant always knows exactly what to do next — no confusion, no missed steps, no wasted trips to the USCIS website.
 **Current phase:** 01
-**Status:** Executing — Plan 2 of 4 in Phase 01
+**Status:** Ready to execute
 
 ---
 
@@ -38,7 +38,7 @@ See: .planning/PROJECT.md (updated 2026-04-17)
 ## Current Position
 
 Phase: 01 (foundation-bug-fixes) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 | Field | Value |
 |-------|-------|
 | Phase | 1 — Foundation & Bug Fixes |
@@ -46,7 +46,7 @@ Plan: 2 of 4
 | Status | Executing |
 | Progress | 1/4 plans complete in Phase 01 |
 
-**Progress bar:** [███░░░░░░░] 25%
+**Progress bar:** [█████░░░░░] 50%
 
 ---
 
@@ -60,6 +60,7 @@ Plan: 2 of 4
 
 ---
 | Phase 01 P01 | 4 | 2 tasks | 3 files |
+| Phase 01 P02 | 8 | 2 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -74,6 +75,9 @@ Plan: 2 of 4
 | FEES_2026 barrel export is additive only | Individual named constants remain untouched to avoid breaking existing imports | 2026-04-17 |
 | ChatSession.role as String not enum | Constraint at application layer avoids migration complexity | 2026-04-17 |
 | Migration SQL created manually | No live DB available in worktree; prisma generate run to update Prisma client types | 2026-04-17 |
+| Timeline items as flat-key map in CaseStep.data | Simplest DB representation; nested structure reconstructed in component on hydration | 2026-04-17 |
+| getSentForms() deprecated; sendForms() accepts existingSentIds | localStorage for SENT_KEY removed; callers fetch DB state then pass it to sendForms() | 2026-04-17 |
+| Auth check before rate limit in chat route | Rate limit key is user-ID based (BUG-10); auth must complete first to have userProfile.id | 2026-04-17 |
 
 ### Active Blockers
 
@@ -87,11 +91,11 @@ None
 
 ## Session Continuity
 
-**Last action:** Completed 01-01-PLAN.md — FEES_2026 barrel export + ChatSession/ChatMessage schema (2026-04-17T18:07:43Z)
-**Next action:** Execute 01-02-PLAN.md
+**Last action:** Completed 01-02-PLAN.md — DB persistence migrations, PDF storage, chat session, rate limiter upgrade (2026-04-17T18:16:25Z)
+**Next action:** Execute 01-03-PLAN.md
 
 ---
 
 ## Last Updated
 
-2026-04-17 — Executed 01-01: FEES_2026 barrel export + ChatSession/ChatMessage Prisma schema
+2026-04-17 — Executed 01-02: DB persistence for timeline, forms, chat session; PDF to Supabase Storage; abortSignal; user-ID rate limit

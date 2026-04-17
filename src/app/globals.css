@@ -11,6 +11,10 @@
   --color-surface:     #ffffff;
   --color-border:      #d8dfcf;
   --color-muted:       #556048;
+  --color-warning-bg: #fffbeb;
+  --color-warning-border: #fcd34d;
+  --color-warning-text: #92400e;
+  --color-destructive: #dc2626;
   font-family: 'Inter', system-ui, sans-serif;
 }
 

@@ -1,3 +1,4 @@
+import { describe, it, expect } from "vitest";
 import { FEES_2026_I130_PAPER, FEES_2026_I485, FEES_2026_I765_EAD_INITIAL } from "@/lib/fee-schedule";
 
 describe("my-case-timeline filing fee note", () => {

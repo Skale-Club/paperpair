@@ -1,3 +1,4 @@
+import { describe, it, expect } from "vitest";
 import { SECTION_CHECKLISTS } from "@/lib/timeline-checklists";
 
 describe("timeline-checklists fee amounts", () => {

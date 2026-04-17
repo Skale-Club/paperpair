@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { ChatUI } from "@/components/chat-ui";
 import { prisma } from "@/lib/prisma";
 import { UplDisclaimer } from "@/components/upl-disclaimer";
+import { getCurrentUserAndProfile } from "@/lib/current-user-profile";
 
 type SearchParams = {
   template?: string | string[];
@@ -29,6 +30,31 @@ export default async function DocumentationFillingPage({
   }
   const initialSelectedTemplateKeys = parseSelectedTemplateKeys(resolved.template);
 
+  // Fetch chat history — per D-13, CHAT-04
+  type InitialMessage = { id: string; role: "user" | "assistant"; content: string };
+  let initialMessages: InitialMessage[] = [];
+
+  const userContext = await getCurrentUserAndProfile();
+  if (userContext) {
+    try {
+      const session = await prisma.chatSession.findUnique({
+        where: { userProfileId: userContext.userProfile.id },
+        include: { messages: { orderBy: { createdAt: "asc" } } },
+      });
+      if (session) {
+        initialMessages = session.messages
+          .filter((m) => m.role === "user" || m.role === "assistant")
+          .map((m) => ({
+            id: m.id,
+            role: m.role as "user" | "assistant",
+            content: m.content,
+          }));
+      }
+    } catch {
+      initialMessages = [];
+    }
+  }
+
   return (
     <section className="space-y-4">
       <div className="space-y-2">
@@ -46,6 +72,7 @@ export default async function DocumentationFillingPage({
       <ChatUI
         templates={templates}
         initialSelectedTemplateKeys={initialSelectedTemplateKeys}
+        initialMessages={initialMessages}
       />
     </section>
   );

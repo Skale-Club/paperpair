@@ -74,9 +74,10 @@ function isGenerateIntent(text: string): boolean {
 type ChatContainerProps = {
   templates: Template[];
   initialSelectedTemplateKeys: string[];
+  initialMessages?: Array<{ id: string; role: "user" | "assistant"; content: string }>;
 };
 
-export function ChatContainer({ templates, initialSelectedTemplateKeys }: ChatContainerProps) {
+export function ChatContainer({ templates, initialSelectedTemplateKeys, initialMessages = [] }: ChatContainerProps) {
   const initialKeys = sanitizeSelectedTemplateKeys(initialSelectedTemplateKeys, templates);
   const initialViewerUrl = templates.find((t) => initialKeys.includes(t.key))?.filePath ?? null;
 
@@ -90,9 +91,22 @@ export function ChatContainer({ templates, initialSelectedTemplateKeys }: ChatCo
   const objectUrlRef = useRef<string | null>(null);
   const extractedRef = useRef<StructuredData>(emptyStructuredData());
 
+  // Convert plain DB messages to UIMessage format required by useChat — per D-13
+  const seedMessages = useMemo<ChatMessage[]>(
+    () =>
+      initialMessages.map((m) => ({
+        id: m.id,
+        role: m.role,
+        parts: [{ type: "text" as const, text: m.content }],
+      })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [] // only seed on initial mount; do not re-derive from prop changes
+  );
+
   const { messages, setMessages, sendMessage, status, stop, regenerate } = useChat<ChatMessage>({
     id: "paperpair-intake",
     generateId: () => crypto.randomUUID(),
+    messages: seedMessages, // initialMessages from DB, per D-13 CHAT-04
     transport: new DefaultChatTransport({
       api: "/api/chat",
       prepareSendMessagesRequest(request) {

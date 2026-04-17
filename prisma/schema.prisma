@@ -57,6 +57,7 @@ model UserProfile {
 
   caseSteps     CaseStep[]
   spouseInvites SpouseInvite[]
+  documents     Document[]
 }
 
 // Platform-level AI provider keys (admin only)
@@ -98,4 +99,18 @@ model CaseStep {
   userProfile UserProfile @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
 
   @@unique([userProfileId, stepSlug])
+}
+
+model Document {
+  id            String      @id @default(cuid())
+  userProfileId String
+  filename      String
+  storagePath   String
+  docType       String
+  mimeType      String
+  sizeBytes     Int
+  uploadedAt    DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  userProfile   UserProfile @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
 }

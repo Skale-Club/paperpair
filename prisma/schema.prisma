@@ -57,6 +57,7 @@ model UserProfile {
 
   caseSteps     CaseStep[]
   spouseInvites SpouseInvite[]
+  chatSession   ChatSession?
 }
 
 // Platform-level AI provider keys (admin only)
@@ -98,4 +99,24 @@ model CaseStep {
   userProfile UserProfile @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
 
   @@unique([userProfileId, stepSlug])
+}
+
+model ChatSession {
+  id            String        @id @default(cuid())
+  userProfileId String        @unique
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  messages      ChatMessage[]
+
+  userProfile   UserProfile   @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
+}
+
+model ChatMessage {
+  id        String      @id @default(cuid())
+  sessionId String
+  role      String
+  content   String
+  createdAt DateTime    @default(now())
+
+  session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 }

@@ -18,7 +18,7 @@
 - [x] **BUG-07**: AI legal guardrail added — LLM deflects eligibility/legal questions
 - [x] **BUG-08**: UPL disclaimer displayed on all form, chat, and screener pages
 - [x] **BUG-09**: Edition locks added for all 6 forms (I-130, I-130A, I-131, I-765, I-864, I-864A)
-- [x] **BUG-10**: In-memory rate limiter replaced with Upstash Redis (keyed by user ID)
+- [x] **BUG-10**: Rate limiter upgraded to user-ID keyed in-memory (Upstash Redis deferred to Phase 2 per D-07)
 - [x] **BUG-11**: File upload MIME type validated server-side (magic byte check)
 - [x] **BUG-12**: PDF viewer loadingTask.destroy() called on component unmount
 - [x] **BUG-13**: abortSignal passed to streamText to cancel on client disconnect
@@ -27,7 +27,7 @@
 
 - [x] **AUTH-01**: User can sign up with email and password
 - [x] **AUTH-02**: User can sign in with Google OAuth
-- [ ] **AUTH-03**: User session persists across browser refresh
+- [x] **AUTH-03**: User session persists across browser refresh
 - [x] **AUTH-04**: Petitioner can invite beneficiary spouse via email link
 - [x] **AUTH-05**: Invited spouse can accept invite and access shared case
 

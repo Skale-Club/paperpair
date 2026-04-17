@@ -40,6 +40,13 @@ export const DASHBOARD_STEPS = [
     description: "Check everything before submission.",
     critical: false,
     order: 6
+  },
+  {
+    slug: "income-calculator",
+    title: "Income Calculator",
+    description: "Verify petitioner income meets the 125% federal poverty guideline.",
+    critical: false,
+    order: 7
   }
 ] as const;
 

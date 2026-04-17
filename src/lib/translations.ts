@@ -20,6 +20,8 @@ export const translations = {
     "sidebar.myForms": "My Forms",
     "sidebar.aiAssistant": "AI Assistant",
     "sidebar.adminPanel": "Admin Panel",
+    "sidebar.incomeCalculator": "Income Calculator",
+    "sidebar.submission": "Ready to Submit",
     // Dashboard
     "dashboard.hello": "Hello",
     "dashboard.subtitle": "Track your documentation progress below.",
@@ -81,6 +83,8 @@ export const translations = {
     "sidebar.myForms": "Meus Formulários",
     "sidebar.aiAssistant": "Assistente IA",
     "sidebar.adminPanel": "Painel Administrativo",
+    "sidebar.incomeCalculator": "Calculadora de Renda",
+    "sidebar.submission": "Pronto para Enviar",
     // Dashboard
     "dashboard.hello": "Olá",
     "dashboard.subtitle": "Acompanhe o progresso da sua documentação abaixo.",

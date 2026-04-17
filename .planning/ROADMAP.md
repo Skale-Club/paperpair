@@ -6,7 +6,7 @@
 
 ## Phases
 
-- [ ] **Phase 1: Foundation & Bug Fixes** — Stabilize the existing app: fix all P0 bugs, lock in DB persistence, auth flows, and timeline tracking
+- [x] **Phase 1: Foundation & Bug Fixes** — Stabilize the existing app: fix all P0 bugs, lock in DB persistence, auth flows, and timeline tracking (completed 2026-04-17)
 - [ ] **Phase 2: Core Case Features** — Deliver the full guided experience: case setup, forms browser, AI chat, and document management
 - [ ] **Phase 3: Completion Tools** — Guide the user to the finish line: income calculator and submission packet assembly
 - [ ] **Phase 4: Interview Prep** — Prepare both spouses for the USCIS interview
@@ -29,7 +29,7 @@
 Plans:
 - [x] 01-01-PLAN.md — Schema foundation: ChatSession/ChatMessage models + FEES_2026 barrel export
 - [x] 01-02-PLAN.md — DB persistence migrations: timeline, forms, chat, PDF storage, abortSignal, rate limiter upgrade
-- [ ] 01-03-PLAN.md — Security guardrails: legal guardrail, UPL disclaimer, edition locks, MIME check, PDF cleanup
+- [x] 01-03-PLAN.md — Security guardrails: legal guardrail, UPL disclaimer, edition locks, MIME check, PDF cleanup
 - [x] 01-04-PLAN.md — Auth + spouse invite acceptance page
 **UI hint**: yes
 
@@ -74,7 +74,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation & Bug Fixes | 3/4 | In Progress|  |
+| 1. Foundation & Bug Fixes | 4/4 | Complete   | 2026-04-17 |
 | 2. Core Case Features | 0/? | Not started | - |
 | 3. Completion Tools | 0/? | Not started | - |
 | 4. Interview Prep | 0/? | Not started | - |

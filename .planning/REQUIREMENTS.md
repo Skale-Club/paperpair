@@ -15,12 +15,12 @@
 - [x] **BUG-04**: Chat messages persisted across navigation (ChatSession + ChatMessage tables)
 - [x] **BUG-05**: AI extraction results saved back to CaseStep (wizard ↔ chat in sync)
 - [x] **BUG-06**: Fee inconsistency resolved — single source of truth from `fee-schedule.ts`
-- [ ] **BUG-07**: AI legal guardrail added — LLM deflects eligibility/legal questions
-- [ ] **BUG-08**: UPL disclaimer displayed on all form, chat, and screener pages
-- [ ] **BUG-09**: Edition locks added for all 6 forms (I-130, I-130A, I-131, I-765, I-864, I-864A)
+- [x] **BUG-07**: AI legal guardrail added — LLM deflects eligibility/legal questions
+- [x] **BUG-08**: UPL disclaimer displayed on all form, chat, and screener pages
+- [x] **BUG-09**: Edition locks added for all 6 forms (I-130, I-130A, I-131, I-765, I-864, I-864A)
 - [x] **BUG-10**: In-memory rate limiter replaced with Upstash Redis (keyed by user ID)
-- [ ] **BUG-11**: File upload MIME type validated server-side (magic byte check)
-- [ ] **BUG-12**: PDF viewer loadingTask.destroy() called on component unmount
+- [x] **BUG-11**: File upload MIME type validated server-side (magic byte check)
+- [x] **BUG-12**: PDF viewer loadingTask.destroy() called on component unmount
 - [x] **BUG-13**: abortSignal passed to streamText to cancel on client disconnect
 
 ### Authentication

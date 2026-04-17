@@ -48,7 +48,7 @@
 
 ### Forms
 
-- [ ] **FORM-01**: User can browse all 6 required AOS forms with PDF previews
+- [x] **FORM-01**: User can browse all 6 required AOS forms with PDF previews
 - [x] **FORM-02**: Each form shows plain-English instructions and what to expect
 - [x] **FORM-03**: User is warned if a form edition may be outdated
 - [x] **FORM-04**: Forms page links directly to official USCIS download pages

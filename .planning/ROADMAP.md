@@ -49,7 +49,7 @@ Plans:
 Plans:
 - [x] 02-01-PLAN.md — Wave 0 test scaffolds for all Phase 2 requirements (RED state)
 - [x] 02-02-PLAN.md — Document Prisma model + schema migration + document-types.ts utility
-- [ ] 02-03-PLAN.md — Forms enrichment: FormPack type extension + pack detail instructions + edition warning banner
+- [x] 02-03-PLAN.md — Forms enrichment: FormPack type extension + pack detail instructions + edition warning banner
 - [ ] 02-04-PLAN.md — Screener wiring: save-on-complete + EWI warning + timeline entry-type filter
 - [ ] 02-05-PLAN.md — Chat history API (GET /api/chat/history) + AP travel warning in systemPrompt
 - [ ] 02-06-PLAN.md — Documents page + upload extension + GET/DELETE /api/documents
@@ -86,7 +86,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation & Bug Fixes | 5/6 | In Progress|  |
-| 2. Core Case Features | 2/8 | In Progress|  |
+| 2. Core Case Features | 3/8 | In Progress|  |
 | 3. Completion Tools | 0/? | Not started | - |
 | 4. Interview Prep | 0/? | Not started | - |
 

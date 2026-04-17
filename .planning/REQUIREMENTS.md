@@ -33,9 +33,9 @@
 
 ### Case Setup
 
-- [ ] **CASE-01**: User completes initial eligibility screener to determine if AOS applies
-- [ ] **CASE-02**: Timeline steps shown/hidden based on entry type (lawful entry, overstay, EWI)
-- [ ] **CASE-03**: Case status fields stored on profile (receipt numbers, priority date, case status)
+- [x] **CASE-01**: User completes initial eligibility screener to determine if AOS applies
+- [x] **CASE-02**: Timeline steps shown/hidden based on entry type (lawful entry, overstay, EWI)
+- [x] **CASE-03**: Case status fields stored on profile (receipt numbers, priority date, case status)
 - [ ] **CASE-04**: Petitioner has write access to their own steps (I-130, spouse-info, marriage-details)
 
 ### Timeline & Checklist
@@ -49,26 +49,26 @@
 ### Forms
 
 - [ ] **FORM-01**: User can browse all 6 required AOS forms with PDF previews
-- [ ] **FORM-02**: Each form shows plain-English instructions and what to expect
-- [ ] **FORM-03**: User is warned if a form edition may be outdated
-- [ ] **FORM-04**: Forms page links directly to official USCIS download pages
+- [x] **FORM-02**: Each form shows plain-English instructions and what to expect
+- [x] **FORM-03**: User is warned if a form edition may be outdated
+- [x] **FORM-04**: Forms page links directly to official USCIS download pages
 
 ### AI Chat
 
 - [ ] **CHAT-01**: User can chat with AI assistant about their case
 - [ ] **CHAT-02**: AI assistant performs conversational intake (collects names, dates, addresses)
 - [ ] **CHAT-03**: Extracted data is saved to the user's CaseStep profile automatically
-- [ ] **CHAT-04**: Chat history persists across navigation and sessions
+- [x] **CHAT-04**: Chat history persists across navigation and sessions
 - [ ] **CHAT-05**: AI deflects legal questions and includes UPL disclaimer in responses
-- [ ] **CHAT-06**: AI warns against traveling without Advance Parole when topic arises
+- [x] **CHAT-06**: AI warns against traveling without Advance Parole when topic arises
 
 ### Documents
 
-- [ ] **DOC-01**: User can upload supporting documents (passport, marriage cert, bank statements, etc.)
-- [ ] **DOC-02**: Uploaded documents are tagged by type (passport, birth certificate, marriage certificate, etc.)
+- [x] **DOC-01**: User can upload supporting documents (passport, marriage cert, bank statements, etc.)
+- [x] **DOC-02**: Uploaded documents are tagged by type (passport, birth certificate, marriage certificate, etc.)
 - [ ] **DOC-03**: Documents are stored privately in Supabase Storage with per-user access control
 - [ ] **DOC-04**: User can view and download their uploaded documents via signed URLs
-- [ ] **DOC-05**: Uploaded documents can be used to auto-populate form fields via AI extraction
+- [x] **DOC-05**: Uploaded documents can be used to auto-populate form fields via AI extraction
 
 ### I-864 Income Calculator
 

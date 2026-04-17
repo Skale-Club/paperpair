@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { asStepData } from "@/lib/case-step-data";
 import { isDashboardStepSlug } from "@/lib/dashboard-steps";
 import { getCurrentUserAndProfile } from "@/lib/current-user-profile";
+import { getMagicMime } from "@/lib/mime";
 import { prisma } from "@/lib/prisma";
 import { createClient } from "@/lib/supabase/server";
 
@@ -73,6 +74,18 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "File must be 10MB or less." }, { status: 400 });
   }
 
+  // Read buffer once for magic byte check and upload (stream can only be consumed once)
+  const buffer = await file.arrayBuffer();
+  const bytes = new Uint8Array(buffer.slice(0, 8));
+  const magicMime = getMagicMime(bytes);
+
+  if (!magicMime || !ALLOWED_TYPES.has(magicMime)) {
+    return NextResponse.json(
+      { error: "File content does not match declared type." },
+      { status: 400 }
+    );
+  }
+
   const supabase = await createClient();
 
   const safeName = sanitizeFilename(file.name);
@@ -80,8 +93,8 @@ export async function POST(request: Request) {
 
   const { error: uploadError } = await supabase.storage
     .from("user-documents")
-    .upload(storagePath, file, {
-      contentType: file.type,
+    .upload(storagePath, buffer, {
+      contentType: magicMime,
       upsert: false
     });
 

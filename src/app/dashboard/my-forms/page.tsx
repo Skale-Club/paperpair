@@ -11,6 +11,7 @@ import {
 } from "@/lib/form-packs";
 import { PdfViewer } from "@/components/pdf-viewer";
 import { PdfPreview } from "@/components/pdf-preview";
+import { UplDisclaimer } from "@/components/upl-disclaimer";
 
 type SelectedFormWithPack = { form: FormItem; pack: FormPack };
 
@@ -43,6 +44,11 @@ function PackCard({
           <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-white" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
           </svg>
+        </div>
+      )}
+      {new Date() > pack.lockedUntil && (
+        <div className="absolute bottom-2 left-2 right-2 rounded border border-amber-200 bg-amber-50 px-2 py-1 text-[10px] text-amber-800">
+          Check USCIS.gov — only the current edition is accepted.
         </div>
       )}
     </button>
@@ -160,9 +166,12 @@ export default function MyFormsPage() {
           /* Browse packs */
           <div className="rounded-2xl border border-slate-200 bg-white p-6">
             <h2 className="mb-1 text-lg font-bold text-slate-900">Browse Form Packages</h2>
-            <p className="mb-6 text-sm text-slate-500">
+            <p className="mb-4 text-sm text-slate-500">
               Select a package to review and add forms to your case.
             </p>
+            <div className="mb-6">
+              <UplDisclaimer />
+            </div>
             <div className="grid grid-cols-3 gap-4">
               {FORM_PACKS.map(pack => (
                 <PackCard

@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { ChatUI } from "@/components/chat-ui";
 import { prisma } from "@/lib/prisma";
+import { UplDisclaimer } from "@/components/upl-disclaimer";
 
 type SearchParams = {
   template?: string | string[];
@@ -39,6 +40,8 @@ export default async function DocumentationFillingPage({
           View the official template, answer the assistant in the bottom-right corner, and generate an automatically filled PDF with the collected data.
         </p>
       </div>
+
+      <UplDisclaimer />
 
       <ChatUI
         templates={templates}

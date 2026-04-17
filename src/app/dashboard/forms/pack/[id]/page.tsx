@@ -76,12 +76,21 @@ export default function PackDetailPage() {
 
   const [selectedForms, setSelectedForms] = useState<string[]>([]);
   const [showModal, setShowModal] = useState(false);
+  const [existingSentIds, setExistingSentIds] = useState<string[]>([]);
 
   useEffect(() => {
     if (pack) {
       setSelectedForms(getPackPendingForms(pack.id));
     }
   }, [pack]);
+
+  useEffect(() => {
+    // Fetch current persisted sent form IDs so sendForms() can merge correctly
+    fetch("/api/dashboard/selected-forms")
+      .then(res => res.ok ? res.json() as Promise<{ formIds: string[] }> : null)
+      .then(data => { if (data?.formIds) setExistingSentIds(data.formIds); })
+      .catch(() => { /* use empty default */ });
+  }, []);
 
   if (!pack) {
     return (
@@ -109,7 +118,7 @@ export default function PackDetailPage() {
 
   const handleSendNow = () => {
     confirmPackSelection(pack.id, selectedForms);
-    sendForms();
+    sendForms(existingSentIds);
     setShowModal(false);
     router.push("/dashboard/my-forms");
   };

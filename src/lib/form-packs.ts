@@ -79,7 +79,6 @@ export const FORM_PACKS: FormPack[] = [
 
 const PENDING_KEY = "pp_pending_forms";
 const VISITED_KEY = "pp_visited_packs";
-const SENT_KEY = "pp_my_forms";
 
 function safeGet<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
@@ -107,8 +106,10 @@ export function getVisitedPacks(): string[] {
   return safeGet<string[]>(VISITED_KEY, []);
 }
 
+/** @deprecated Use /api/dashboard/selected-forms (GET) to load persisted form IDs from DB */
 export function getSentForms(): string[] {
-  return safeGet<string[]>(SENT_KEY, []);
+  // Returns empty array — selected forms are persisted in DB via /api/dashboard/selected-forms
+  return [];
 }
 
 /** Get pending form IDs for a specific pack (pre-select when revisiting a pack) */
@@ -134,12 +135,21 @@ export function confirmPackSelection(packId: string, selectedFormIds: string[]):
   }
 }
 
-/** Move all pending forms into the sent (My Forms) list and clear session state */
-export function sendForms(): void {
+/**
+ * Move all pending forms into the sent (My Forms) list and clear session state.
+ * The merged form IDs are persisted to DB via POST /api/dashboard/selected-forms.
+ * Callers must pass the current sent IDs from the DB (fetched via GET /api/dashboard/selected-forms).
+ */
+export function sendForms(existingSentIds: string[] = []): void {
   const pending = getPendingForms();
-  const existing = getSentForms();
-  const merged = Array.from(new Set([...existing, ...pending]));
-  safeSet(SENT_KEY, merged);
+  const merged = Array.from(new Set([...existingSentIds, ...pending]));
+  // Persist merged list to DB (fire-and-forget)
+  void fetch("/api/dashboard/selected-forms", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ formIds: merged }),
+  });
+  // Clear session-only state
   safeSet(PENDING_KEY, []);
   safeSet(VISITED_KEY, []);
 }

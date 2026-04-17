@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   FORM_PACKS,
-  getSentForms,
   getVisitedPacks,
   getPendingForms,
   type FormItem,
@@ -61,17 +60,25 @@ export default function MyFormsPage() {
   const [activeFormId, setActiveFormId] = useState<string | null>(null);
 
   useEffect(() => {
-    const sentIds = getSentForms();
-    const result: SelectedFormWithPack[] = [];
-    for (const pack of FORM_PACKS) {
-      for (const form of pack.forms) {
-        if (sentIds.includes(form.id)) result.push({ form, pack });
-      }
-    }
-    setForms(result);
-    setVisitedPacks(getVisitedPacks());
-    setPendingForms(getPendingForms());
-    setLoaded(true);
+    // Load persisted form IDs from DB
+    fetch("/api/dashboard/selected-forms")
+      .then(res => res.ok ? res.json() as Promise<{ formIds: string[] }> : null)
+      .then(data => {
+        const sentIds = data?.formIds ?? [];
+        const result: SelectedFormWithPack[] = [];
+        for (const pack of FORM_PACKS) {
+          for (const form of pack.forms) {
+            if (sentIds.includes(form.id)) result.push({ form, pack });
+          }
+        }
+        setForms(result);
+        setVisitedPacks(getVisitedPacks());
+        setPendingForms(getPendingForms());
+        setLoaded(true);
+      })
+      .catch(() => {
+        setLoaded(true);
+      });
   }, []);
 
   if (!loaded) return null;

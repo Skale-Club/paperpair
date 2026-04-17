@@ -93,9 +93,6 @@ const PHASES: Phase[] = [
 /* flat list of all sections for prev/next navigation */
 const ALL_SECTIONS = PHASES.flatMap(p => p.sections.map(s => ({ ...s, phaseId: p.id })));
 
-/* ─── persistence ─── */
-const STORAGE_KEY = "paperpair_timeline_v2";
-
 type CompletedState = {
     phases: Record<string, boolean>;
     sections: Record<string, Record<string, boolean>>;
@@ -570,23 +567,47 @@ export function MyCaseTimeline() {
     const [mobileNavOpen, setMobileNavOpen] = useState(false);
     const contentRef = useRef<HTMLDivElement>(null);
 
-    /* load persisted state */
+    /* load persisted state from DB on mount */
     useEffect(() => {
-        try {
-            const raw = localStorage.getItem(STORAGE_KEY);
-            if (!raw) return;
-            const parsed = JSON.parse(raw) as Partial<CompletedState>;
-            setCompleted({
-                phases: parsed.phases ?? {},
-                sections: parsed.sections ?? {},
-                items: parsed.items ?? {},
-            });
-        } catch { /* ignore */ }
+        fetch("/api/dashboard/timeline")
+            .then(res => res.ok ? res.json() as Promise<{ items: Record<string, boolean> }> : null)
+            .then(data => {
+                if (!data?.items) return;
+                // items from API is a flat map of "sectionId:itemId" → boolean
+                // Reconstruct the nested items structure
+                const nextItems: Record<string, Record<string, boolean>> = {};
+                for (const [key, val] of Object.entries(data.items)) {
+                    const sepIdx = key.indexOf(":");
+                    if (sepIdx === -1) continue;
+                    const sectionId = key.slice(0, sepIdx);
+                    const itemId = key.slice(sepIdx + 1);
+                    nextItems[sectionId] ??= {};
+                    nextItems[sectionId][itemId] = val;
+                }
+                if (Object.keys(nextItems).length === 0) return;
+                setCompleted(prev => {
+                    const next = recomputePhaseCompletion({ ...prev, items: nextItems });
+                    return next;
+                });
+            })
+            .catch(() => { /* ignore — use default state */ });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     /* ─── persistence helpers ─── */
     function persist(state: CompletedState) {
-        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch { /* ignore */ }
+        // Flatten nested items map into "sectionId:itemId" → boolean for DB storage
+        const flatItems: Record<string, boolean> = {};
+        for (const [sectionId, sectionItems] of Object.entries(state.items)) {
+            for (const [itemId, val] of Object.entries(sectionItems)) {
+                flatItems[`${sectionId}:${itemId}`] = val;
+            }
+        }
+        void fetch("/api/dashboard/timeline", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ items: flatItems }),
+        });
     }
 
     function recomputePhaseCompletion(state: CompletedState): CompletedState {

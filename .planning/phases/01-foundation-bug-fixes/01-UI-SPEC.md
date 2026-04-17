@@ -76,6 +76,7 @@ Exceptions:
 - Touch targets (checkboxes, interactive buttons in nav): minimum 44px height — apply `min-h-[44px]` where the visual size is smaller
 - Left panel nav items: 40px minimum height (`min-h-[40px]`) to maintain tap target density on mobile
 - Timeline connector line: fixed 2px width (not a spacing token — structural)
+- `mt-0.5` (2px): optical icon alignment on UPL banner icon — structural, not a spacing token (same treatment as 2px timeline connector line)
 
 ---
 
@@ -83,18 +84,30 @@ Exceptions:
 
 Source: globals.css declares `font-family: 'Inter', system-ui, sans-serif` on `:root`. Existing components use Tailwind text-* utilities consistently.
 
+**Declared weights: 2 (maximum)**
+
 | Role | Size | Weight | Line Height | Tailwind Class |
 |------|------|--------|-------------|----------------|
 | Body | 14px | 400 (regular) | 1.5 | `text-sm` |
-| Label | 12px | 600 (semibold) | 1.3 | `text-xs font-semibold` |
+| Label | 12px | 400 (regular) | 1.3 | `text-xs` |
 | Heading | 20px | 700 (bold) | 1.2 | `text-xl font-bold` (section headings) |
 | Display | 24px | 700 (bold) | 1.2 | `text-2xl font-bold` (page/auth title) |
+
+**Declared sizes: 4 (maximum)**
+- 12px (`text-xs`) — Label
+- 14px (`text-sm`) — Body
+- 20px (`text-xl`) — Heading
+- 24px (`text-2xl`) — Display
+
+No other sizes may be introduced in Phase 1. Specifically:
+- Sign-in page title uses `text-2xl font-bold` (Display size, 24px) — NOT `text-3xl`
+- Overline/phase labels use `text-xs` (12px, Label size) — NOT `text-[11px]`
 
 **Exceptions for existing section content headings in timeline:** `text-2xl font-bold` is already used inside SectionDetermineEligibility etc. — preserve this pattern for right-panel section titles.
 
 **Strikethrough text** (completed checklist items): `line-through text-slate-400` — preserve existing pattern.
 
-**Phase/section label overline:** `text-[11px] font-semibold uppercase tracking-wider text-slate-400` — preserve existing mobile nav pattern.
+**Phase/section label overline:** `text-xs font-bold uppercase tracking-wider text-slate-400` — use Label size (12px) with weight 700 (bold).
 
 ---
 
@@ -133,13 +146,15 @@ Source: globals.css declares `font-family: 'Inter', system-ui, sans-serif` on `:
 
 **Layout:** `grid lg:grid-cols-[260px_1fr]` — existing structure preserved. Both panels are independently scrollable.
 
+**Focal point:** Primary focal point is the right panel section heading, anchored to the first active section on load. On initial render, the right panel scrolls to (or starts at) the first incomplete section heading.
+
 **Left panel (step navigator):**
 - Container: `h-[calc(100vh-theme(spacing.32))] overflow-y-auto` (sticky, scrollable independently)
 - Width: 260px fixed on desktop; full-width collapsible on mobile
 - Phase groups: collapsible accordion (expand/collapse on phase header click)
-- Active section highlight: `border-slate-300 bg-white font-semibold text-slate-900 shadow-sm` (existing)
+- Active section highlight: `border-slate-300 bg-white font-bold text-slate-900 shadow-sm` (weight 700 — bold only)
 - Done section: `border-slate-400 bg-slate-100 text-slate-700` with CheckIcon
-- Partial progress indicator: `{checkedItems}/{items.length}` text badge, right-aligned, `text-[10px] text-slate-400`
+- Partial progress indicator: `{checkedItems}/{items.length}` text badge, right-aligned, `text-xs text-slate-400`
 - Connector lines: 2px `bg-slate-200` vertical + horizontal lines (existing tree structure — preserve)
 - Scrollspy behavior: `IntersectionObserver` on right-panel section anchors drives active highlight; NO jump, only highlight update
 
@@ -188,10 +203,10 @@ Source: globals.css declares `font-family: 'Inter', system-ui, sans-serif` on `:
 
 - Container: `flex items-start gap-3 rounded-lg border border-[var(--color-trust-muted)] bg-[var(--color-trust-muted)]/40 px-4 py-3`
 - Left accent stripe: `border-l-4 border-l-[var(--color-trust)]` (add to container class)
-- Icon: inline SVG info circle, `h-4 w-4 shrink-0 text-[var(--color-trust)] mt-0.5`
+- Icon: inline SVG info circle, `h-4 w-4 shrink-0 text-[var(--color-trust)] mt-0.5` (the `mt-0.5` is optical icon alignment — see Spacing Exceptions)
 - Text: `text-sm text-[var(--color-muted)]`
-- Bold lead: `font-semibold` on "PaperPair provides general information only — not legal advice."
-- Second sentence: regular weight
+- Bold lead: `font-bold` on "PaperPair provides general information only — not legal advice."
+- Second sentence: regular weight (400)
 - Non-dismissible: no close button, no X
 - Server-side rendered: no `"use client"` — pure JSX component
 
@@ -224,8 +239,8 @@ Source: globals.css declares `font-family: 'Inter', system-ui, sans-serif` on `:
 **Card:** `w-full max-w-md rounded-2xl border border-sand-200 bg-white px-8 py-10 shadow-sm`
 
 **Structure (top to bottom):**
-1. Brand mark: `text-sm font-semibold text-[var(--color-trust)]` — "PaperPair"
-2. Title: `text-3xl font-bold text-foreground` — "Welcome back"
+1. Brand mark: `text-sm font-bold text-[var(--color-trust)]` — "PaperPair"
+2. Title: `text-2xl font-bold text-foreground` — "Welcome back" (Display size, 24px — NOT text-3xl)
 3. Subtitle: `text-sm text-foreground/60` — "Enter your email and password to access your account."
 4. Error banner (conditional): `rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800`
 5. Email field + Password field (with show/hide toggle) + "Keep me signed in" checkbox
@@ -268,8 +283,8 @@ Source: globals.css declares `font-family: 'Inter', system-ui, sans-serif` on `:
 - Icon area: `flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-trust-muted)] text-[var(--color-trust)] mx-auto` — envelope SVG icon
 - Title: `text-2xl font-bold text-foreground text-center mt-4` — "{Petitioner first name} invited you to PaperPair"
 - Subtitle: `text-sm text-foreground/60 text-center mt-2` — "You're joining as the beneficiary spouse. Accept below to access your shared case."
-- Role badge: `inline-flex rounded-full px-3 py-1 text-xs font-semibold bg-[var(--color-trust-muted)] text-[var(--color-muted)]` — "Beneficiary spouse"
-- Accept button: `w-full rounded-lg bg-[var(--color-trust)] px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90` — "Accept invitation"
+- Role badge: `inline-flex rounded-full px-3 py-1 text-xs bg-[var(--color-trust-muted)] text-[var(--color-muted)]` — "Beneficiary spouse"
+- Accept button: `w-full rounded-lg bg-[var(--color-trust)] px-4 py-3 text-sm font-bold text-white hover:opacity-90` — "Accept invitation" (py-3 = 12px, a multiple of 4)
 - Decline link: `text-sm text-foreground/50 underline text-center mt-3` — "Decline"
 
 **Expired/invalid token state:**
@@ -303,6 +318,7 @@ Source: globals.css declares `font-family: 'Inter', system-ui, sans-serif` on `:
 | Invite expired heading | "This invitation has expired" |
 | Invite expired body | "Ask your spouse to send a new invite from their PaperPair settings." |
 | Invite valid subtitle | "You're joining as the beneficiary spouse. Accept below to access your shared case." |
+| Invite acceptance API error | "We couldn't accept this invitation. Try refreshing the page, or ask your spouse to send a new invite." |
 | UPL disclaimer lead | "PaperPair provides general information only — not legal advice." |
 | UPL disclaimer body | "Always consult a qualified immigration attorney for your specific situation." |
 | Persistence silent failure | (no copy — silent fail in v1) |
@@ -350,7 +366,7 @@ Source: globals.css declares `font-family: 'Inter', system-ui, sans-serif` on `:
 |-------|----------|
 | Page load | Token validated server-side before render (or client-side API call on mount) |
 | "Accept invitation" clicked | Button enters loading state ("Accepting..."), POST to `/api/invite/accept`, redirect to `/dashboard` on success |
-| Acceptance API error | Inline error below button: `text-sm text-red-700` — "Something went wrong. Please try again." |
+| Acceptance API error | Inline error below button: `text-sm text-red-700` — "We couldn't accept this invitation. Try refreshing the page, or ask your spouse to send a new invite." |
 | "Decline" clicked | Navigate to `/login` with no confirmation |
 
 ---

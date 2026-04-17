@@ -66,7 +66,10 @@ Plans:
   2. If income is insufficient, the calculator explains joint sponsor requirements clearly
   3. A user can download all filled PDF forms as a single submission package
   4. A submission checklist walks the user through packet assembly and mailing, with the correct USCIS lockbox address linked (never hardcoded) and a prominent Advance Parole travel warning shown before they submit
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 03-01-PLAN.md — Income Calculator: poverty-guidelines.ts, DASHBOARD_STEPS slug, page + client widget, sidebar nav
+- [ ] 03-02-PLAN.md — Submission Packet page: AP warning, form download list, assembly checklist, USCIS lockbox link
 
 ### Phase 4: Interview Prep
 **Goal**: Both spouses feel prepared and organized for their USCIS interview
@@ -87,7 +90,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1. Foundation & Bug Fixes | 5/6 | In Progress|  |
 | 2. Core Case Features | 8/8 | Complete   | 2026-04-17 |
-| 3. Completion Tools | 0/? | Not started | - |
+| 3. Completion Tools | 0/2 | Not started | - |
 | 4. Interview Prep | 0/? | Not started | - |
 
 ---
@@ -159,3 +162,4 @@ Plans:
 *Phase 1 planned: 2026-04-17 — 4 plans, 2 execution waves*
 *Phase 1 gap closure: 2026-04-17 — 2 additional plans (01-05, 01-06) for 4 verification gaps*
 *Phase 2 planned: 2026-04-17 — 8 plans, 2 execution waves*
+*Phase 3 planned: 2026-04-17 — 2 plans, 1 execution wave (both Wave 1 parallel)*

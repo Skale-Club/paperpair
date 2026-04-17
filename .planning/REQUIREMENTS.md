@@ -55,11 +55,11 @@
 
 ### AI Chat
 
-- [ ] **CHAT-01**: User can chat with AI assistant about their case
-- [ ] **CHAT-02**: AI assistant performs conversational intake (collects names, dates, addresses)
-- [ ] **CHAT-03**: Extracted data is saved to the user's CaseStep profile automatically
+- [x] **CHAT-01**: User can chat with AI assistant about their case
+- [x] **CHAT-02**: AI assistant performs conversational intake (collects names, dates, addresses)
+- [x] **CHAT-03**: Extracted data is saved to the user's CaseStep profile automatically
 - [x] **CHAT-04**: Chat history persists across navigation and sessions
-- [ ] **CHAT-05**: AI deflects legal questions and includes UPL disclaimer in responses
+- [x] **CHAT-05**: AI deflects legal questions and includes UPL disclaimer in responses
 - [x] **CHAT-06**: AI warns against traveling without Advance Parole when topic arises
 
 ### Documents

@@ -102,7 +102,17 @@ No new user-facing features — this phase is about making what exists reliable 
 <specifics>
 ## Specific Ideas
 
-No specific UI references or "I want it like X" moments from discussion — the phase is infrastructure-focused and the user deferred implementation choices to Claude's discretion.
+### Timeline Dual-Panel Scroll (TIME-01 to TIME-05)
+
+The timeline UI uses a **dual-panel synchronized scroll** pattern:
+
+- **Left panel (steps list):** checklist step navigator — independently scrollable so the user can scroll to see and select a different step
+- **Right panel (content):** detailed content/checklist items for the currently active step — independently scrollable
+- **Scrollspy sync:** as the user scrolls the content panel, the left panel's active highlight automatically tracks whichever step is currently visible in the content (no jump, just highlight update)
+- **Step selection:** scrolling the left panel and clicking a step jumps the content panel to that step
+- Both panels can scroll independently; neither is locked while the other moves
+
+This is the primary UX model for the timeline. The UI-SPEC must capture this interaction in detail.
 
 </specifics>
 

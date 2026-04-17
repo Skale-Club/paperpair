@@ -25,12 +25,14 @@
   3. The petitioner can invite their spouse by email; the spouse accepts the link and sees the shared case with their role-appropriate write access
   4. Every chat, form, and screener page displays the UPL disclaimer, and the AI refuses to answer eligibility or legal questions
   5. Uploaded files, generated PDFs, and selected forms survive a Vercel cold start (persisted to Supabase Storage / database, not in-memory or ephemeral disk)
-**Plans**: 4 plans
+**Plans**: 6 plans (4 original + 2 gap closure)
 Plans:
 - [x] 01-01-PLAN.md — Schema foundation: ChatSession/ChatMessage models + FEES_2026 barrel export
 - [x] 01-02-PLAN.md — DB persistence migrations: timeline, forms, chat, PDF storage, abortSignal, rate limiter upgrade
 - [x] 01-03-PLAN.md — Security guardrails: legal guardrail, UPL disclaimer, edition locks, MIME check, PDF cleanup
 - [x] 01-04-PLAN.md — Auth + spouse invite acceptance page
+- [ ] 01-05-PLAN.md — Gap closure: replace hardcoded fee amounts in timeline-checklists.ts and my-case-timeline.tsx (BUG-06)
+- [ ] 01-06-PLAN.md — Gap closure: UplDisclaimer on /dashboard screener page (BUG-08) + REQUIREMENTS.md corrections (AUTH-03, BUG-10)
 **UI hint**: yes
 
 ### Phase 2: Core Case Features
@@ -74,7 +76,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation & Bug Fixes | 4/4 | Complete   | 2026-04-17 |
+| 1. Foundation & Bug Fixes | 4/6 | Gap closure in progress | 2026-04-17 |
 | 2. Core Case Features | 0/? | Not started | - |
 | 3. Completion Tools | 0/? | Not started | - |
 | 4. Interview Prep | 0/? | Not started | - |
@@ -146,3 +148,4 @@ Plans:
 
 *Roadmap created: 2026-04-17*
 *Phase 1 planned: 2026-04-17 — 4 plans, 2 execution waves*
+*Phase 1 gap closure: 2026-04-17 — 2 additional plans (01-05, 01-06) for 4 verification gaps*

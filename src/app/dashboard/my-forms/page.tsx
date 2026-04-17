@@ -47,6 +47,11 @@ function PackCard({
           </svg>
         </div>
       )}
+      {new Date() > pack.lockedUntil && (
+        <div className="absolute bottom-2 left-2 right-2 rounded border border-amber-200 bg-amber-50 px-2 py-1 text-[10px] text-amber-800">
+          Check USCIS.gov — only the current edition is accepted.
+        </div>
+      )}
     </button>
   );
 }

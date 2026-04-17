@@ -18,6 +18,8 @@ export function PdfPreview({ url, className = "" }: Props) {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let loadingTask: any = null;
     let cancelled = false;
 
     async function render() {
@@ -26,7 +28,7 @@ export function PdfPreview({ url, className = "" }: Props) {
         // Use the worker we copied to /public
         pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
 
-        const loadingTask = pdfjs.getDocument(url);
+        loadingTask = pdfjs.getDocument(url);
         const pdf = await loadingTask.promise;
         if (cancelled) return;
 
@@ -50,6 +52,7 @@ export function PdfPreview({ url, className = "" }: Props) {
         const ctx = canvas.getContext("2d");
         if (!ctx || cancelled) return;
 
+        // CRITICAL: pdfjs-dist v5 requires the `canvas` property in addition to canvasContext
         await page.render({ canvasContext: ctx, viewport, canvas }).promise;
         if (!cancelled) setLoaded(true);
       } catch {
@@ -60,6 +63,7 @@ export function PdfPreview({ url, className = "" }: Props) {
     void render();
     return () => {
       cancelled = true;
+      loadingTask?.destroy().catch(() => {}); // BUG-12 fix
     };
   }, [url]);
 

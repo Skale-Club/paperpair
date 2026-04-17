@@ -11,6 +11,10 @@ export interface FormPack {
   /** PDF shown on the pack index card (the main form, not instructions) */
   coverPdfUrl: string;
   forms: FormItem[];
+  /** ISO date string of the current accepted USCIS edition */
+  editionDate: string;
+  /** UI shows edition warning if new Date() > lockedUntil */
+  lockedUntil: Date;
 }
 
 export const FORM_PACKS: FormPack[] = [
@@ -24,6 +28,8 @@ export const FORM_PACKS: FormPack[] = [
       { id: "i130-petition", title: "I-130\nPetition for Alien Relative", pdfUrl: "/forms/i130-petition.pdf" },
       { id: "i130a-spouse", title: "I-130a\nForm for Spouse Beneficiary", pdfUrl: "/forms/i130a-spouse.pdf" },
     ],
+    editionDate: "2023-12-15",
+    lockedUntil: new Date("2023-12-15"),
   },
   {
     id: "i131",
@@ -34,6 +40,8 @@ export const FORM_PACKS: FormPack[] = [
       { id: "i131-instructions", title: "Form Instructions", pdfUrl: "/forms/i131-instructions.pdf" },
       { id: "i131-parole", title: "I-131\nAdvance Parole Document", pdfUrl: "/forms/i131-parole.pdf" },
     ],
+    editionDate: "2024-04-01",
+    lockedUntil: new Date("2024-04-01"),
   },
   {
     id: "i485",
@@ -44,6 +52,8 @@ export const FORM_PACKS: FormPack[] = [
       { id: "i485-instructions", title: "Form Instructions", pdfUrl: "/forms/i485-instructions.pdf" },
       { id: "i485-application", title: "I-485\nApplication to Register\nPermanent Residence", pdfUrl: "/forms/i485-application.pdf" },
     ],
+    editionDate: "2024-04-01",
+    lockedUntil: new Date("2024-04-01"),
   },
   {
     id: "i693",
@@ -54,6 +64,8 @@ export const FORM_PACKS: FormPack[] = [
       { id: "i693-instructions", title: "Form Instructions", pdfUrl: "/forms/i693-instructions.pdf" },
       { id: "i693-medical", title: "I-693\nReport of Medical\nExamination", pdfUrl: "/forms/i693-medical.pdf" },
     ],
+    editionDate: "2023-06-01",
+    lockedUntil: new Date("2023-06-01"),
   },
   {
     id: "i765",
@@ -64,6 +76,8 @@ export const FORM_PACKS: FormPack[] = [
       { id: "i765-instructions", title: "Form Instructions", pdfUrl: "/forms/i765-instructions.pdf" },
       { id: "i765-ead", title: "I-765\nEmployment Authorization\nDocument", pdfUrl: "/forms/i765-ead.pdf" },
     ],
+    editionDate: "2024-04-01",
+    lockedUntil: new Date("2024-04-01"),
   },
   {
     id: "i864a",
@@ -74,6 +88,8 @@ export const FORM_PACKS: FormPack[] = [
       { id: "i864a-instructions", title: "Form Instructions", pdfUrl: "/forms/i864a-instructions.pdf" },
       { id: "i864a-contract", title: "I-864a\nContract Between Sponsor\nand Household Member", pdfUrl: "/forms/i864a-contract.pdf" },
     ],
+    editionDate: "2023-12-15",
+    lockedUntil: new Date("2023-12-15"),
   },
 ];
 

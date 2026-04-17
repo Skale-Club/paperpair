@@ -25,3 +25,16 @@ export const FEES_2026_BIOMETRICS = 0;
 /** Total for a typical concurrent I-130 + I-485 + EAD bundle */
 export const CONCURRENT_BUNDLE_TOTAL =
   FEES_2026_I130_PAPER + FEES_2026_I485 + FEES_2026_I765_EAD_INITIAL;
+
+/**
+ * Barrel export grouping all 2026 fee constants under a single object.
+ * Individual named constants remain the canonical export for tree-shaking.
+ */
+export const FEES_2026 = {
+  i485: FEES_2026_I485,
+  i131_with_i485: FEES_2026_I131_WITH_I485,
+  ead_initial: FEES_2026_I765_EAD_INITIAL,
+  i130_paper: FEES_2026_I130_PAPER,
+  i130_online: FEES_2026_I130_ONLINE,
+  biometrics: FEES_2026_BIOMETRICS,
+} as const;

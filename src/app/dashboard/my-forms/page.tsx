@@ -12,6 +12,7 @@ import {
 } from "@/lib/form-packs";
 import { PdfViewer } from "@/components/pdf-viewer";
 import { PdfPreview } from "@/components/pdf-preview";
+import { UplDisclaimer } from "@/components/upl-disclaimer";
 
 type SelectedFormWithPack = { form: FormItem; pack: FormPack };
 
@@ -153,9 +154,12 @@ export default function MyFormsPage() {
           /* Browse packs */
           <div className="rounded-2xl border border-slate-200 bg-white p-6">
             <h2 className="mb-1 text-lg font-bold text-slate-900">Browse Form Packages</h2>
-            <p className="mb-6 text-sm text-slate-500">
+            <p className="mb-4 text-sm text-slate-500">
               Select a package to review and add forms to your case.
             </p>
+            <div className="mb-6">
+              <UplDisclaimer />
+            </div>
             <div className="grid grid-cols-3 gap-4">
               {FORM_PACKS.map(pack => (
                 <PackCard

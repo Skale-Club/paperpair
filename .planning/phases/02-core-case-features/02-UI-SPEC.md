@@ -80,9 +80,9 @@ Exceptions:
 | Body | 14px | 400 (regular) | 1.5 | `text-sm leading-relaxed` |
 | Label | 12px | 600 (semibold) | 1.4 | `text-xs font-semibold` |
 | Heading | 20px | 600 (semibold) | 1.2 | `text-xl font-semibold` |
-| Display | 28px | 700 (bold) | 1.15 | `text-3xl font-bold tracking-tight` |
+| Display | 28px | 600 (semibold) | 1.15 | `text-3xl font-semibold tracking-tight` |
 
-**Only 2 weights in use:** 400 (regular) and 600 (semibold). Display uses 700 only for page-level h1. No other weights permitted.
+**Only 2 weights in use:** 400 (regular) and 600 (semibold) — applied to all roles including Display. No other weights permitted.
 
 ---
 
@@ -107,6 +107,17 @@ Exceptions:
 **Warning color (not accent):** EWI inline warning and form edition warning banner use `var(--color-warning-bg)` / `var(--color-warning-border)` / `var(--color-warning-text)` — amber tones, not olive.
 
 **Slate tones** (from Tailwind defaults) continue to be used for tertiary text (`text-slate-500`), borders (`border-slate-200`), and background washes (`bg-slate-50`). This is an existing pattern — do not replace with custom tokens.
+
+---
+
+## Primary Focal Points
+
+| Screen | Primary Focal Point |
+|--------|---------------------|
+| Screener | Step button (accent CTA) — the single action driving the user forward at each step |
+| Documents page | Upload drop zone — dashed-border area with centered accent "Upload document" button |
+| Forms panel (edition warning active) | Edition warning banner — amber banner is the dominant visual when form data may be stale |
+| Forms panel (no warning) | "Download from USCIS.gov" link button — the terminal action completing the forms workflow |
 
 ---
 

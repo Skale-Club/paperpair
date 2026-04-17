@@ -4,12 +4,12 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 01
 status: executing
-last_updated: "2026-04-17T18:17:22.568Z"
+last_updated: "2026-04-17T18:18:45.107Z"
 progress:
   total_phases: 4
   completed_phases: 0
   total_plans: 4
-  completed_plans: 2
+  completed_plans: 3
 ---
 
 # PaperPair — Project State
@@ -20,7 +20,7 @@ See: .planning/PROJECT.md (updated 2026-04-17)
 
 **Core value:** The applicant always knows exactly what to do next — no confusion, no missed steps, no wasted trips to the USCIS website.
 **Current phase:** 01
-**Status:** Ready to execute
+**Status:** Executing — Plan 4 of 4 in Phase 01 (auth color fix + spouse invite acceptance)
 
 ---
 
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-04-17)
 
 | # | Phase | Status |
 |---|-------|--------|
-| 1 | Foundation & Bug Fixes | Executing (1/4 plans complete) |
+| 1 | Foundation & Bug Fixes | Executing (3/4 plans complete) |
 | 2 | Core Case Features | Not started |
 | 3 | Completion Tools | Not started |
 | 4 | Interview Prep | Not started |
@@ -38,7 +38,7 @@ See: .planning/PROJECT.md (updated 2026-04-17)
 ## Current Position
 
 Phase: 01 (foundation-bug-fixes) — EXECUTING
-Plan: 3 of 4
+Plan: 4 of 4
 | Field | Value |
 |-------|-------|
 | Phase | 1 — Foundation & Bug Fixes |
@@ -46,7 +46,7 @@ Plan: 3 of 4
 | Status | Executing |
 | Progress | 1/4 plans complete in Phase 01 |
 
-**Progress bar:** [█████░░░░░] 50%
+**Progress bar:** [████████░░] 75%
 
 ---
 
@@ -61,6 +61,7 @@ Plan: 3 of 4
 ---
 | Phase 01 P01 | 4 | 2 tasks | 3 files |
 | Phase 01 P02 | 8 | 2 tasks | 11 files |
+| Phase 01 P04 | 12 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -78,6 +79,9 @@ Plan: 3 of 4
 | Timeline items as flat-key map in CaseStep.data | Simplest DB representation; nested structure reconstructed in component on hydration | 2026-04-17 |
 | getSentForms() deprecated; sendForms() accepts existingSentIds | localStorage for SENT_KEY removed; callers fetch DB state then pass it to sendForms() | 2026-04-17 |
 | Auth check before rate limit in chat route | Rate limit key is user-ID based (BUG-10); auth must complete first to have userProfile.id | 2026-04-17 |
+| vitest.config.ts imported @testing-library/react as plugin | Incorrect; replaced with @vitejs/plugin-react to enable JSX transforms in vitest | 2026-04-17 |
+| Invite validate endpoint has no auth check | Spouse may not have an account yet; token is the auth mechanism for pre-signup users | 2026-04-17 |
+| Accept button redirects to /login?invite_token= | auth/callback already handles viewerOfId assignment; no separate POST accept endpoint needed | 2026-04-17 |
 
 ### Active Blockers
 
@@ -91,11 +95,11 @@ None
 
 ## Session Continuity
 
-**Last action:** Completed 01-02-PLAN.md — DB persistence migrations, PDF storage, chat session, rate limiter upgrade (2026-04-17T18:16:25Z)
-**Next action:** Execute 01-03-PLAN.md
+**Last action:** Completed 01-04-PLAN.md — auth form color migration (trust CSS vars) + spouse invite acceptance page (2026-04-17T14:16:00Z)
+**Next action:** Phase 01 plans 01-04 complete
 
 ---
 
 ## Last Updated
 
-2026-04-17 — Executed 01-02: DB persistence for timeline, forms, chat session; PDF to Supabase Storage; abortSignal; user-ID rate limit
+2026-04-17 — Executed 01-04: auth form emerald→trust color migration; /invite/accept page (4 states); GET /api/invite/validate; @vitejs/plugin-react vitest fix

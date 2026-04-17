@@ -25,11 +25,11 @@
 
 ### Authentication
 
-- [ ] **AUTH-01**: User can sign up with email and password
-- [ ] **AUTH-02**: User can sign in with Google OAuth
+- [x] **AUTH-01**: User can sign up with email and password
+- [x] **AUTH-02**: User can sign in with Google OAuth
 - [ ] **AUTH-03**: User session persists across browser refresh
-- [ ] **AUTH-04**: Petitioner can invite beneficiary spouse via email link
-- [ ] **AUTH-05**: Invited spouse can accept invite and access shared case
+- [x] **AUTH-04**: Petitioner can invite beneficiary spouse via email link
+- [x] **AUTH-05**: Invited spouse can accept invite and access shared case
 
 ### Case Setup
 

@@ -4,7 +4,7 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 02
 status: verifying
-last_updated: "2026-04-17T22:35:12.400Z"
+last_updated: "2026-04-17T22:45:33.284Z"
 progress:
   total_phases: 4
   completed_phases: 2
@@ -46,7 +46,7 @@ Plan: 8 of 8
 | Status | Executing |
 | Progress | 1/4 plans complete in Phase 01 |
 
-**Progress bar:** [████████░░] 75%
+**Progress bar:** [██████████] 100%
 
 ---
 
@@ -71,7 +71,7 @@ Plan: 8 of 8
 | Phase 02 P05 | 10 | 2 tasks | 5 files |
 | Phase 02 P06 | 10 | 2 tasks | 5 files |
 | Phase 02 P07 | 15 | 2 tasks | 3 files |
-| Phase 02 P08 | 15 | 1 tasks | 3 files |
+| Phase 02 P08 | 15 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -94,6 +94,8 @@ Plan: 8 of 8
 | Accept button redirects to /login?invite_token= | auth/callback already handles viewerOfId assignment; no separate POST accept endpoint needed | 2026-04-17 |
 | UplDisclaimer placed on documentation-filling page | /chat/page.tsx redirects to /documentation-filling; disclaimer must live on the destination | 2026-04-17 |
 | FEES_2026 barrel export added to fee-schedule.ts | Pre-existing test expected grouped object; individual named exports remain canonical | 2026-04-17 |
+| Direct Prisma query in Server Component for chat history | Calling internal API routes from RSC is a Next.js anti-pattern; direct Prisma access is correct | 2026-04-17 |
+| DB messages converted to UIMessage parts format | @ai-sdk/react ChatInit.messages uses UIMessage[] not legacy {role,content}[]; auto-corrected | 2026-04-17 |
 
 ### Active Blockers
 
@@ -107,11 +109,11 @@ None
 
 ## Session Continuity
 
-**Last action:** Completed 01-03-PLAN.md — security guardrails, UPL disclaimer, MIME magic byte validation, edition locks, PDF cleanup (2026-04-17T18:36:00Z)
-**Next action:** Phase 01 complete — all 4 plans executed; ready for verification
+**Last action:** Completed 02-08-PLAN.md — chat history initialMessages wiring, Phase 02 Core Case Features fully complete (2026-04-17)
+**Next action:** Phase 02 complete — all 8 plans executed; human verification of full Phase 02 feature set deferred to end of project
 
 ---
 
 ## Last Updated
 
-2026-04-17 — Executed 01-03: getMagicMime utility, legal guardrail in systemPrompt, UplDisclaimer component, edition locks on 6 FormPacks, loadingTask.destroy() fix, FEES_2026 barrel export
+2026-04-17 — Executed 02-08: chat history initialMessages wiring (documentation-filling/page.tsx + chat-ui.tsx + chat-container.tsx); Phase 02 Core Case Features complete

@@ -6,6 +6,7 @@ import { getCurrentUserAndProfile } from "@/lib/current-user-profile";
 import { getMagicMime } from "@/lib/mime";
 import { prisma } from "@/lib/prisma";
 import { createClient } from "@/lib/supabase/server";
+import { DOCUMENT_TYPES } from "@/lib/document-types";
 
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 const ALLOWED_TYPES = new Set(["application/pdf", "image/jpeg", "image/png"]);
@@ -89,7 +90,16 @@ export async function POST(request: Request) {
   const supabase = await createClient();
 
   const safeName = sanitizeFilename(file.name);
-  const storagePath = `${context.user.id}/${stepSlug}/${Date.now()}-${safeName}`;
+  const docTypeRaw = String(formData.get("docType") ?? "").trim();
+  const isDocLibraryUpload =
+    stepSlug === "documents" &&
+    docTypeRaw !== "" &&
+    DOCUMENT_TYPES.some((d) => d.value === docTypeRaw);
+
+  // D-10: standalone document library uploads use a different path (no stepSlug)
+  const storagePath = isDocLibraryUpload
+    ? `uploads/${context.user.id}/${Date.now()}-${safeName}`
+    : `${context.user.id}/${stepSlug}/${Date.now()}-${safeName}`;
 
   const { error: uploadError } = await supabase.storage
     .from("user-documents")
@@ -103,6 +113,28 @@ export async function POST(request: Request) {
       { error: "Upload failed", details: uploadError.message },
       { status: 500 }
     );
+  }
+
+  // Document library upload: persist a Document record and return documentId
+  if (isDocLibraryUpload) {
+    const document = await prisma.document.create({
+      data: {
+        userProfileId: context.userProfile.id,
+        filename: file.name,
+        storagePath,
+        docType: docTypeRaw,
+        mimeType: magicMime,
+        sizeBytes: file.size,
+      },
+    });
+
+    const uploadedFile: UploadedFile = {
+      name: file.name,
+      path: storagePath,
+      uploadedAt: new Date().toISOString()
+    };
+
+    return NextResponse.json({ success: true, documentId: document.id, file: uploadedFile });
   }
 
   const existingStep = await prisma.caseStep.findUnique({

@@ -36,7 +36,7 @@
 - [x] **CASE-01**: User completes initial eligibility screener to determine if AOS applies
 - [x] **CASE-02**: Timeline steps shown/hidden based on entry type (lawful entry, overstay, EWI)
 - [x] **CASE-03**: Case status fields stored on profile (receipt numbers, priority date, case status)
-- [ ] **CASE-04**: Petitioner has write access to their own steps (I-130, spouse-info, marriage-details)
+- [x] **CASE-04**: Petitioner has write access to their own steps (I-130, spouse-info, marriage-details)
 
 ### Timeline & Checklist
 

@@ -72,14 +72,16 @@ Plans:
 - [x] 03-02-PLAN.md — Submission Packet page: AP warning, form download list, assembly checklist, USCIS lockbox link
 
 ### Phase 4: Interview Prep
-**Goal**: Both spouses feel prepared and organized for their USCIS interview
+**Goal**: Both spouses feel prepared for their USCIS interview — expanded question bank organized by category, role-differentiated tips, interactive what-to-bring checklist
 **Depends on**: Phase 3
 **Requirements**: INT-01, INT-02, INT-03, INT-04
 **Success Criteria** (what must be TRUE):
   1. A user can browse the full bank of common USCIS interview questions organized by category (relationship, personal history, forms)
   2. Both spouses can access a what-to-bring checklist for interview day
   3. Both spouses can read interview tips specific to their role
-**Plans**: TBD
+**Plans**: 1 plan
+Plans:
+- [ ] 04-01-PLAN.md — Interview Prep refactor and expansion: question bank constant, Server Component shell, client widget with category tabs, flashcard grid, checklist, and role-differentiated tips
 **UI hint**: yes
 
 ---
@@ -91,7 +93,7 @@ Plans:
 | 1. Foundation & Bug Fixes | 5/6 | In Progress|  |
 | 2. Core Case Features | 8/8 | Complete   | 2026-04-17 |
 | 3. Completion Tools | 2/2 | Complete   | 2026-04-17 |
-| 4. Interview Prep | 0/? | Not started | - |
+| 4. Interview Prep | 0/1 | Not started | - |
 
 ---
 
@@ -163,3 +165,4 @@ Plans:
 *Phase 1 gap closure: 2026-04-17 — 2 additional plans (01-05, 01-06) for 4 verification gaps*
 *Phase 2 planned: 2026-04-17 — 8 plans, 2 execution waves*
 *Phase 3 planned: 2026-04-17 — 2 plans, 1 execution wave (both Wave 1 parallel)*
+*Phase 4 planned: 2026-04-17 — 1 plan, 1 execution wave*

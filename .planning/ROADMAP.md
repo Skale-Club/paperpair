@@ -9,7 +9,7 @@
 - [x] **Phase 1: Foundation & Bug Fixes** — Stabilize the existing app: fix all P0 bugs, lock in DB persistence, auth flows, and timeline tracking (completed 2026-04-17)
 - [x] **Phase 2: Core Case Features** — Deliver the full guided experience: case setup, forms browser, AI chat, and document management (completed 2026-04-17)
 - [x] **Phase 3: Completion Tools** — Guide the user to the finish line: income calculator and submission packet assembly (completed 2026-04-17)
-- [ ] **Phase 4: Interview Prep** — Prepare both spouses for the USCIS interview
+- [x] **Phase 4: Interview Prep** — Prepare both spouses for the USCIS interview (completed 2026-04-18)
 
 ---
 
@@ -81,7 +81,7 @@ Plans:
   3. Both spouses can read interview tips specific to their role
 **Plans**: 1 plan
 Plans:
-- [ ] 04-01-PLAN.md — Interview Prep refactor and expansion: question bank constant, Server Component shell, client widget with category tabs, flashcard grid, checklist, and role-differentiated tips
+- [x] 04-01-PLAN.md — Interview Prep refactor and expansion: question bank constant, Server Component shell, client widget with category tabs, flashcard grid, checklist, and role-differentiated tips
 **UI hint**: yes
 
 ---
@@ -93,7 +93,7 @@ Plans:
 | 1. Foundation & Bug Fixes | 5/6 | In Progress|  |
 | 2. Core Case Features | 8/8 | Complete   | 2026-04-17 |
 | 3. Completion Tools | 2/2 | Complete   | 2026-04-17 |
-| 4. Interview Prep | 0/1 | Not started | - |
+| 4. Interview Prep | 1/1 | Complete   | 2026-04-18 |
 
 ---
 

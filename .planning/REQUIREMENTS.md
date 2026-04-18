@@ -86,10 +86,10 @@
 
 ### Interview Prep
 
-- [ ] **INT-01**: User can access a bank of common USCIS interview questions
-- [ ] **INT-02**: Questions are organized by category (relationship, personal history, forms)
-- [ ] **INT-03**: What-to-bring checklist for the interview day
-- [ ] **INT-04**: Interview tips for both spouses
+- [x] **INT-01**: User can access a bank of common USCIS interview questions
+- [x] **INT-02**: Questions are organized by category (relationship, personal history, forms)
+- [x] **INT-03**: What-to-bring checklist for the interview day
+- [x] **INT-04**: Interview tips for both spouses
 
 ---
 

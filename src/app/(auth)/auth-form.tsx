@@ -172,7 +172,7 @@ export default function AuthForm({
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-md border border-sand-300 bg-white px-3 py-2 text-sm text-foreground shadow-inner focus:border-emerald-500 focus:outline-none"
+            className="w-full rounded-md border border-sand-300 bg-white px-3 py-2 text-sm text-foreground shadow-inner focus:border-[var(--color-trust)] focus:outline-none"
           />
         </div>
 
@@ -191,14 +191,14 @@ export default function AuthForm({
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-md border border-sand-300 bg-white px-3 py-2 text-sm text-foreground shadow-inner focus:border-emerald-500 focus:outline-none"
+            className="w-full rounded-md border border-sand-300 bg-white px-3 py-2 text-sm text-foreground shadow-inner focus:border-[var(--color-trust)] focus:outline-none"
           />
         </div>
 
         <button
           type="submit"
           disabled={formLoading}
-          className="flex w-full items-center justify-center rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60"
+          className="flex w-full items-center justify-center rounded-md bg-[var(--color-trust)] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
         >
           {formLoading ? "Working..." : submitLabel}
         </button>
@@ -235,7 +235,7 @@ export default function AuthForm({
 
       {showSwitchLink && (
         <p className="mt-4 text-sm text-foreground/80">
-          <Link href={switchLink.href} className="text-emerald-700 underline">
+          <Link href={switchLink.href} className="text-[var(--color-trust)] underline">
             {switchLink.text}
           </Link>
         </p>

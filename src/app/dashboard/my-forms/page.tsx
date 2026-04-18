@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   FORM_PACKS,
-  getSentForms,
   getVisitedPacks,
   getPendingForms,
   type FormItem,
@@ -12,6 +11,7 @@ import {
 } from "@/lib/form-packs";
 import { PdfViewer } from "@/components/pdf-viewer";
 import { PdfPreview } from "@/components/pdf-preview";
+import { UplDisclaimer } from "@/components/upl-disclaimer";
 
 type SelectedFormWithPack = { form: FormItem; pack: FormPack };
 
@@ -46,6 +46,11 @@ function PackCard({
           </svg>
         </div>
       )}
+      {new Date() > pack.lockedUntil && (
+        <div className="absolute bottom-2 left-2 right-2 rounded border border-amber-200 bg-amber-50 px-2 py-1 text-[10px] text-amber-800">
+          Check USCIS.gov — only the current edition is accepted.
+        </div>
+      )}
     </button>
   );
 }
@@ -61,17 +66,25 @@ export default function MyFormsPage() {
   const [activeFormId, setActiveFormId] = useState<string | null>(null);
 
   useEffect(() => {
-    const sentIds = getSentForms();
-    const result: SelectedFormWithPack[] = [];
-    for (const pack of FORM_PACKS) {
-      for (const form of pack.forms) {
-        if (sentIds.includes(form.id)) result.push({ form, pack });
-      }
-    }
-    setForms(result);
-    setVisitedPacks(getVisitedPacks());
-    setPendingForms(getPendingForms());
-    setLoaded(true);
+    // Load persisted form IDs from DB
+    fetch("/api/dashboard/selected-forms")
+      .then(res => res.ok ? res.json() as Promise<{ formIds: string[] }> : null)
+      .then(data => {
+        const sentIds = data?.formIds ?? [];
+        const result: SelectedFormWithPack[] = [];
+        for (const pack of FORM_PACKS) {
+          for (const form of pack.forms) {
+            if (sentIds.includes(form.id)) result.push({ form, pack });
+          }
+        }
+        setForms(result);
+        setVisitedPacks(getVisitedPacks());
+        setPendingForms(getPendingForms());
+        setLoaded(true);
+      })
+      .catch(() => {
+        setLoaded(true);
+      });
   }, []);
 
   if (!loaded) return null;
@@ -153,9 +166,12 @@ export default function MyFormsPage() {
           /* Browse packs */
           <div className="rounded-2xl border border-slate-200 bg-white p-6">
             <h2 className="mb-1 text-lg font-bold text-slate-900">Browse Form Packages</h2>
-            <p className="mb-6 text-sm text-slate-500">
+            <p className="mb-4 text-sm text-slate-500">
               Select a package to review and add forms to your case.
             </p>
+            <div className="mb-6">
+              <UplDisclaimer />
+            </div>
             <div className="grid grid-cols-3 gap-4">
               {FORM_PACKS.map(pack => (
                 <PackCard

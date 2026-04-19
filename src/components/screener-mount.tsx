@@ -2,6 +2,10 @@
 
 import { InitialScreener } from "./initial-screener";
 
-export function ScreenerMount() {
-  return <InitialScreener />;
+type ScreenerMountProps = {
+  initialData?: Record<string, unknown>;
+};
+
+export function ScreenerMount({ initialData }: ScreenerMountProps) {
+  return <InitialScreener initialData={initialData} />;
 }

@@ -1,22 +1,10 @@
-import { prisma } from "@/lib/prisma";
-import { defaultPages } from "@/lib/cms";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-
-export const dynamic = "force-dynamic";
+import { getPublicCmsPages } from "@/lib/public-content-data";
 
 export default async function ContactPage() {
-  let page;
-  try {
-    page =
-      (await prisma.pageContent.findUnique({ where: { slug: "contato" } })) ?? {
-        slug: "contato",
-        ...defaultPages.contato
-      };
-  } catch {
-    page = { slug: "contato", ...defaultPages.contato };
-  }
+  const { contato: page } = await getPublicCmsPages();
 
   return (
     <section className="space-y-6 rounded-xl border border-sand-200 bg-white p-8 shadow-sm">

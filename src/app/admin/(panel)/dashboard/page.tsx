@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
 import { DASHBOARD_STEPS } from "@/lib/dashboard-steps";
+import { getAdminUsersWithCaseSteps } from "@/lib/admin-data";
 
 type DerivedStatus = "In Progress" | "Ready for Review" | "Filed";
 
@@ -26,16 +26,7 @@ function lastActivityAt(
 }
 
 export default async function AdminDashboardPage() {
-  let users;
-  try {
-    users = await prisma.userProfile.findMany({
-      where: { role: "USER" },
-      include: { caseSteps: true },
-      orderBy: { createdAt: "desc" }
-    });
-  } catch {
-    users = [] as Awaited<ReturnType<typeof prisma.userProfile.findMany<{ include: { caseSteps: true } }>>>;
-  }
+  const users = await getAdminUsersWithCaseSteps();
 
   const now = new Date();
   const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);

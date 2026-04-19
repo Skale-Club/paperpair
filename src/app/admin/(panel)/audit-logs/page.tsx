@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { getAdminAuditLogs } from "@/lib/admin-data";
 
 type LogEntry = {
   id: string;
@@ -9,36 +9,7 @@ type LogEntry = {
 };
 
 export default async function AuditLogsPage() {
-  const [steps, templates] = await Promise.all([
-    prisma.caseStep.findMany({
-      include: {
-        userProfile: true
-      },
-      orderBy: { updatedAt: "desc" },
-      take: 25
-    }),
-    prisma.documentTemplate.findMany({
-      orderBy: { updatedAt: "desc" },
-      take: 15
-    })
-  ]);
-
-  const logs: LogEntry[] = [
-    ...steps.map((step) => ({
-      id: `step-${step.id}`,
-      at: step.updatedAt,
-      actor: step.userProfile?.fullName || "User",
-      scope: "case" as const,
-      message: `Case step "${step.stepSlug}" marked ${step.status.toLowerCase()}.`
-    })),
-    ...templates.map((doc) => ({
-      id: `doc-${doc.id}`,
-      at: doc.updatedAt,
-      actor: "Admin",
-      scope: "template" as const,
-      message: `Template ${doc.key} updated (${doc.name}).`
-    }))
-  ].sort((a, b) => b.at.getTime() - a.at.getTime());
+  const logs: LogEntry[] = await getAdminAuditLogs();
 
   return (
     <section className="space-y-5">

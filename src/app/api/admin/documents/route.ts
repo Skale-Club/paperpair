@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { mkdir, writeFile, readFile } from "node:fs/promises";
 import path from "node:path";
 import { prisma } from "@/lib/prisma";
@@ -149,6 +150,9 @@ export async function POST(request: Request) {
       filePath: relativePath
     }
   });
+
+  revalidateTag("admin-documents");
+  revalidateTag("admin-audit");
 
   const documents = await prisma.documentTemplate.findMany({
     orderBy: { updatedAt: "desc" }

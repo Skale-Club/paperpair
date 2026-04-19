@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { isAdminSession } from "@/lib/admin";
@@ -40,6 +41,9 @@ export async function POST(request: NextRequest) {
       content: parsed.data.content
     }
   });
+
+  revalidateTag("admin-cms");
+  revalidateTag("public-cms");
 
   return NextResponse.json({ page });
 }

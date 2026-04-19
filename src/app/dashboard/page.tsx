@@ -37,7 +37,21 @@ export default async function DashboardHomePage() {
     const immigrationStep = caseSteps.find((s: { stepSlug: string }) => s.stepSlug === "immigration-info");
     const immigrationData = asStepData(immigrationStep?.data);
     // Viewers never see the screener
-    const showScreener = !isViewer && (!immigrationData.entryType || !immigrationData.spouseName || !immigrationData.spouseEmail);
+    const showScreener =
+        !isViewer &&
+        (
+            !immigrationData.fullName ||
+            !immigrationData.spouseName ||
+            !immigrationData.spouseEmail ||
+            !immigrationData.birthCity ||
+            !immigrationData.birthState ||
+            !immigrationData.birthCountry ||
+            !immigrationData.spouseBirthCity ||
+            !immigrationData.spouseBirthState ||
+            !immigrationData.spouseBirthCountry ||
+            !immigrationData.filingReason ||
+            !immigrationData.entryType
+        );
 
     const profileFullName = immigrationData.fullName as string | undefined;
     const profileEmail = immigrationData.email as string | undefined;
@@ -57,7 +71,7 @@ export default async function DashboardHomePage() {
 
     return (
         <div className="space-y-8">
-            {showScreener && <ScreenerMount />}
+            {showScreener && <ScreenerMount initialData={immigrationData} />}
             {!showScreener && profileEntryType === "ewi" && <EwiWarning />}
             <UplDisclaimer />
             {/* Viewer banner */}

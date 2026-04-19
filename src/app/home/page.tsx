@@ -1,20 +1,8 @@
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
-import { defaultPages } from "@/lib/cms";
-
-export const dynamic = "force-dynamic";
+import { getPublicCmsPages } from "@/lib/public-content-data";
 
 export default async function HomePage() {
-  let page: { slug: string; title: string; content: string };
-  try {
-    page =
-      (await prisma.pageContent.findUnique({ where: { slug: "home" } })) ?? {
-        slug: "home",
-        ...defaultPages.home
-      };
-  } catch {
-    page = { slug: "home", ...defaultPages.home };
-  }
+  const { home: page } = await getPublicCmsPages();
 
   return (
     <section className="relative overflow-hidden rounded-[28px] border border-primary/50 bg-primary/70 px-5 py-6 text-white md:px-10 md:py-10">

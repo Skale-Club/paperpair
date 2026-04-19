@@ -1,6 +1,6 @@
-import { prisma } from "@/lib/prisma";
 import { DASHBOARD_STEPS } from "@/lib/dashboard-steps";
 import { AdminUsersTable, type UiUser, type DerivedStatus } from "@/components/admin-users-table";
+import { getAdminUsersWithCaseSteps } from "@/lib/admin-data";
 
 function deriveStatus(caseSteps: { stepSlug: string; status: string }[]): DerivedStatus {
   const total = DASHBOARD_STEPS.length;
@@ -24,16 +24,7 @@ function lastActivityAt(
 }
 
 export default async function AdminUsersPage() {
-  let users: Awaited<ReturnType<typeof prisma.userProfile.findMany<{ include: { caseSteps: true } }>>>;
-  try {
-    users = await prisma.userProfile.findMany({
-      where: { role: "USER" },
-      include: { caseSteps: true },
-      orderBy: { createdAt: "desc" }
-    });
-  } catch {
-    users = [];
-  }
+  const users = await getAdminUsersWithCaseSteps();
 
   const uiUsers: UiUser[] = users.map((user) => {
     const status = deriveStatus(user.caseSteps);

@@ -48,8 +48,15 @@ export async function POST(request: Request) {
     },
   });
 
-  // Send invite email via Supabase admin
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://paperpaired.vercel.app";
+  // Resolve site URL with automatic domain discovery so the app works on any
+  // domain without code changes:
+  //   1. NEXT_PUBLIC_SITE_URL (explicit override)
+  //   2. VERCEL_PROJECT_PRODUCTION_URL (auto-populated by Vercel — canonical prod domain)
+  //   3. request origin (local dev, preview builds)
+  const vercelProdUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL;
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    (vercelProdUrl ? `https://${vercelProdUrl}` : new URL(request.url).origin);
   const supabaseAdmin = createAdminClient();
 
   const { error } = await supabaseAdmin.auth.admin.inviteUserByEmail(spouseEmail, {

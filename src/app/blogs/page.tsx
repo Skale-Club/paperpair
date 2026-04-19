@@ -1,38 +1,10 @@
-import { BLOG_POST_PREFIX, defaultPages } from "@/lib/cms";
-import { prisma } from "@/lib/prisma";
-
-export const dynamic = "force-dynamic";
+import { getPublicBlogPosts, getPublicCmsPages } from "@/lib/public-content-data";
 
 export default async function BlogsPage() {
-  let page: { slug: string; title: string; content: string } = {
-    slug: "blogs",
-    ...defaultPages.blogs
-  };
-  let posts: { id: string; title: string; content: string; updatedAt: Date }[] = [];
-
-  try {
-    const [pageRecord, postRecords] = await Promise.all([
-      prisma.pageContent.findUnique({ where: { slug: "blogs" } }),
-      prisma.pageContent.findMany({
-        where: {
-          slug: {
-            startsWith: BLOG_POST_PREFIX
-          }
-        },
-        orderBy: {
-          updatedAt: "desc"
-        }
-      })
-    ]);
-
-    if (pageRecord) {
-      page = pageRecord;
-    }
-
-    posts = postRecords;
-  } catch {
-    posts = [];
-  }
+  const [{ blogs: page }, posts] = await Promise.all([
+    getPublicCmsPages(),
+    getPublicBlogPosts()
+  ]);
 
   return (
     <section className="space-y-8">

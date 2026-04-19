@@ -19,6 +19,110 @@ function getStringMetadata(user: User, key: string): string | null {
   return typeof value === "string" && value.trim().length > 0 ? value : null;
 }
 
+function getProfileSyncData(user: UserWithEmail) {
+  return {
+    email: user.email,
+    fullName: getStringMetadata(user, "full_name"),
+    avatarUrl: getStringMetadata(user, "avatar_url"),
+    role: getRoleFromUser(user)
+  };
+}
+
+function getProfileUpdateData(
+  current: {
+    email: string;
+    fullName: string | null;
+    avatarUrl: string | null;
+    role: Role;
+  },
+  next: ReturnType<typeof getProfileSyncData>
+): Prisma.UserProfileUpdateInput {
+  const updateData: Prisma.UserProfileUpdateInput = {};
+
+  if (current.email !== next.email) {
+    updateData.email = next.email;
+  }
+
+  if (current.fullName !== next.fullName) {
+    updateData.fullName = next.fullName;
+  }
+
+  if (current.avatarUrl !== next.avatarUrl) {
+    updateData.avatarUrl = next.avatarUrl;
+  }
+
+  if (current.role !== next.role) {
+    updateData.role = next.role;
+  }
+
+  return updateData;
+}
+
+async function findOrSyncUserProfile(user: UserWithEmail) {
+  const nextProfile = getProfileSyncData(user);
+
+  const currentProfile = await prisma.userProfile.findUnique({
+    where: { authId: user.id }
+  });
+
+  if (!currentProfile) {
+    return prisma.userProfile.create({
+      data: {
+        authId: user.id,
+        ...nextProfile
+      }
+    });
+  }
+
+  const updateData = getProfileUpdateData(currentProfile, nextProfile);
+
+  if (Object.keys(updateData).length === 0) {
+    return currentProfile;
+  }
+
+  return prisma.userProfile.update({
+    where: { id: currentProfile.id },
+    data: updateData
+  });
+}
+
+async function findOrSyncUserProfileWithCaseSteps(user: UserWithEmail) {
+  const nextProfile = getProfileSyncData(user);
+
+  const currentProfile = await prisma.userProfile.findUnique({
+    where: { authId: user.id },
+    include: {
+      caseSteps: true
+    }
+  });
+
+  if (!currentProfile) {
+    return prisma.userProfile.create({
+      data: {
+        authId: user.id,
+        ...nextProfile
+      },
+      include: {
+        caseSteps: true
+      }
+    });
+  }
+
+  const updateData = getProfileUpdateData(currentProfile, nextProfile);
+
+  if (Object.keys(updateData).length === 0) {
+    return currentProfile;
+  }
+
+  return prisma.userProfile.update({
+    where: { id: currentProfile.id },
+    data: updateData,
+    include: {
+      caseSteps: true
+    }
+  });
+}
+
 async function getCurrentUser(): Promise<UserWithEmail | null> {
   const supabase = await createClient();
   const {
@@ -39,29 +143,12 @@ export async function getCurrentUserAndProfile() {
     return null;
   }
 
-  let userProfile;
   try {
-    userProfile = await prisma.userProfile.upsert({
-      where: { authId: user.id },
-      create: {
-        authId: user.id,
-        email: user.email,
-        fullName: getStringMetadata(user, "full_name"),
-        avatarUrl: getStringMetadata(user, "avatar_url"),
-        role: getRoleFromUser(user)
-      },
-      update: {
-        email: user.email,
-        fullName: getStringMetadata(user, "full_name"),
-        avatarUrl: getStringMetadata(user, "avatar_url"),
-        role: getRoleFromUser(user)
-      }
-    });
+    const userProfile = await findOrSyncUserProfile(user);
+    return { user, userProfile };
   } catch {
     return null;
   }
-
-  return { user, userProfile };
 }
 
 export async function getCurrentUserAndProfileWithViewerSupport() {
@@ -94,30 +181,10 @@ export async function getCurrentUserAndProfileWithCaseSteps(): Promise<
     return null;
   }
 
-  let userProfile;
   try {
-    userProfile = await prisma.userProfile.upsert({
-      where: { authId: user.id },
-      create: {
-        authId: user.id,
-        email: user.email,
-        fullName: getStringMetadata(user, "full_name"),
-        avatarUrl: getStringMetadata(user, "avatar_url"),
-        role: getRoleFromUser(user)
-      },
-      update: {
-        email: user.email,
-        fullName: getStringMetadata(user, "full_name"),
-        avatarUrl: getStringMetadata(user, "avatar_url"),
-        role: getRoleFromUser(user)
-      },
-      include: {
-        caseSteps: true
-      }
-    });
+    const userProfile = await findOrSyncUserProfileWithCaseSteps(user);
+    return { user, userProfile };
   } catch {
     return null;
   }
-
-  return { user, userProfile };
 }

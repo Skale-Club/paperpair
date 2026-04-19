@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "rm -rf .next && next dev --port 6778",
+    "dev": "node -e \"require('fs').rmSync('.next', { recursive: true, force: true })\" && next dev --port 6778",
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",

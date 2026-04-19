@@ -1,32 +1,11 @@
 import { AdminBlogEditor } from "@/components/admin-blog-editor";
-import { BLOG_POST_PREFIX, fromBlogSlug } from "@/lib/cms";
-import { prisma } from "@/lib/prisma";
+import { fromBlogSlug } from "@/lib/cms";
+import { getAdminBlogPosts } from "@/lib/admin-data";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminBlogsPage() {
-  let posts: Array<{
-    id: string;
-    slug: string;
-    title: string;
-    content: string;
-    updatedAt: Date;
-  }> = [];
-
-  try {
-    posts = await prisma.pageContent.findMany({
-      where: {
-        slug: {
-          startsWith: BLOG_POST_PREFIX
-        }
-      },
-      orderBy: {
-        updatedAt: "desc"
-      }
-    });
-  } catch {
-    posts = [];
-  }
+  const posts = await getAdminBlogPosts();
 
   const initialPosts = posts.map((post) => ({
     id: post.id,

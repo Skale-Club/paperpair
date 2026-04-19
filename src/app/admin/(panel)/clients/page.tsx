@@ -1,21 +1,12 @@
 import Image from "next/image";
 
-import { prisma } from "@/lib/prisma";
 import { DASHBOARD_STEPS } from "@/lib/dashboard-steps";
+import { getAdminUsersWithCaseSteps } from "@/lib/admin-data";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminClientsPage() {
-  let clients: Awaited<ReturnType<typeof prisma.userProfile.findMany<{ include: { caseSteps: true } }>>>;
-  try {
-    clients = await prisma.userProfile.findMany({
-      where: { role: "USER" },
-      include: { caseSteps: true },
-      orderBy: { createdAt: "desc" }
-    });
-  } catch {
-    clients = [];
-  }
+  const clients = await getAdminUsersWithCaseSteps();
 
   return (
     <section className="space-y-6">

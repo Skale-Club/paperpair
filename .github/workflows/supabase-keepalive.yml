@@ -1,0 +1,58 @@
+name: supabase-keepalive
+
+on:
+  schedule:
+    # Runs Monday and Thursday at 08:00 UTC — always within 7 days, keeps Supabase free tier active
+    - cron: "0 8 * * 1"
+    - cron: "0 8 * * 4"
+  workflow_dispatch: # allow manual trigger from GitHub UI
+
+jobs:
+  keepalive:
+    name: Ping Supabase
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Ping keepalive endpoint (with retries)
+        env:
+          KEEPALIVE_URL: ${{ secrets.KEEPALIVE_URL }}
+          KEEPALIVE_SECRET: ${{ secrets.KEEPALIVE_SECRET }}
+        run: |
+          MAX_RETRIES=3
+          DELAY=30
+          ATTEMPT=0
+
+          until [ $ATTEMPT -ge $MAX_RETRIES ]; do
+            ATTEMPT=$((ATTEMPT + 1))
+            echo "Attempt $ATTEMPT / $MAX_RETRIES..."
+
+            RESPONSE=$(curl --silent --max-time 20 --write-out "\n%{http_code}" \
+              -H "Authorization: Bearer $KEEPALIVE_SECRET" \
+              "$KEEPALIVE_URL/api/keepalive")
+
+            HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+            BODY=$(echo "$RESPONSE" | sed '$d')
+
+            echo "HTTP $HTTP_CODE"
+            echo "$BODY" | python3 -m json.tool 2>/dev/null || echo "$BODY"
+
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "All checks passed."
+              exit 0
+            fi
+
+            if [ $ATTEMPT -lt $MAX_RETRIES ]; then
+              echo "Check failed. Retrying in ${DELAY}s..."
+              sleep $DELAY
+              DELAY=$((DELAY * 2))
+            fi
+          done
+
+          echo "All $MAX_RETRIES attempts failed. Supabase may be down or paused."
+          exit 1
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "::error::Keepalive failed after all retries. Check https://status.supabase.com and the app logs."

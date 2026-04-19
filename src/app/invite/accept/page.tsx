@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 type InviteStatus =
@@ -11,6 +11,14 @@ type InviteStatus =
   | { state: "invalid" };
 
 export default function InviteAcceptPage() {
+  return (
+    <Suspense fallback={null}>
+      <InviteAcceptContent />
+    </Suspense>
+  );
+}
+
+function InviteAcceptContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");

@@ -234,7 +234,7 @@ function SectionMedicalExamComplete() {
                 Attend your Civil Surgeon appointment with your passport and vaccination records. The doctor will perform
                 the required exams and may schedule a follow-up visit (e.g., to read a TB skin test). When finished,
                 you receive a sealed envelope containing Form I-693 — store it safely until packet assembly.
-                The I-693 is valid for 2 years from the doctor's signature date.
+                The I-693 is valid for 2 years from the doctor&apos;s signature date.
             </p>
         </div>
     );
@@ -268,7 +268,7 @@ function SectionFormI130A() {
             <p className="text-sm text-slate-600">
                 Form I-130A is completed by the beneficiary (the immigrant spouse) and filed together with I-130.
                 It requires a full 5-year residential and employment history with no gaps. If there are gaps,
-                explain them (e.g., "unemployed" or "between addresses") — never leave unexplained blank periods.
+                explain them (e.g., &quot;unemployed&quot; or &quot;between addresses&quot;) — never leave unexplained blank periods.
             </p>
             <ActionLink href="/dashboard/forms">Open Forms Page</ActionLink>
         </div>
@@ -287,7 +287,7 @@ function SectionFormI485() {
                 Misrepresentation is grounds for permanent inadmissibility.
             </Warning>
             <p className="text-sm text-slate-600">
-                I-485 is the primary application for changing the beneficiary's status to Lawful Permanent Resident.
+                I-485 is the primary application for changing the beneficiary&apos;s status to Lawful Permanent Resident.
                 It is a long form — read every question carefully and answer N/A if something does not apply.
                 The filing fee ($1,440) covers biometrics and is non-refundable.
             </p>
@@ -304,7 +304,7 @@ function SectionFormI864() {
                 <p className="mt-1 text-sm text-slate-500">Phase 2: Application — The petitioner pledges financial responsibility for the beneficiary.</p>
             </div>
             <Tip>
-                If the petitioner's income alone does not reach 125% of the federal poverty guideline,
+                If the petitioner&apos;s income alone does not reach 125% of the federal poverty guideline,
                 a joint sponsor can file a separate I-864 using their own income — independently, not combined.
                 Check the current threshold at uscis.gov/i-864p.
             </Tip>

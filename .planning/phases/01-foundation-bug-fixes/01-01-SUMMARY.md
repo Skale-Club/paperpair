@@ -112,7 +112,7 @@ None — migration SQL is generated. To apply to the live database, run:
 ```
 npx prisma migrate deploy
 ```
-Or manually execute `/c/Users/Vanildo/Dev/paperpair/.claude/worktrees/agent-ab9f7d93/prisma/migrations/20260417000000_add_chat_session_messages/migration.sql` against the Supabase PostgreSQL instance.
+Or manually execute `./.claude/worktrees/agent-ab9f7d93/prisma/migrations/20260417000000_add_chat_session_messages/migration.sql` against the Supabase PostgreSQL instance.
 
 ## Known Stubs
 None — this plan added schema and a utility export; no UI rendering components were modified.

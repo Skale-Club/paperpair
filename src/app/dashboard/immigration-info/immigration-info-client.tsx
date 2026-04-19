@@ -105,7 +105,7 @@ export function ImmigrationInfoForm({ existingData }: ImmigrationInfoFormProps) 
           type="text"
           value={receiptNumber}
           onChange={(e) => setReceiptNumber(e.target.value)}
-          placeholder="e.g. IOE0123456789"
+          placeholder="e.g. IOE#########"
           className={inputClass}
           autoComplete="off"
         />
@@ -125,7 +125,7 @@ export function ImmigrationInfoForm({ existingData }: ImmigrationInfoFormProps) 
           type="text"
           value={i130ReceiptNumber}
           onChange={(e) => setI130ReceiptNumber(e.target.value)}
-          placeholder="e.g. LIN2312345678"
+          placeholder="e.g. LIN#########"
           className={inputClass}
           autoComplete="off"
         />

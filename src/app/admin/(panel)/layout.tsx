@@ -15,7 +15,7 @@ export default function AdminPanelLayout({ children }: { children: React.ReactNo
         </div>
       </header>
 
-      <div className="grid gap-5 md:grid-[auto_1fr] flex-1">
+      <div className="grid gap-5 md:grid-cols-[auto_1fr] flex-1">
         <AdminSidebar />
         <div className="rounded-2xl border border-sand-200 bg-white p-4 md:p-6 shadow-sm min-w-0">
           {children}

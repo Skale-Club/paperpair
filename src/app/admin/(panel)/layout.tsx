@@ -11,7 +11,7 @@ export default function AdminPanelLayout({ children }: { children: React.ReactNo
             <p className="text-xs font-semibold uppercase tracking-[0.18em] opacity-80">Skale Admin</p>
             <h1 className="text-xl font-semibold">Control Center</h1>
           </div>
-          <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold">Admin view</span>
+          <span className="rounded-full bg-white/25 px-3 py-1 text-xs font-semibold text-white ring-1 ring-white/40">Admin view</span>
         </div>
       </header>
 

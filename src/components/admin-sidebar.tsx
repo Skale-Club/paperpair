@@ -133,7 +133,7 @@ export function AdminSidebar() {
 
         <div className="mt-auto border-t border-slate-700/50 pt-4">
           <LogoutButton
-            className={`justify-center w-full transition-all duration-200 ${pathname === "/login" /* fallback */ ? "bg-red-500/20 text-red-200 hover:bg-red-500/30" : "bg-white/5 text-slate-300 hover:bg-white/10"
+            className={`justify-center w-full transition-all duration-200 border-transparent ${pathname === "/login" /* fallback */ ? "bg-red-500/30 text-red-100 hover:bg-red-500/40" : "bg-white/15 text-white hover:bg-white/25"
               } rounded-xl py-2.5 text-sm font-semibold flex items-center gap-2`}
           >
             {collapsed ? (

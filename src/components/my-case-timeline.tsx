@@ -746,7 +746,7 @@ export function MyCaseTimeline() {
 
                 {/* sidebar nav */}
                 <nav className={`space-y-4 ${mobileNavOpen ? "block" : "hidden"} lg:block`}>
-                    <p className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Timeline</p>
+                    <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Timeline</p>
                     {PHASES.map((phase, i) => {
                         const isExpanded = !!expandedPhases[phase.id];
                         const isDone = !!completed.phases[phase.id];
@@ -760,16 +760,16 @@ export function MyCaseTimeline() {
 
                                 <button
                                     onClick={() => handlePhaseClick(phase.id)}
-                                    className={`relative flex w-full items-start gap-3 rounded-xl px-3 py-3 text-left transition-all ${isExpanded
-                                        ? "bg-white shadow-sm ring-1 ring-slate-200"
-                                        : "hover:bg-slate-50"
+                                    className={`relative flex w-full items-start gap-3 rounded-xl px-4 py-3 text-left transition-all ${isExpanded
+                                        ? "bg-white shadow-md ring-1 ring-slate-200"
+                                        : "hover:bg-white/60"
                                         }`}
                                 >
                                     <div className={`relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors ${isDone
-                                        ? "bg-slate-200 text-slate-700"
+                                        ? "bg-olive-100 text-olive-800"
                                         : isExpanded
-                                            ? "bg-slate-900 text-white"
-                                            : "bg-slate-100 text-slate-500"
+                                            ? "bg-slate-900 text-white shadow-lg shadow-slate-900/20"
+                                            : "bg-white border border-slate-200 text-slate-600 shadow-sm"
                                         }`}>
                                         {isDone ? <CheckIcon /> : phase.icon}
                                     </div>
@@ -784,12 +784,12 @@ export function MyCaseTimeline() {
                                                 </span>
                                             )}
                                         </div>
-                                        <p className="text-xs text-slate-500 truncate">{phase.subtitle}</p>
+                                        <p className="text-xs text-slate-600 truncate font-medium opacity-80">{phase.subtitle}</p>
                                     </div>
                                 </button>
 
                                 {isExpanded && (
-                                    <div className="relative ml-[56px] mb-3 pr-2 flex flex-col gap-2">
+                                    <div className="relative ml-[56px] mt-2 mb-3 pr-2 flex flex-col gap-2">
                                         {phase.sections.map((section, idx) => {
                                             const isActive = activeSection === section.id;
                                             const isDoneSection = !!(completed.sections[phase.id]?.[section.id]);
@@ -802,23 +802,23 @@ export function MyCaseTimeline() {
 
                                             return (
                                                 <div key={section.id} className="relative">
-                                                    <div className="absolute left-[-25px] top-0 h-1/2 w-[2px] bg-slate-200" aria-hidden />
-                                                    {!isLastSection && <div className="absolute left-[-25px] top-1/2 bottom-[-10px] w-[2px] bg-slate-200" aria-hidden />}
-                                                    <div className="absolute left-[-25px] top-1/2 w-[25px] h-[2px] -translate-y-1/2 bg-slate-200" aria-hidden />
+                                                    <div className="absolute left-[-25px] top-0 h-1/2 w-[2px] bg-slate-300/50" aria-hidden />
+                                                    {!isLastSection && <div className="absolute left-[-25px] top-1/2 bottom-[-10px] w-[2px] bg-slate-300/50" aria-hidden />}
+                                                    <div className="absolute left-[-25px] top-1/2 w-[25px] h-[2px] -translate-y-1/2 bg-slate-300/50" aria-hidden />
 
                                                     <button
                                                         onClick={() => handleSectionClick(phase.id, section.id)}
-                                                        className={`relative w-full text-left rounded-lg border px-3 py-2 text-xs transition-colors flex items-center justify-between ${isActive
-                                                            ? "border-slate-300 bg-white font-semibold text-slate-900 shadow-sm"
-                                                            : "border-slate-200 bg-slate-50 text-slate-500 hover:bg-white hover:text-slate-700"
+                                                        className={`relative w-full text-left rounded-lg border px-3 py-2 text-[11px] transition-all flex items-center justify-between ${isActive
+                                                            ? "border-slate-300 bg-white font-bold text-slate-900 shadow-sm scale-[1.02]"
+                                                            : "border-slate-200 bg-white/40 text-slate-600 hover:bg-white hover:text-slate-900 hover:shadow-sm hover:border-slate-300"
                                                             }`}
                                                     >
                                                         <span className="flex items-center gap-2">
                                                             <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-colors ${isDoneSection
-                                                                ? "border-slate-400 bg-slate-100 text-slate-700"
+                                                                ? "border-olive-400 bg-olive-50 text-olive-700"
                                                                 : hasPartialProgress
-                                                                    ? "border-slate-400 bg-slate-50"
-                                                                    : "border-slate-300 bg-white text-slate-300"
+                                                                    ? "border-olive-300 bg-white"
+                                                                    : "border-slate-300 bg-white text-slate-200"
                                                                 }`}>
                                                                 {isDoneSection ? <CheckIcon className="h-3 w-3" /> : null}
                                                             </span>

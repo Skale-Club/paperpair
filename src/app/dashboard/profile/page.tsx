@@ -122,11 +122,14 @@ export default function ProfileSettingsPage() {
     const initials = (profile?.fullName ?? profile?.email ?? "?").charAt(0).toUpperCase();
 
     return (
-        <div className="max-w-2xl space-y-6">
+        <div className="space-y-6">
             {/* Header */}
-            <div>
+            <div className="mb-6">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">My Case</p>
                 <h1 className="text-2xl font-bold text-slate-900">Profile Settings</h1>
-                <p className="mt-1 text-sm text-slate-500">Manage your personal information and account security.</p>
+                <p className="mt-1 text-sm text-slate-600 truncate">
+                    Manage your personal information and account security.
+                </p>
             </div>
 
             {/* Avatar + email (read-only) */}

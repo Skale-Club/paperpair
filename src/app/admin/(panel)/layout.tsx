@@ -2,22 +2,24 @@ import { AdminSidebar } from "@/components/admin-sidebar";
 
 export default function AdminPanelLayout({ children }: { children: React.ReactNode }) {
   return (
-    <section className="space-y-4">
-      <header className="rounded-2xl bg-gradient-to-r from-navy via-blue-700 to-sand-500 px-5 py-4 text-white shadow-md">
-        <div className="flex items-center justify-between gap-3">
+    <section className="flex h-screen flex-col overflow-hidden" style={{ background: "var(--color-bg)" }}>
+      <header className="z-30 px-6 py-3 shadow-sm" style={{ background: "var(--color-trust)" }}>
+        <div className="flex items-center justify-between gap-3 text-white">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] opacity-80">Skale Admin</p>
-            <h1 className="text-xl font-semibold">Control Center</h1>
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/70">Admin Suite</p>
+            <h1 className="text-base font-bold tracking-tight">Management Suite</h1>
           </div>
-          <span className="rounded-full bg-white/25 px-3 py-1 text-xs font-semibold text-white ring-1 ring-white/40">Admin view</span>
+          <span className="rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white ring-1 ring-white/20">
+            Authorized Admin
+          </span>
         </div>
       </header>
 
-      <div className="grid gap-5 md:grid-cols-[auto_1fr] flex-1">
+      <div className="flex flex-1 overflow-hidden">
         <AdminSidebar />
-        <div className="rounded-2xl border border-sand-200 bg-white p-4 md:p-6 shadow-sm min-w-0">
+        <main className="flex-1 overflow-auto p-6">
           {children}
-        </div>
+        </main>
       </div>
     </section>
   );

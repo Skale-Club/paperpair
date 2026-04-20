@@ -5,7 +5,7 @@ import {
 import { NextResponse } from "next/server";
 
 function getHostParts(request: Request) {
-  const host = request.headers.get("host") ?? "localhost:3000";
+  const host = request.headers.get("host") ?? "localhost:6778";
   const proto = request.headers.get("x-forwarded-proto") ?? "https";
   const origin = `${proto}://${host}`;
   const rpID = host.split(":")[0];

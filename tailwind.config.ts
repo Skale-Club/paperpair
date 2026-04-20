@@ -53,6 +53,11 @@ const config: Config = {
           700: "#55623d",
           800: "#3f4a2d",
           900: "#2c331f"
+        },
+        trust: {
+          DEFAULT: "var(--color-trust)",
+          light: "var(--color-trust-light)",
+          muted: "var(--color-trust-muted)",
         }
       }
     }

@@ -78,12 +78,13 @@ export default function SupportPage() {
     ];
 
     return (
-        <div className="max-w-3xl space-y-10">
+        <div className="space-y-10">
             {/* Header */}
-            <div>
-                <h1 className="text-3xl font-bold text-slate-900">Support Guide</h1>
-                <p className="mt-2 text-sm text-slate-600 leading-relaxed">
-                    Educational, general guidance. Forms, fees, and policies change often—always confirm on USCIS.gov before filing.
+            <div className="mb-6">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">My Case</p>
+                <h1 className="text-2xl font-bold text-slate-900">Support Guide</h1>
+                <p className="mt-1 text-sm text-slate-600 truncate">
+                    Educational, general guidance. Always confirm on USCIS.gov before filing.
                 </p>
             </div>
 

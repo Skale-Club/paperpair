@@ -13,7 +13,7 @@ const openApiSpec = {
       description: "Production server"
     },
     {
-      url: "http://localhost:3000",
+      url: "http://localhost:6778",
       description: "Local development server"
     }
   ],

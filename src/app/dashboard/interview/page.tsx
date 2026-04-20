@@ -11,11 +11,14 @@ export default async function InterviewPrepPage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8">
-      <h1 className="text-2xl font-bold text-slate-900 mb-1">Interview Preparation</h1>
-      <p className="text-sm text-slate-500 mb-8">
-        Review common questions, prepare for your interview day, and make sure you have everything ready.
-      </p>
+    <div>
+      <div className="mb-6">
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">My Case</p>
+        <h1 className="text-2xl font-bold text-slate-900">Interview Preparation</h1>
+        <p className="text-sm text-slate-600 truncate">
+          Review common questions, prepare for your interview day, and make sure you have everything ready.
+        </p>
+      </div>
       <InterviewClient userRole={context.userProfile.role} />
     </div>
   );

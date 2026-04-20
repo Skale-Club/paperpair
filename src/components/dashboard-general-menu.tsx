@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
@@ -22,6 +23,7 @@ export function DashboardGeneralMenu({ open, onClose }: DashboardGeneralMenuProp
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [profileFullName, setProfileFullName] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const supabase = createClient();
@@ -39,6 +41,7 @@ export function DashboardGeneralMenu({ open, onClose }: DashboardGeneralMenuProp
   useEffect(() => {
     if (!user) {
       setProfileFullName(null);
+      setAvatarUrl(null);
       return;
     }
 
@@ -53,6 +56,12 @@ export function DashboardGeneralMenu({ open, onClose }: DashboardGeneralMenuProp
           setProfileFullName(payload.fullName.trim());
         } else {
           setProfileFullName(null);
+        }
+
+        if (payload?.avatarUrl && typeof payload.avatarUrl === "string") {
+          setAvatarUrl(payload.avatarUrl);
+        } else {
+          setAvatarUrl(null);
         }
       })
       .catch(() => {
@@ -86,15 +95,11 @@ export function DashboardGeneralMenu({ open, onClose }: DashboardGeneralMenuProp
   const signedInMenuItems: MenuItem[] = user
     ? isAdmin
       ? [
-          { href: "/admin/dashboard", label: "Control Center" },
-          { href: "/admin/preferences", label: "Preferences" },
           { href: "/dashboard/profile", label: "Profile Settings" },
           { href: "/contact", label: "Contact us" },
           { label: "Log out", kind: "button", onClick: () => void handleLogout() }
         ]
       : [
-          { href: "/dashboard", label: "My Dashboard" },
-          { href: "/dashboard/control-center", label: "Control Center" },
           { href: "/dashboard/profile", label: "Profile Settings" },
           { href: "/contact", label: "Contact us" },
           { label: "Log out", kind: "button", onClick: () => void handleLogout() }
@@ -120,42 +125,32 @@ export function DashboardGeneralMenu({ open, onClose }: DashboardGeneralMenuProp
           aria-modal="true"
           aria-label="User menu"
         >
-          <div className="bg-slate-950 px-6 py-6 text-white">
+          <div className="px-6 py-6 text-white" style={{ background: "#2c3826" }}>
             <div className="flex items-start justify-between gap-3">
               <div className="flex-1 text-center">
-                <div className="relative mx-auto flex h-20 w-20 items-center justify-center rounded-full border border-slate-700 bg-slate-900">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-11 w-11 text-slate-300" viewBox="0 0 24 24" fill="currentColor">
-                    <path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z" clipRule="evenodd" />
-                  </svg>
-                  <span className="absolute bottom-1 right-1 flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500 text-slate-950 shadow-md">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M12 5v14" />
-                      <path d="M5 12h14" />
+                <div className="relative mx-auto flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border bg-slate-900" style={{ borderColor: "rgba(255,255,255,0.12)" }}>
+                  {avatarUrl ? (
+                    <Image src={avatarUrl} alt="Avatar" width={80} height={80} className="h-full w-full object-cover" />
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-11 w-11 text-slate-300" viewBox="0 0 24 24" fill="currentColor">
+                      <path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z" clipRule="evenodd" />
                     </svg>
-                  </span>
+                  )}
+
                 </div>
                 <p className="mt-4 text-xl font-semibold">{userName}</p>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (user) {
-                      void handleLogout();
-                    } else {
-                      onClose();
-                      router.push("/login");
-                    }
-                  }}
-                  aria-label={user ? "Sign out of your account" : "Sign in to your account"}
-                  className="mt-1 w-full truncate text-center text-sm text-slate-400 underline-offset-4 hover:text-slate-200 hover:underline"
-                >
-                  {user ? "Sign out" : "Sign in to access your dashboard"}
-                </button>
+                {user?.email && (
+                  <p className="mt-0.5 truncate text-sm" style={{ color: "var(--color-trust-muted)" }}>
+                    {user.email}
+                  </p>
+                )}
               </div>
 
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-full border border-slate-700 p-2 text-slate-300 transition-colors hover:border-slate-500 hover:text-white"
+                className="rounded-full p-2 text-slate-300 transition-colors hover:text-white"
+                style={{ border: "1px solid rgba(255,255,255,0.15)" }}
                 aria-label="Close menu"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

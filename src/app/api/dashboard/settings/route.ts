@@ -25,7 +25,7 @@ export async function GET() {
 
   return NextResponse.json({
     googleApiKey: googleApiKey ? "AIza...hidden" : null,
-    requireBiometricsForSensitiveDocs: profile?.requireBiometricsForSensitiveDocs ?? true
+    requireBiometricsForSensitiveDocs: profile?.requireBiometricsForSensitiveDocs ?? false
   });
 }
 

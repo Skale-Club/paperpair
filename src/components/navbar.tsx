@@ -103,15 +103,12 @@ export function Navbar() {
   const signedInMenuItems: MenuItem[] = user
     ? isAdmin
       ? [
-        { href: "/admin/dashboard", label: "Control Center" },
-        { href: "/admin/preferences", label: "Preferences" },
         { href: "/dashboard/profile", label: "Profile Settings" },
         { href: "/contact", label: "Contact us" },
         { label: "Log out", kind: "button", onClick: () => void handleLogout() }
       ]
       : [
         { href: "/dashboard", label: "My Dashboard" },
-        { href: "/dashboard/control-center", label: "Control Center" },
         { href: "/dashboard/profile", label: "Profile Settings" },
         { href: "/contact", label: "Contact us" },
         { label: "Log out", kind: "button", onClick: () => void handleLogout() }
@@ -123,7 +120,7 @@ export function Navbar() {
       { href: "/contact", label: "Contact" }
     ];
 
-  if (pathname.startsWith("/admin")) {
+  if (pathname.startsWith("/admin") || pathname.startsWith("/dashboard")) {
     return null;
   }
 

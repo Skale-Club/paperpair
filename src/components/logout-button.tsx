@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { ButtonHTMLAttributes } from "react";
 
-export function LogoutButton({ className = "", ...props }: ButtonHTMLAttributes<HTMLButtonElement>) {
+export function LogoutButton({ className = "", children, ...props }: ButtonHTMLAttributes<HTMLButtonElement>) {
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -17,10 +17,10 @@ export function LogoutButton({ className = "", ...props }: ButtonHTMLAttributes<
   return (
     <button
       onClick={handleLogout}
-      className={`inline-flex rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 ${className}`}
+      className={`transition-colors focus:outline-none ${className}`}
       {...props}
     >
-      Sair
+      {children || "Logout"}
     </button>
   );
 }

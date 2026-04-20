@@ -72,10 +72,10 @@ export function AdminCmsEditor({ initialPages }: { initialPages: EditablePage[] 
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-[220px_1fr]">
-      <aside className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-        <h2 className="mb-2 text-sm font-semibold uppercase tracking-[0.1em] text-slate-500">Pages</h2>
-        <ul className="space-y-2">
+    <div className="grid gap-6 md:grid-cols-[260px_1fr]">
+      <aside className="rounded-2xl border border-trust-muted/20 bg-trust-muted/5 p-4 self-start">
+        <h2 className="mb-4 text-[10px] font-bold uppercase tracking-[0.2em] text-trust-muted/80 px-2">Site Sections</h2>
+        <ul className="space-y-1.5">
           {pages.map((page) => {
             const isActive = page.slug === activeSlug;
             return (
@@ -86,14 +86,16 @@ export function AdminCmsEditor({ initialPages }: { initialPages: EditablePage[] 
                     setActiveSlug(page.slug);
                     setStatus("");
                   }}
-                  className={`w-full rounded-lg border px-3 py-2 text-left transition ${
+                  className={`w-full rounded-xl px-4 py-3 text-left transition-all group ${
                     isActive
-                      ? "border-black bg-zinc-100 text-slate-900"
-                      : "border-slate-200 bg-white text-slate-700 hover:border-slate-300"
+                      ? "bg-white shadow-sm ring-1 ring-trust/20 text-trust shadow-trust/5"
+                      : "text-slate-500 hover:bg-trust/5 hover:text-slate-700"
                   }`}
                 >
-                  <p className="text-sm font-semibold">{getPublicLabel(page.slug)}</p>
-                  <p className="text-xs text-slate-500">{getPublicRoute(page.slug)}</p>
+                  <p className="text-sm font-bold">{getPublicLabel(page.slug)}</p>
+                  <p className={`text-[10px] font-medium transition-colors ${isActive ? "text-trust/60" : "text-slate-400"}`}>
+                    {getPublicRoute(page.slug)}
+                  </p>
                 </button>
               </li>
             );
@@ -101,76 +103,95 @@ export function AdminCmsEditor({ initialPages }: { initialPages: EditablePage[] 
         </ul>
       </aside>
 
-      <div className="rounded-xl border border-slate-200 bg-white p-4">
-        <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h3 className="text-lg font-semibold text-slate-900">{getPublicLabel(activePage.slug)}</h3>
-            <p className="text-xs text-slate-500">
-              Draft changes render in the preview immediately. Publish to push them live.
+      <div className="rounded-2xl border border-trust-muted/20 bg-white p-6 shadow-sm ring-1 ring-black/[0.01]">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-trust-muted/10 pb-6">
+          <div className="space-y-1">
+            <h3 className="text-xl font-bold text-slate-900">{getPublicLabel(activePage.slug)}</h3>
+            <p className="text-sm text-slate-500 font-medium">
+              Real-time draft editing for public-facing copy.
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-3">
             {isDirty ? (
-              <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">
-                Draft changes
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-700 ring-1 ring-amber-200/50">
+                <div className="h-1 w-1 rounded-full bg-amber-600 animate-pulse"></div>
+                Unpublished Changes
               </span>
             ) : (
-              <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
-                Published
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-700 ring-1 ring-emerald-200/50">
+                <div className="h-1 w-1 rounded-full bg-emerald-600"></div>
+                Synced Live
               </span>
             )}
 
             <Link
               href={getPublicRoute(activePage.slug)}
-              className="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+              className="rounded-xl border border-trust-muted/40 bg-white px-4 py-2 text-xs font-bold text-trust hover:bg-trust/5 transition-all"
               target="_blank"
               rel="noopener noreferrer"
             >
-              Open page
+              Preview Live
             </Link>
 
-            {isDirty ? (
-              <Button type="button" onClick={publishPage} disabled={saving}>
-                {saving ? "Publishing..." : "Publish"}
+            {isDirty && (
+              <Button 
+                type="button" 
+                onClick={publishPage} 
+                disabled={saving}
+                className="rounded-xl bg-trust px-5 py-2 font-bold text-white hover:opacity-90 shadow-md shadow-trust/10 transition-all"
+              >
+                {saving ? "Publishing..." : "Publish Changes"}
               </Button>
-            ) : null}
+            )}
           </div>
         </div>
 
-        <div className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
-          <div className="space-y-3">
-            <Input
-              value={activePage.title}
-              onChange={(e) => updateField("title", e.target.value)}
-              placeholder="Page title"
-            />
-            <Textarea
-              value={activePage.content}
-              onChange={(e) => updateField("content", e.target.value)}
-              rows={10}
-              placeholder="Page content"
-            />
-            {status ? <p className="text-sm text-slate-600">{status}</p> : null}
+        <div className="grid gap-6 xl:grid-cols-[1fr_0.8fr]">
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-bold uppercase tracking-widest text-slate-400 ml-1">Meta Title</label>
+              <Input
+                value={activePage.title}
+                onChange={(e) => updateField("title", e.target.value)}
+                placeholder="Page title"
+                className="rounded-xl border-trust-muted/30 focus:border-trust ring-trust/5"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-bold uppercase tracking-widest text-slate-400 ml-1">Copy Content (Markdown supported)</label>
+              <Textarea
+                value={activePage.content}
+                onChange={(e) => updateField("content", e.target.value)}
+                rows={12}
+                placeholder="Page content"
+                className="rounded-xl border-trust-muted/30 focus:border-trust ring-trust/5 leading-relaxed text-sm"
+              />
+            </div>
+            {status ? (
+              <p className="rounded-lg bg-trust-muted/10 px-3 py-2 text-xs font-bold text-trust animate-in fade-in slide-in-from-top-1">
+                {status}
+              </p>
+            ) : null}
           </div>
 
-          <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-            <div className="flex items-center justify-between gap-3">
+          <section className="rounded-2xl border border-trust-muted/10 bg-trust-muted/5 p-4 flex flex-col">
+            <div className="mb-4 flex items-center justify-between gap-3">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Live Preview</p>
-                <p className="text-xs text-slate-500">Updates while you type.</p>
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-trust-muted">Viewport Preview</p>
               </div>
-              <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs text-slate-600">
+              <span className="rounded-lg bg-white px-3 py-1.5 text-[10px] font-bold text-slate-400 ring-1 ring-black/[0.03] shadow-sm">
                 {getPublicRoute(activePage.slug)}
               </span>
             </div>
 
-            <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
+            <div className="flex-1 rounded-2xl border border-trust-muted/10 bg-white p-6 shadow-sm ring-1 ring-black/[0.02]">
+              <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-trust/40">
                 {getPublicLabel(activePage.slug)}
               </p>
-              <h4 className="mt-2 text-2xl font-semibold text-slate-900">{activePage.title}</h4>
-              <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-slate-600">
+              <h4 className="mt-2 text-2xl font-bold text-slate-900 leading-tight">{activePage.title}</h4>
+              <div className="mt-4 h-px w-12 bg-trust/20"></div>
+              <p className="mt-5 whitespace-pre-wrap text-sm leading-8 text-slate-600 font-medium italic">
                 {activePage.content}
               </p>
             </div>

@@ -1,6 +1,8 @@
+import { Suspense } from "react";
 import { DASHBOARD_STEPS } from "@/lib/dashboard-steps";
 import { AdminUsersTable, type UiUser, type DerivedStatus } from "@/components/admin-users-table";
 import { getAdminUsersWithCaseSteps } from "@/lib/admin-data";
+import { TableSkeleton } from "@/components/admin-skeletons";
 
 function deriveStatus(caseSteps: { stepSlug: string; status: string }[]): DerivedStatus {
   const total = DASHBOARD_STEPS.length;
@@ -23,7 +25,7 @@ function lastActivityAt(
   return latestStep;
 }
 
-export default async function AdminUsersPage() {
+async function UsersList() {
   const users = await getAdminUsersWithCaseSteps();
 
   const uiUsers: UiUser[] = users.map((user) => {
@@ -46,15 +48,21 @@ export default async function AdminUsersPage() {
     };
   });
 
+  return <AdminUsersTable users={uiUsers} />;
+}
+
+export default async function AdminUsersPage() {
   return (
-    <section className="space-y-5">
+    <section className="space-y-6">
       <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-sand-500">Admin</p>
-        <h1 className="text-2xl font-bold text-sand-900">Users</h1>
-        <p className="text-sm text-sand-600">Search, filter, and drill into any couple.</p>
+        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-trust">Admin</p>
+        <h1 className="text-2xl font-bold text-slate-900">Users</h1>
+        <p className="text-sm text-slate-500 font-medium">Search, filter, and drill into any couple.</p>
       </div>
 
-      <AdminUsersTable users={uiUsers} />
+      <Suspense fallback={<TableSkeleton />}>
+        <UsersList />
+      </Suspense>
     </section>
   );
 }

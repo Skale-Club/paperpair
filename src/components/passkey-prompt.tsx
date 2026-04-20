@@ -83,38 +83,38 @@ export function PasskeyPrompt() {
   if (!visible) return null;
 
   return (
-    <div className="mb-6 rounded-2xl border border-emerald-200/70 bg-emerald-50/70 p-4 shadow-sm">
+    <div className="mb-6 w-full rounded-2xl border border-olive-200/60 bg-olive-50/70 p-4 shadow-sm">
       <div className="flex items-start gap-3">
-        <div className="mt-0.5 rounded-full bg-emerald-600/90 px-2 py-1 text-xs font-semibold text-white">
+        <div className="mt-0.5 rounded-full bg-olive-600 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
           New
         </div>
         <div className="flex-1">
-          <p className="text-sm font-semibold text-foreground">
+          <p className="text-sm font-bold text-slate-900">
             Add Face ID / Touch ID / Windows Hello
           </p>
-          <p className="text-sm text-foreground/70">
+          <p className="text-sm text-slate-600">
             Secure your account with a passkey on this device. You can still use Google, Microsoft, or password anytime.
           </p>
           {message && (
             <p
-              className={`mt-2 text-sm ${
-                status === "success" ? "text-emerald-700" : "text-red-700"
+              className={`mt-2 text-sm font-medium ${
+                status === "success" ? "text-olive-700" : "text-red-700"
               }`}
             >
               {message}
             </p>
           )}
-          <div className="mt-3 flex gap-2">
+          <div className="mt-4 flex gap-2">
             <button
               onClick={handleEnroll}
               disabled={status === "loading"}
-              className="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60"
+              className="rounded-lg bg-olive-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-olive-700 disabled:opacity-60"
             >
               {status === "loading" ? "Setting up..." : "Enable passkey"}
             </button>
             <button
               onClick={() => hide(true)}
-              className="rounded-lg border border-sand-300 px-3 py-2 text-sm font-medium text-foreground/80 hover:bg-sand-50"
+              className="rounded-lg border border-olive-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 hover:bg-olive-50 transition-colors"
             >
               Maybe later
             </button>

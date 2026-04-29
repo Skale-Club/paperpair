@@ -15,6 +15,8 @@ model PageContent {
   content   String
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
+
+  @@map("page_contents")
 }
 
 model DocumentTemplate {
@@ -24,6 +26,8 @@ model DocumentTemplate {
   filePath  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("document_templates")
 }
 
 enum Role {
@@ -59,18 +63,8 @@ model UserProfile {
   spouseInvites SpouseInvite[]
   chatSession   ChatSession?
   documents     Document[]
-}
 
-// Platform-level AI provider keys (admin only)
-model AiProviderKey {
-  id           String   @id @default(cuid())
-  provider     String   // "google", "openai", "openrouter"
-  encryptedKey String
-  isActive     Boolean  @default(true)
-  updatedAt    DateTime @updatedAt
-  createdAt    DateTime @default(now())
-
-  @@unique([provider])
+  @@map("user_profiles")
 }
 
 model SpouseInvite {
@@ -83,6 +77,8 @@ model SpouseInvite {
   expiresAt     DateTime
 
   primaryUser UserProfile @relation(fields: [primaryUserId], references: [id], onDelete: Cascade)
+
+  @@map("spouse_invites")
 }
 
 model CaseStep {
@@ -100,6 +96,7 @@ model CaseStep {
   userProfile UserProfile @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
 
   @@unique([userProfileId, stepSlug])
+  @@map("case_steps")
 }
 
 model ChatSession {
@@ -110,6 +107,8 @@ model ChatSession {
   messages      ChatMessage[]
 
   userProfile   UserProfile   @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
+
+  @@map("chat_sessions")
 }
 
 model ChatMessage {
@@ -120,6 +119,8 @@ model ChatMessage {
   createdAt DateTime    @default(now())
 
   session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@map("chat_messages")
 }
 
 model Document {
@@ -134,4 +135,6 @@ model Document {
   updatedAt     DateTime    @updatedAt
 
   userProfile   UserProfile @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
+
+  @@map("documents")
 }

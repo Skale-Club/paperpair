@@ -2,10 +2,11 @@ name: supabase-keepalive
 
 on:
   schedule:
-    # Runs Monday and Thursday at 08:00 UTC — always within 7 days, keeps Supabase free tier active
+    # Mon / Wed / Fri at 08:00 UTC — max gap = 3 days, well within Supabase's 7-day pause window
     - cron: "0 8 * * 1"
-    - cron: "0 8 * * 4"
-  workflow_dispatch: # allow manual trigger from GitHub UI
+    - cron: "0 8 * * 3"
+    - cron: "0 8 * * 5"
+  workflow_dispatch:
 
 jobs:
   keepalive:
@@ -14,45 +15,49 @@ jobs:
     timeout-minutes: 5
 
     steps:
-      - name: Ping keepalive endpoint (with retries)
+      # Primary: hit Supabase APIs directly so the activity is registered even if Vercel is down
+      - name: Ping Supabase REST + Auth
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          FAILED=0
+
+          for ENDPOINT in \
+            "${SUPABASE_URL}/rest/v1/" \
+            "${SUPABASE_URL}/auth/v1/settings"; do
+
+            HTTP=$(curl --silent --max-time 20 --write-out "%{http_code}" \
+              -o /dev/null \
+              -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" \
+              -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
+              "$ENDPOINT")
+
+            echo "$ENDPOINT → HTTP $HTTP"
+
+            if [ "$HTTP" != "200" ]; then
+              echo "::error::Supabase returned HTTP $HTTP for $ENDPOINT — project may be paused or credentials are wrong."
+              FAILED=1
+            fi
+          done
+
+          exit $FAILED
+
+      # Secondary: full app health check through Vercel (non-blocking — Vercel issues shouldn't break keepalive)
+      - name: Ping Vercel app health check
+        continue-on-error: true
         env:
           KEEPALIVE_URL: ${{ secrets.KEEPALIVE_URL }}
           KEEPALIVE_SECRET: ${{ secrets.KEEPALIVE_SECRET }}
         run: |
-          MAX_RETRIES=3
-          DELAY=30
-          ATTEMPT=0
-
-          until [ $ATTEMPT -ge $MAX_RETRIES ]; do
-            ATTEMPT=$((ATTEMPT + 1))
-            echo "Attempt $ATTEMPT / $MAX_RETRIES..."
-
-            RESPONSE=$(curl --silent --max-time 20 --write-out "\n%{http_code}" \
-              -H "Authorization: Bearer $KEEPALIVE_SECRET" \
-              "$KEEPALIVE_URL/api/keepalive")
-
-            HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
-            BODY=$(echo "$RESPONSE" | sed '$d')
-
-            echo "HTTP $HTTP_CODE"
-            echo "$BODY" | python3 -m json.tool 2>/dev/null || echo "$BODY"
-
-            if [ "$HTTP_CODE" = "200" ]; then
-              echo "All checks passed."
-              exit 0
-            fi
-
-            if [ $ATTEMPT -lt $MAX_RETRIES ]; then
-              echo "Check failed. Retrying in ${DELAY}s..."
-              sleep $DELAY
-              DELAY=$((DELAY * 2))
-            fi
-          done
-
-          echo "All $MAX_RETRIES attempts failed. Supabase may be down or paused."
-          exit 1
+          HTTP=$(curl --silent --max-time 20 --write-out "%{http_code}" \
+            -o /dev/null \
+            -H "Authorization: Bearer $KEEPALIVE_SECRET" \
+            "$KEEPALIVE_URL/api/keepalive")
+          echo "Vercel app → HTTP $HTTP"
+          [ "$HTTP" = "200" ] && echo "Full app healthy." || echo "::warning::Vercel health check returned HTTP $HTTP — investigate separately."
 
       - name: Notify on failure
         if: failure()
         run: |
-          echo "::error::Keepalive failed after all retries. Check https://status.supabase.com and the app logs."
+          echo "::error::Supabase keepalive failed. Resume at https://supabase.com/dashboard and check https://status.supabase.com"
